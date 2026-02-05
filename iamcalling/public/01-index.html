@@ -429,11 +429,10 @@
                 
                 console.log('🔍 Attempting to load posts...');
                 
-                // Try direct Supabase query first
+                // Try direct Supabase query first (removed published filter to match test page)
                 const { data: posts, error } = await window.supabaseClient
                     .from('posts')
                     .select('id,title,author_name,created_at,challenge_post_id,content,views_count,thumbnail_url,published')
-                    .eq('published', true)
                     .order('id', { ascending: false })
                     .limit(3);
                 
