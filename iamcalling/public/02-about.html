@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Test Navigation Script -->
+    <script src="test-navigation.js"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - IAMCALLING</title>
+    <meta name="description" content="Learn about IAMCALLING, a platform for diverse perspectives, ideology analysis, and rewarding discussions.">
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #0a3d0a;
+            --secondary-color: #1a1a1a;
+            --accent-color: #8b4513;
+            --text-light: #f8f8f8;
+            --gold: #d4af37;
+            --silver: #c0c0c0;
+            --gradient: linear-gradient(135deg, rgba(10,61,10,1) 0%, rgba(26,26,26,1) 100%);
+            --primary-dark: #0a1f0a;
+            --secondary-dark: #1a3a1a;
+            --accent-green: #2d5a2d;
+            --accent-red: #4a1010;
+            --white: #ffffff;
+            --milky: #f8f8f8;
+            --dark-brown: #3e2723;
+            --text-dark: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--milky) 0%, #e0e0e0 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        
+        
+        header.admin-theme {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+            box-shadow: 0 2px 10px rgba(30, 58, 138, 0.4);
+        }
+        
+        
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .mobile-menu-btn:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-decoration: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        .main-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--gold);
+        }
+        
+        .auth-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, var(--primary-color), #0d4f0d);
+            color: var(--text-light);
+            border-color: var(--primary-color);
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #0d4f0d, var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 61, 10, 0.3);
+            color: var(--text-light);
+        }
+        
+        .register-btn {
+            background: linear-gradient(135deg, var(--gold), #f0c040);
+            color: #000;
+            border-color: var(--gold);
+        }
+        
+        .register-btn:hover {
+            background: linear-gradient(135deg, #f0c040, var(--gold));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            color: #000;
+        }
+        
+        /* Simple Profile Link Styles */
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.3s;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+        
+        .profile-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        .profile-photo {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            object-fit: cover;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--secondary-dark) 0%, var(--accent-green) 100%);
+            color: var(--text-light);
+            padding: 60px 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+
+        .section {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2rem;
+            color: var(--primary-dark);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-green), var(--gold));
+            margin: 15px auto 0;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .about-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .about-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .about-card i {
+            font-size: 2.5rem;
+            color: var(--accent-green);
+            margin-bottom: 20px;
+        }
+
+        .about-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+
+        .about-card p {
+            color: var(--text-dark);
+        }
+
+        .values {
+            background: linear-gradient(135deg, var(--milky) 0%, #e8e8e8 100%);
+            padding: 60px 0;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .value-item {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .value-item i {
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 15px;
+        }
+
+        .value-item h4 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+        }
+
+
+
+        footer {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            padding: 40px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--gold);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--gold);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-light);
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--gold) 100%);
+            color: var(--white);
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .main-menu {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--gradient);
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 999;
+                backdrop-filter: blur(15px);
+            }
+            
+            .main-menu.active {
+                display: flex;
+            }
+            
+            .main-menu li {
+                margin: 0.5rem 0;
+            }
+            
+            .main-menu li a {
+                display: block;
+                padding: 0.75rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .auth-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-width: 80px;
+            }
+            
+            .profile-link span {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    
+
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>About IAMCALLING</h1>
+            <p>A platform for diverse perspectives, ideology analysis, and rewarding discussions that brings clarity to your beliefs.</p>
+            <a href="09-ideology-analyzer.html" class="cta-button">Take Ideology Test</a>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Our Mission</h2>
+            <div class="about-grid">
+                <div class="about-card">
+                    <i class="fas fa-newspaper"></i>
+                    <h3>Diverse Perspectives</h3>
+                    <p>We provide a platform where people from all ideological backgrounds can share their views through articles and comments, fostering a rich exchange of ideas.</p>
+                </div>
+                <div class="about-card">
+                    <i class="fas fa-brain"></i>
+                    <h3>Ideology Analysis</h3>
+                    <p>Our innovative ideology analyzer tool helps users understand their political leanings through an interactive and engaging process.</p>
+                </div>
+                <div class="about-card">
+                    <i class="fas fa-trophy"></i>
+                    <h3>Rewarding Discussions</h3>
+                    <p>We incentivize thoughtful participation by rewarding users who can provide well-reasoned arguments that challenge our analysis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="values">
+        <div class="container">
+            <h2 class="section-title">Our Values</h2>
+            <div class="values-grid">
+                <div class="value-item">
+                    <i class="fas fa-balance-scale"></i>
+                    <h4>Balanced Perspectives</h4>
+                    <p>We strive to present all sides of an issue without bias.</p>
+                </div>
+                <div class="value-item">
+                    <i class="fas fa-users"></i>
+                    <h4>Community Driven</h4>
+                    <p>Our content is shaped by our diverse user community.</p>
+                </div>
+                <div class="value-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <h4>Intellectual Honesty</h4>
+                    <p>We value truth and reasoned argument over ideological purity.</p>
+                </div>
+                <div class="value-item">
+                    <i class="fas fa-handshake"></i>
+                    <h4>Respectful Discourse</h4>
+                    <p>We promote civil discussion even when views differ.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>IAMCALLING</h3>
+                    <p>A platform for diverse perspectives and ideology analysis.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="01-index.html">Home</a></li>
+                        <li><a href="02-about.html">About Us</a></li>
+                        <li><a href="04-categories.html">Categories</a></li>
+                        <li><a href="09-ideology-analyzer.html">Ideology Test</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="36-terms-conditions.html">Terms & Conditions</a></li>
+                        <li><a href="37-privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="38-article-guidelines.html">Article Guidelines</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> kalepradip2003@outlook.com</li>
+                        <li><i class="fas fa-phone"></i> +91 9021424270</li>
+                        <li><i class="fas fa-map-marker-alt"></i> KT Patil Collage of Computer Science, Dharashiv 413501</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2026 IAMCALLING. All rights reserved.</p>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="39-admin-login.html" style="color: var(--text-dark); text-decoration: underline; cursor: pointer;">Login as Admin</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Function to update authentication links based on login status
+        function updateAuthLinks() {
+            const authLinks = document.getElementById('auth-links');
+            if (!authLinks) return;
+            
+            // Check authentication status
+            const authToken = localStorage.getItem('userToken') || localStorage.getItem('authToken') || localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('user_data') || localStorage.getItem('currentUser');
+            
+            if (authToken || userData) {
+                // User is logged in
+                try {
+                    const userInfo = userData ? JSON.parse(userData) : {};
+                    const userName = userInfo?.first_name || userInfo?.name || userInfo?.full_name || 'User';
+                    authLinks.innerHTML = `
+                        <li><a href="18-profile.html" style="color: #d4af37; font-weight: 600;">${userName}</a></li>
+                        <li><a href="#" onclick="logoutUser(); return false;">Logout</a></li>
+                    `;
+                } catch (e) {
+                    authLinks.innerHTML = `
+                        <li><a href="18-profile.html" style="color: #d4af37; font-weight: 600;">Profile</a></li>
+                        <li><a href="#" onclick="logoutUser(); return false;">Logout</a></li>
+                    `;
+                }
+            } else {
+                // User is not logged in
+                authLinks.innerHTML = `
+                    <li><a href="15-login.html">Login</a></li>
+                    <li><a href="16-register.html">Register</a></li>
+                `;
+            }
+        }
+        
+        // Function to handle user logout
+        function logoutUser() {
+            // Clear all authentication tokens
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('user_data');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('loginTimestamp');
+            
+            // Clear sessionStorage
+            sessionStorage.removeItem('userSession');
+            sessionStorage.removeItem('currentUser');
+            
+            // Update UI
+            updateAuthLinks();
+            
+            // Redirect to home page
+            window.location.href = '01-index.html';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAuthLinks();
+            window.addEventListener('authStatusChanged', updateAuthLinks);
+            
+            // Mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainMenu = document.getElementById('mainMenu');
+            if (mobileMenuBtn && mainMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mainMenu.classList.toggle('active');
+                });
+            }
+        });
+        
+        // Authentication management
+        
+                } catch (e) {}
+            }
+            
+            if (!isAuthenticated && userDataStr) {
+                try {
+                    userData = JSON.parse(userDataStr);
+                    if (userData && (userData.name || userData.full_name || userData.email)) {
+                        isAuthenticated = true;
+                    }
+                } catch (e) {}
+            }
+            
+            if (!isAuthenticated && iamcallingUser) {
+                try {
+                    userData = JSON.parse(iamcallingUser);
+                    if (userData && (userData.full_name || userData.email)) {
+                        isAuthenticated = true;
+                    }
+                } catch (e) {}
+            }
+            
+            if (isAuthenticated && userData) {
+                const userName = userData.name || userData.full_name || userData.firstName + ' ' + (userData.lastName || '') || 'User';
+                const userPhoto = userData.photo || userData.profile_photo || userData.profilePhoto;
+                const seed = (userName || 'user').toString().trim().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                const photoUrl = userPhoto || `https://i.pravatar.cc/150?u=${seed}`;
+                const displayName = userName.trim() || 'User';
+                
+                authLinks.innerHTML = `
+                    <li>
+                        <a href="18-profile.html" class="profile-link">
+                            <img src="${photoUrl}" alt="Profile" class="profile-photo">
+                            <span style="color: #d4af37; font-weight: 600;">${displayName}</span>
+                        </a>
+                    </li>
+                `;
+            } else {
+                authLinks.innerHTML = `
+                    <li><a href="15-login.html" class="auth-btn login-btn">Login</a></li>
+                    <li><a href="16-register.html" class="auth-btn register-btn">Register</a></li>
+                `;
+            }
+        }
+    </script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth-utils.js"></script>
+
+    <script src="js/02-about.js"></script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Test Navigation Script -->
+    <script src="test-navigation.js"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claim Reward - IAMCALLING</title>
+    <meta name="description" content="Claim your rewards for challenging the ideology analyzer on IAMCALLING.">
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #0a1f0a;
+            --secondary-dark: #1a3a1a;
+            --accent-green: #2d5a2d;
+            --accent-red: #4a1010;
+            --gold: #d4af37;
+            --silver: #c0c0c0;
+            --white: #ffffff;
+            --milky: #f8f8f8;
+            --dark-brown: #3e2723;
+            --text-dark: #333333;
+            --text-light: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--milky) 0%, #e0e0e0 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+
+        .reward-container {
+            flex: 1;
+            padding: 40px 0;
+        }
+
+        .reward-
+
+        .reward-title {
+            font-size: 2.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+
+        .reward-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .challenge-info {
+            background: linear-gradient(135deg, #2e7d32, #4caf50);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .challenge-info h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .challenge-info p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .reward-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .reward-info {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .reward-badge {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .badge-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--white);
+            margin-right: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .badge-info h3 {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+        }
+
+        .badge-info p {
+            color: var(--text-dark);
+        }
+
+        .reward-details {
+            margin-bottom: 30px;
+        }
+
+        .reward-details h3 {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .reward-details h3 i {
+            margin-right: 10px;
+            color: var(--accent-green);
+        }
+
+        .reward-details p {
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .reward-steps {
+            counter-reset: step-counter;
+            list-style: none;
+        }
+
+        .reward-steps li {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 20px;
+            counter-increment: step-counter;
+        }
+
+        .reward-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: var(--accent-green);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .reward-form {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .form-
+
+        .form-header h3 {
+            font-size: 1.5rem;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: var(--text-dark);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--text-dark);
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(45, 90, 45, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+            color: var(--white);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .terms-checkbox {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .terms-checkbox input {
+            margin-right: 10px;
+            margin-top: 5px;
+        }
+
+        .terms-checkbox label {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .terms-checkbox a {
+            color: var(--accent-green);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .terms-checkbox a:hover {
+            color: var(--primary-dark);
+        }
+
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--accent-green);
+            color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--accent-red);
+        }
+
+        .faq-section {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 40px;
+        }
+
+        .faq-title {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .faq-question {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+
+        .faq-question i {
+            transition: transform 0.3s;
+            color: var(--accent-green);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 20px;
+            color: var(--text-dark);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding: 0 20px 20px;
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        footer {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--gold);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--gold);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-light);
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--secondary-dark);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                transform: translateY(-150%);
+                transition: transform 0.3s;
+                z-index: 99;
+            }
+
+            nav ul.active {
+                transform: translateY(0);
+            }
+
+            nav ul li {
+                margin: 10px 0;
+            }
+
+            .reward-title {
+                font-size: 2rem;
+            }
+
+            .reward-content {
+                grid-template-columns: 1fr;
+            }
+
+            .reward-badge {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .badge-icon {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="reward-container">
+        <div class="container">
+            <div class="reward-header">
+                <h1 class="reward-title">Claim Your Reward</h1>
+                <p class="reward-subtitle">Prove our ideology analyzer wrong and earn ₹100 for your well-reasoned argument</p>
+            </div>
+
+            <div class="challenge-info">
+                <h2>💰 Counter Article Challenge - Revenue Model</h2>
+                <p><strong>No money required from your side!</strong> If you win the challenge, the platform will pay you ₹100. You can use ChatGPT and other AI tools as well.</p>
+            </div>
+
+            <div class="reward-content">
+                <div class="reward-info">
+                    <div class="reward-badge">
+                        <div class="badge-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="badge-info">
+                            <h3>₹100 Reward</h3>
+                            <p>For challenging the ideology analyzer</p>
+                        </div>
+                    </div>
+
+                    <div class="reward-details">
+                        <h3><i class="fas fa-info-circle"></i> How It Works</h3>
+                        <p>If you disagree with your ideology test results, you can write a well-reasoned article explaining why. Our editorial team will review your submission, and if we find your argument compelling, you'll receive ₹100!</p>
+                        
+                        <h3><i class="fas fa-list-ol"></i> Steps to Win ₹100</h3>
+                        <ol class="reward-steps">
+                            <li>Find an official platform post with ₹100 challenge badge</li>
+                            <li>Write a counter article proving the official post wrong</li>
+                            <li>Use ChatGPT, AI tools, research - whatever helps your argument</li>
+                            <li>Submit your well-reasoned counter article</li>
+                            <li>If our editorial team finds your argument compelling, win ₹100!</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="reward-form">
+                    <div class="form-header">
+                        <h3>Counter Article</h3>
+                        <p>Follow these steps to write a compelling counter article and earn ₹100</p>
+                    </div>
+
+                    <div class="reward-details">
+                        <h3><i class="fas fa-pen-alt"></i> How to Write Counter Article</h3>
+                        <ol class="reward-steps">
+                            <li>Read the official article carefully and thoroughly</li>
+                            <li>Find our wrong points and note them down systematically</li>
+                            <li>Write a detailed article to prove us wrong</li>
+                            <li>You can use artificial intelligence tools like ChatGPT as well</li>
+                            <li>Read your article carefully before submitting - you can only counter once per article</li>
+                            <li>Write a comprehensive article for better chances</li>
+                            <li>Your article will be published for global readers if it passes review</li>
+                        </ol>
+                        
+                        <div style="background: linear-gradient(135deg, #2e7d32, #4caf50); color: white; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center;">
+                            <p><strong>🏠 Enjoy your work from home with your hobby!</strong></p>
+                        </div>
+                        
+                        <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                            <p><strong>⚠️ Important:</strong> You must be registered to participate in the challenge. Registered users can write and submit articles from their dashboard.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-section">
+                <h2 class="faq-title">Frequently Asked Questions</h2>
+                <div class="faq-container">
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How long does the review process take?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>24 hours</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>What makes an article "compelling"?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Your strong stand on factual data consistency.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>How will I receive my reward?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Just publish your article within 24 hours our team will notify you on messenger that you won reward or why your article is rejected.</p>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <span>Can I submit multiple articles?</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Yes, You can, but its must to be use reference post id.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>IAMCALLING</h3>
+                    <p>A platform for diverse perspectives and ideology analysis.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="01-index.html">Home</a></li>
+                        <li><a href="02-about.html">About Us</a></li>
+                        <li><a href="04-categories.html">Categories</a></li>
+                        <li><a href="09-ideology-analyzer.html">Ideology Test</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="36-terms-conditions.html">Terms & Conditions</a></li>
+                        <li><a href="37-privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="38-article-guidelines.html">Article Guidelines</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> kalepradip2003@outlook.com</li>
+                        <li><i class="fas fa-phone"></i> </li> +91 9021424270
+                        <li><i class="fas fa-map-marker-alt"></i> KT Patil college of computer science, Dharashiv</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2026 IAMCALLING. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="notification" id="notification">Article submitted successfully! Our team will review it within 3-5 business days.</div>
+
+    <script src="js/universal-topbar-injector.js"></script>
+    <script>
+        // No authentication buttons needed on this page
+        
+        // Add FAQ toggle functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(function(question) {
+                question.addEventListener('click', function() {
+                    const faqItem = this.parentElement;
+                    faqItem.classList.toggle('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

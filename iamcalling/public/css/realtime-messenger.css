@@ -1,0 +1,51 @@
+/* Unread message badge */
+.unread-badge {
+    background: #00a884;
+    color: white;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+}
+
+.conversation-header {
+    position: relative;
+}
+
+/* Highlight active conversation */
+.conversation-item.active {
+    background: #2a3942;
+}
+
+/* New message indicator */
+.conversation-item.has-unread {
+    background: #111b21;
+    border-left: 3px solid #00a884;
+}
+
+.conversation-item.has-unread .last-message {
+    color: #00a884;
+    font-weight: 600;
+}
+
+/* Message status indicators */
+.message-status {
+    margin-left: 5px;
+    font-size: 12px;
+}
+
+.message-status.delivered {
+    color: #53bdeb;
+}
+
+.message-status.read {
+    color: #00a884;
+}

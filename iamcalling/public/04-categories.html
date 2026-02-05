@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Test Navigation Script -->
+    <script src="test-navigation.js"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore articles by category on IAMCALLING">
+    <meta name="keywords" content="categories, politics, economy, society, world, culture, technology">
+    <title>Categories - IAMCALLING</title>
+    
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #0a3d0a; /* Dark green */
+            --secondary-color: #1a1a1a; /* Dark black */
+            --accent-color: #8b4513; /* Dark brown */
+            --text-light: #f8f8f8; /* Milky white */
+            --gold: #d4af37; /* Gold */
+            --silver: #c0c0c0; /* Silver */
+            --gradient: linear-gradient(135deg, rgba(10,61,10,1) 0%, rgba(26,26,26,1) 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        
+        
+        header.admin-theme {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+            box-shadow: 0 2px 10px rgba(30, 58, 138, 0.4);
+        }
+        
+        
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .mobile-menu-btn:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-decoration: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        .main-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--gold);
+        }
+        
+        .auth-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, var(--primary-color), #0d4f0d);
+            color: var(--text-light);
+            border-color: var(--primary-color);
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #0d4f0d, var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 61, 10, 0.3);
+            color: var(--text-light);
+        }
+        
+        .register-btn {
+            background: linear-gradient(135deg, var(--gold), #f0c040);
+            color: #000;
+            border-color: var(--gold);
+        }
+        
+        .register-btn:hover {
+            background: linear-gradient(135deg, #f0c040, var(--gold));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            color: #000;
+        }
+        
+        /* Simple Profile Link Styles */
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.3s;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+        
+        .profile-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        .profile-photo {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            object-fit: cover;
+        }
+        
+        /* Page Header */
+        .page-
+        
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Categories Grid */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .category-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .category-content {
+            padding: 1.5rem;
+        }
+        
+        .category-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .category-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .category-description {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        
+        .category-stats {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        .category-stat {
+            display: flex;
+            align-items: center;
+        }
+        
+        .category-stat i {
+            margin-right: 0.3rem;
+            color: var(--primary-color);
+        }
+        
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+        }
+        
+        .filter-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-title i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .filter-option {
+            padding: 0.5rem 1rem;
+            background: #f0f0f0;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .filter-option:hover {
+            background: rgba(10, 61, 10, 0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .filter-option.active {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        /* Trending Section */
+        .trending-section {
+            margin: 3rem 0;
+        }
+        
+        .section-
+        
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+        }
+        
+        .view-all {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: color 0.3s;
+        }
+        
+        .view-all:hover {
+            color: var(--accent-color);
+        }
+        
+        .view-all i {
+            margin-left: 0.3rem;
+        }
+        
+        /* Trending Articles */
+        .trending-articles {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .trending-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .trending-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .trending-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .trending-content {
+            padding: 1rem;
+        }
+        
+        .trending-category {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .trending-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+            line-height: 1.3;
+        }
+        
+        .trending-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.8rem;
+        }
+        
+        .trending-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .trending-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.3rem;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .trending-articles {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-options {
+                justify-content: center;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .main-menu {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--gradient);
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 999;
+                backdrop-filter: blur(15px);
+            }
+            
+            .main-menu.active {
+                display: flex;
+            }
+            
+            .main-menu li {
+                margin: 0.5rem 0;
+            }
+            
+            .main-menu li a {
+                display: block;
+                padding: 0.75rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .auth-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-width: 80px;
+            }
+            
+            .profile-link span {
+                display: none;
+            }
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+    <script src="/config.js"></script>
+</head>
+<body>
+    
+    
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Explore by Category</h1>
+            <p class="page-subtitle">Discover articles that align with your interests and perspective</p>
+        </div>
+        
+        <div class="filter-section">
+            <h2 class="filter-title"><i class="fas fa-filter"></i> Filter by Category</h2>
+            <div class="filter-options">
+                <div class="filter-option active">All Categories</div>
+                <div class="filter-option">Innovation and Tech</div>
+                <div class="filter-option">Biology</div>
+                <div class="filter-option">Geography</div>
+                <div class="filter-option">History</div>
+                <div class="filter-option">Ethics & Morality</div>
+                <div class="filter-option">Justice</div>
+                <div class="filter-option">Religious Truth</div>
+                <div class="filter-option">Fact Check</div>
+                <div class="filter-option">Politics</div>
+            </div>
+        </div>
+        
+        <div class="trending-section" id="trendingSection" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Posts by Category</h2>
+            </div>
+            <div class="trending-articles" id="trendingArticles">
+                <!-- Posts will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let allPosts = [];
+        
+        function displayPosts(posts) {
+            const trendingArticles = document.getElementById('trendingArticles');
+            trendingArticles.innerHTML = posts.map(post => `
+                <div class="trending-card">
+                    <div class="trending-content">
+                        <span class="trending-category">${post.category || 'General'}</span>
+                        <h3 class="trending-title">${post.title}</h3>
+                        <div class="trending-meta">
+                            <div class="trending-author">
+                                <span>${post.author || post.author_name || 'Unknown'}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function filterByCategory(category) {
+            if (category === 'All Categories') {
+                displayPosts(allPosts);
+            } else {
+                const filtered = allPosts.filter(post => {
+                    const postCategory = post.category || 'General';
+                    return postCategory === category || 
+                           (category === 'Innovation and Tech' && postCategory === 'innovation-tech') ||
+                           (category === 'Ethics & Morality' && postCategory === 'ethics-morality') ||
+                           (category === 'Religious Truth' && postCategory === 'religious-truth') ||
+                           (category === 'Fact Check' && postCategory === 'fact-check');
+                });
+                displayPosts(filtered);
+            }
+        }
+        // Load real categories and articles from database
+        async function loadRealCategories() {
+            const trendingSection = document.getElementById('trendingSection');
+            const trendingArticles = document.getElementById('trendingArticles');
+            
+            try {
+                // Get all articles from both tables
+                const supabaseUrl = window.APP_CONFIG?.supabaseUrl || '';
+                const supabaseKey = window.APP_CONFIG?.supabaseAnonKey || '';
+                const [postsResponse, articlesResponse] = await Promise.all([
+                    fetch(`${supabaseUrl}/rest/v1/posts?select=*`, {
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`
+                        }
+                    }),
+                    fetch(`${supabaseUrl}/rest/v1/articles?select=*`, {
+                        headers: {
+                            'apikey': supabaseKey,
+                            'Authorization': `Bearer ${supabaseKey}`
+                        }
+                    })
+                ]);
+                
+                const posts = await postsResponse.json();
+                const articles = await articlesResponse.json();
+                const allContent = [...posts, ...articles];
+                
+                // Group by category
+                const categoryStats = {};
+                allContent.forEach(item => {
+                    const category = item.category || 'General';
+                    if (!categoryStats[category]) {
+                        categoryStats[category] = { count: 0, views: 0, articles: [] };
+                    }
+                    categoryStats[category].count++;
+                    categoryStats[category].views += item.views || 0;
+                    categoryStats[category].articles.push(item);
+                });
+                
+                // Category icons mapping
+                const categoryIcons = {
+                    'innovation-tech': 'fas fa-lightbulb',
+                    'biology': 'fas fa-dna',
+                    'geography': 'fas fa-globe-americas',
+                    'history': 'fas fa-scroll',
+                    'ethics-morality': 'fas fa-balance-scale',
+                    'justice': 'fas fa-gavel',
+                    'religious-truth': 'fas fa-pray',
+                    'fact-check': 'fas fa-search',
+                    'politics': 'fas fa-landmark'
+                };
+                
+                const categoryNames = {
+                    'innovation-tech': 'Innovation and Tech',
+                    'biology': 'Biology',
+                    'geography': 'Geography',
+                    'history': 'History',
+                    'ethics-morality': 'Ethics & Morality',
+                    'justice': 'Justice',
+                    'religious-truth': 'Religious Truth',
+                    'fact-check': 'Fact Check',
+                    'politics': 'Politics'
+                };
+                
+                allPosts = allContent;
+                
+                // Show posts
+                if (allContent.length > 0) {
+                    const sortedPosts = allContent
+                        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    
+                    displayPosts(sortedPosts);
+                    trendingSection.style.display = 'block';
+                } else {
+                    document.getElementById('trendingArticles').innerHTML = '<div style="text-align: center; padding: 2rem; color: #666;">No posts found.</div>';
+                    trendingSection.style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainMenu = document.getElementById('mainMenu');
+            if (mobileMenuBtn && mainMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mainMenu.classList.toggle('active');
+                });
+            }
+            
+            // Add filter functionality
+            document.querySelectorAll('.filter-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-option').forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    filterByCategory(this.textContent.trim());
+                });
+            });
+            
+            // Load real data
+            loadRealCategories();
+        });
+    </script>
+</body>
+</html>

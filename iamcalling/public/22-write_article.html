@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Test Navigation Script -->
+    <script src="test-navigation.js"></script>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Write and share your perspective on IAMCALLING">
+    <meta name="keywords" content="write article, share opinion, publish content, ideology">
+    <title>Write Article - IAMCALLING</title>
+    
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Quill Rich Text Editor -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #0a3d0a; /* Dark green */
+            --secondary-color: #1a1a1a; /* Dark black */
+            --accent-color: #8b4513; /* Dark brown */
+            --text-light: #f8f8f8; /* Milky white */
+            --gold: #d4af37; /* Gold */
+            --silver: #c0c0c0; /* Silver */
+            --gradient: linear-gradient(135deg, rgba(10,61,10,1) 0%, rgba(26,26,26,1) 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            margin-top: 0 !important;
+        }
+        
+        
+        
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header Styles */
+        
+        
+        
+        
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .mobile-menu-btn:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-decoration: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        .main-menu {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--gold);
+        }
+        
+        /* Simple Profile Link Styles */
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.3s;
+            text-decoration: none;
+            color: var(--text-light);
+        }
+        
+        .profile-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+        }
+        
+        .profile-photo {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            object-fit: cover;
+        }
+        
+        .auth-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, var(--primary-color), #0d4f0d);
+            color: var(--text-light);
+            border-color: var(--primary-color);
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #0d4f0d, var(--primary-color));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 61, 10, 0.3);
+            color: var(--text-light);
+        }
+        
+        .register-btn {
+            background: linear-gradient(135deg, var(--gold), #f0c040);
+            color: #000;
+            border-color: var(--gold);
+        }
+        
+        .register-btn:hover {
+            background: linear-gradient(135deg, #f0c040, var(--gold));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            color: #000;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .main-menu {
+                display: none;
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--gradient);
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                z-index: 999;
+                backdrop-filter: blur(15px);
+            }
+            
+            .main-menu.active {
+                display: flex;
+            }
+            
+            .main-menu li {
+                margin: 0.5rem 0;
+            }
+            
+            .main-menu li a {
+                display: block;
+                padding: 0.75rem;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+                min-height: 44px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .profile-link span {
+                display: none;
+            }
+            
+            .auth-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-width: 80px;
+            }
+        }
+        
+        /* Page Header */
+        .page-header {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .page-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Article Form */
+        .article-form-container {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s;
+            font-family: 'Roboto', sans-serif;
+            background: white !important;
+            color: #333 !important;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(10, 61, 10, 0.2);
+        }
+        
+        .form-control:disabled {
+            background: #f5f5f5 !important;
+            cursor: not-allowed;
+        }
+        
+        textarea.form-control {
+            min-height: 300px;
+            resize: vertical;
+        }
+        
+        /* Rich Text Editor Styles */
+        .editor-container {
+            margin-bottom: 15px;
+        }
+        
+        #editor {
+            height: 200px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 6px;
+        }
+        
+        .ql-toolbar.ql-snow {
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+        }
+        
+        .ql-toolbar .ql-formats {
+            margin-right: 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .ql-toolbar .ql-formats:nth-child(4) {
+            margin-left: 24px;
+        }
+        
+        .ql-toolbar .ql-formats:nth-child(7) {
+            margin-left: 24px;
+        }
+        
+        .ql-toolbar button {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .ql-toolbar .ql-picker {
+            font-size: 12px;
+        }
+        
+        .ql-toolbar .ql-formats:last-child {
+            margin-right: 0;
+        }
+        
+        .ql-container.ql-snow {
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 6px;
+            font-size: 14px;
+        }
+        
+        /* Font styles for Quill */
+        .ql-font-roboto { font-family: 'Roboto', sans-serif; }
+        .ql-font-opensans { font-family: 'Open Sans', sans-serif; }
+        .ql-font-lato { font-family: 'Lato', sans-serif; }
+        .ql-font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .ql-font-poppins { font-family: 'Poppins', sans-serif; }
+        .ql-font-playfair { font-family: 'Playfair Display', serif; }
+        
+        /* Image Upload Styles */
+        .image-upload-container {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.5);
+            transition: border-color 0.3s;
+        }
+        
+        .image-upload-container:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .image-upload-container.dragover {
+            border-color: var(--primary-color);
+            background: rgba(10, 61, 10, 0.1);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background: var(--secondary-color);
+        }
+        
+        /* Image Resizer Styles */
+        .image-resizer {
+            position: relative;
+            display: inline-block;
+            max-width: 100%;
+            width: 400px;
+            margin: 10px 0;
+            cursor: move;
+        }
+        
+        .image-resizer img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .ql-editor img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px auto;
+        }
+        
+        .ql-editor .image-resizer {
+            max-width: 100%;
+            width: auto;
+            display: inline-block;
+        }
+        
+        .image-resizer .resize-handle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary-color);
+            border: 1px solid white;
+            border-radius: 50%;
+            cursor: nwse-resize;
+            bottom: 5px;
+            right: 5px;
+            z-index: 10;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        
+        .image-resizer .resize-controls {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background: rgba(255,255,255,0.9);
+            padding: 8px;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .image-resizer:hover .resize-controls {
+            opacity: 1;
+        }
+        
+        .resize-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .resize-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .character-count {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+        
+        /* User Info Section */
+        .user-info-section {
+            background: rgba(10, 61, 10, 0.05);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .user-details {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+        
+        .user-name {
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+        }
+        
+        /* Badge Styles */
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-left: 0.8rem;
+        }
+        
+        .badge-leftist {
+            background: #e53935; /* Red */
+            color: white;
+        }
+        
+        .badge-rightist {
+            background: #1e88e5; /* Blue */
+            color: white;
+        }
+        
+        .badge-communist {
+            background: #d32f2f; /* Darker Red */
+            color: white;
+        }
+        
+        .badge-fascist {
+            background: #303f9f; /* Darker Blue */
+            color: white;
+        }
+        
+        .badge-neutral {
+            background: #757575; /* Gray */
+            color: white;
+        }
+        
+        .edit-profile-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .edit-profile-link:hover {
+            text-decoration: underline;
+        }
+        
+        .edit-profile-link i {
+            margin-left: 0.3rem;
+        }
+        
+        /* Form Actions */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .btn i {
+            margin-left: 0.5rem;
+        }
+        
+        /* Guidelines Section */
+        .guidelines-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+        }
+        
+        .guidelines-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .guidelines-title i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .guidelines-list {
+            list-style: none;
+        }
+        
+        .guidelines-list li {
+            margin-bottom: 0.8rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .guidelines-list li:before {
+            content: "\f00c";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+        }
+        
+        /* Success Message */
+        .success-message {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .success-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .success-text {
+            margin-bottom: 2rem;
+            color: #555;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .user-info-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .edit-profile-link {
+                margin-top: 1rem;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+    <script src="/config.js"></script>
+</head>
+<body>
+    <!-- Universal topbar will be injected here -->
+    
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Share Your Perspective</h1>
+            <p class="page-subtitle">Write an article and share your thoughts with the IAMCALLING community</p>
+        </div>
+        
+        <!-- Auth-dependent content -->
+        <div id="authContent" style="display: none;">
+            <div class="user-info-section">
+                <div class="user-details">
+                    <img src="" alt="User Avatar" class="user-avatar" id="currentUserAvatar">
+                    <div>
+                        <span class="user-name" id="currentUserName">Loading...</span>
+                        <span class="badge badge-neutral" id="currentUserBadge">Neutral</span>
+                    </div>
+                </div>
+                <a href="18-profile.html" class="edit-profile-link">
+                    Edit Profile <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+            
+            <div class="article-form-container" id="articleFormContainer">
+                <form id="articleForm" name="articleForm">
+                <div class="form-group">
+                    <label for="articleTitle" class="form-label">Article Title</label>
+                    <input type="text" class="form-control" id="articleTitle" name="title" placeholder="Enter a compelling title for your article" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="challengePostId" class="form-label">Challenge Response ID (Optional)</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" class="form-control" id="challengePostId" name="challengePostId" placeholder="Enter Challenge ID (e.g., PK01, PK02)" style="flex: 1;">
+                        <button type="button" id="verifyPostId" class="btn" style="background: #007bff; color: white; padding: 0.8rem 1rem; border-radius: 5px; border: none; cursor: pointer; white-space: nowrap;">
+                            <i class="fas fa-check"></i> Verify
+                        </button>
+                    </div>
+                    <div id="verificationStatus" style="margin-top: 0.5rem; font-size: 0.9rem;"></div>
+                    <small style="color: #666; font-size: 0.9rem; margin-top: 0.5rem; display: block;">Enter the Challenge ID from official post to write a response. Multiple users can respond to same challenge ID.</small>
+                </div>
+                
+
+                
+                <div class="form-group">
+                    <label for="articleThumbnail" class="form-label">Article Thumbnail *</label>
+                    <div class="image-upload-container" id="thumbnailUploadContainer">
+                        <div class="upload-icon">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <p class="upload-text">Upload a thumbnail for your article<br>(YouTube standard: 16:9 aspect ratio, 1280x720 to 1920x1080 pixels)</p>
+                        <input type="file" id="articleThumbnail" class="file-input" accept="image/*" required>
+                        <button type="button" class="upload-btn" onclick="document.getElementById('articleThumbnail').click();">
+                            <i class="fas fa-upload"></i> Select Thumbnail
+                        </button>
+                        <div id="thumbnailPreview" style="margin-top: 15px; display: none;">
+                            <img id="thumbnailImg" src="" alt="Thumbnail Preview" style="max-width: 100%; height: auto; border-radius: 5px; border: 1px solid #ddd;">
+                            <div id="thumbnailInfo" style="margin-top: 5px; font-size: 0.9rem; color: #666;"></div>
+                            <div id="thumbnailValidation" style="margin-top: 5px; font-size: 0.9rem; display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="articleContent" class="form-label">Article Content</label>
+                    <div class="editor-container">
+                        <div id="editor"></div>
+                    </div>
+                    <textarea class="form-control" id="articleContent" name="content" style="display: none;"></textarea>
+                    <div class="character-count">
+                        <span id="charCount">0</span> characters
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="01-index.html" class="btn btn-secondary">
+                        Cancel <i class="fas fa-times"></i>
+                    </a>
+                    <button type="submit" class="btn btn-primary publish-btn" id="publishBtn">
+                        Publish Article <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        </div>
+        
+        <!-- Login prompt for non-authenticated users -->
+        <div id="loginPrompt" style="display: none;">
+            <div class="article-form-container">
+                <div style="text-align: center; padding: 3rem;">
+                    <i class="fas fa-user-lock" style="font-size: 4rem; color: #dc3545; margin-bottom: 2rem;"></i>
+                    <h2 style="color: #dc3545; margin-bottom: 1rem;">Login Required</h2>
+                    <p style="color: #666; margin-bottom: 2rem; font-size: 1.1rem;">Please login to write and publish articles</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="15-login.html" class="btn btn-primary">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                        <a href="16-register.html" class="btn btn-secondary">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="guidelines-section">
+            <h2 class="guidelines-title"><i class="fas fa-clipboard-list"></i> Publishing Guidelines</h2>
+            <ul class="guidelines-list">
+                <li>Articles must be original content written by you</li>
+                <li>Focus on thoughtful analysis and well-reasoned arguments</li>
+                <li>Avoid hate speech, personal attacks, or discriminatory language</li>
+                <li>Articles should be at least 300 characters long</li>
+                <li>Your ideology badge will be displayed with your article</li>
+                <li>All articles are subject to review by our editorial team</li>
+            </ul>
+        </div>
+        
+        <div class="success-message" id="successMessage">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="success-title">Article Published Successfully!</h2>
+            <p class="success-text">Your article has been submitted and is now live on IAMCALLING. Your ideology badge has been displayed with your article.</p>
+            <a href="01-response-index.html" class="btn btn-primary">
+                View Articles <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Quill Rich Text Editor -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
+    <script src="js/global-security-config.js"></script>
+    <script src="js/supabase-client.js?v=3"></script>
+    <script>
+        // Wait for universal topbar to load and initialize auth
+        function waitForAuth(callback, maxAttempts = 50) {
+            let attempts = 0;
+            const checkAuth = () => {
+                attempts++;
+                if (window.globalAuth && window.universalTopBar) {
+                    callback();
+                } else if (attempts < maxAttempts) {
+                    setTimeout(checkAuth, 100);
+                } else {
+                    console.error('Auth system failed to load');
+                    showLoginPrompt();
+                }
+            };
+            checkAuth();
+        }
+        
+        // Show appropriate content based on auth state
+        function updatePageContent() {
+            const authContent = document.getElementById('authContent');
+            const loginPrompt = document.getElementById('loginPrompt');
+            
+            if (window.globalAuth && window.globalAuth.isLoggedIn()) {
+                authContent.style.display = 'block';
+                loginPrompt.style.display = 'none';
+                updateUserDisplay();
+            } else {
+                authContent.style.display = 'none';
+                loginPrompt.style.display = 'block';
+            }
+        }
+        
+        function showLoginPrompt() {
+            document.getElementById('authContent').style.display = 'none';
+            document.getElementById('loginPrompt').style.display = 'block';
+        }
+        
+        
+        // Load profile photo directly from Supabase
+        async function loadUserPhoto(email) {
+            if (!email) return null;
+            
+            try {
+                const response = await fetch(`https://gkckyyyaoqsaouemjnxl.supabase.co/rest/v1/users?select=profile_photo&email=eq.${encodeURIComponent(email)}`, {
+                    headers: {
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk'
+                    }
+                });
+                
+                if (response.ok) {
+                    const users = await response.json();
+                    if (users && users.length > 0 && users[0].profile_photo) {
+                        const photo = users[0].profile_photo;
+                        if (photo.startsWith('data:image/') && !photo.includes('svg')) {
+                            return photo;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading photo:', error);
+            }
+            return null;
+        }
+        
+        // Get current user from global auth manager
+        async function getCurrentUser() {
+            if (window.globalAuth && window.globalAuth.isLoggedIn()) {
+                return {
+                    name: window.globalAuth.getUserName(),
+                    email: window.globalAuth.getCurrentUser()?.email,
+                    photo: null,
+                    ideology: 'neutral'
+                };
+            }
+            return null;
+        }
+        
+        // Update user display
+        async function updateUserDisplay() {
+            const user = await getCurrentUser();
+            if (!user) return;
+            
+            const nameElement = document.getElementById('currentUserName');
+            const avatarElement = document.getElementById('currentUserAvatar');
+            const badgeElement = document.getElementById('currentUserBadge');
+            
+            if (nameElement) nameElement.textContent = user.name || 'User';
+            if (badgeElement) {
+                badgeElement.textContent = user.ideology.charAt(0).toUpperCase() + user.ideology.slice(1);
+                badgeElement.className = `badge badge-${user.ideology.toLowerCase()}`;
+            }
+            
+            if (avatarElement && user.email) {
+                const photo = await loadUserPhoto(user.email);
+                if (photo) {
+                    avatarElement.src = photo;
+                    avatarElement.style.display = 'block';
+                } else {
+                    avatarElement.style.display = 'none';
+                }
+            }
+        }
+
+        
+        // Initialize Rich Text Editor
+        let quill;
+        
+        function initializeEditor() {
+            quill = new Quill('#editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'font': [] }, { 'size': [] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'header': 1 }, { 'header': 2 }, 'blockquote'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'align': [] }],
+                        ['link', 'image'],
+                        ['clean']
+                    ]
+                },
+                placeholder: 'Write your article here. Share your thoughts, analysis, or perspective...'
+            });
+            
+            // Update hidden textarea when editor content changes
+            quill.on('text-change', function() {
+                const content = quill.root.innerHTML;
+                document.getElementById('articleContent').value = content;
+                
+                // Update character count
+                const textContent = quill.getText();
+                const charCount = document.getElementById('charCount');
+                if (charCount) {
+                    charCount.textContent = textContent.length;
+                }
+            });
+            
+            // Enable editor after initialization
+            setTimeout(() => {
+                quill.enable(true);
+                quill.focus();
+            }, 100);
+        }
+        
+        // Image upload handler
+        function imageHandler() {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+            
+            input.onchange = () => {
+                const file = input.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const range = quill.getSelection();
+                        const imageUrl = e.target.result;
+                        
+                        // Insert image with resizer wrapper
+                        const imageHtml = `<div class="image-resizer" style="width: 400px;">
+                            <img src="${imageUrl}" alt="Uploaded image" style="width: 100%; height: auto;">
+                            <div class="resize-controls">
+                                <button class="resize-btn" onclick="resizeImage(this, 'small')"><i class="fas fa-compress-alt"></i> Small</button>
+                                <button class="resize-btn" onclick="resizeImage(this, 'medium')"><i class="fas fa-expand-alt"></i> Medium</button>
+                                <button class="resize-btn" onclick="resizeImage(this, 'large')"><i class="fas fa-arrows-alt"></i> Large</button>
+                                <button class="resize-btn" onclick="removeImage(this)"><i class="fas fa-trash"></i> Remove</button>
+                            </div>
+                            <div class="resize-handle"></div>
+                        </div>`;
+                        
+                        quill.clipboard.dangerouslyPasteHTML(range.index, imageHtml);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+        }
+        
+        // Image resize functions
+        function resizeImage(button, size) {
+            const resizer = button.closest('.image-resizer');
+            if (resizer) {
+                switch(size) {
+                    case 'small':
+                        resizer.style.width = '200px';
+                        break;
+                    case 'medium':
+                        resizer.style.width = '400px';
+                        break;
+                    case 'large':
+                        resizer.style.width = '600px';
+                        break;
+                }
+            }
+        }
+        
+        function removeImage(button) {
+            const resizer = button.closest('.image-resizer');
+            if (resizer) {
+                resizer.remove();
+            }
+        }
+        
+        // Thumbnail validation function
+        function validateThumbnailDimensions(image, callback) {
+            const img = new Image();
+            img.onload = function() {
+                const width = img.width;
+                const height = img.height;
+                
+                // YouTube standard thumbnail sizes: 1280x720 (recommended), 1920x1080 (max)
+                // We'll accept standard aspect ratios: 16:9, 1280x720 or 1920x1080
+                const aspectRatio = width / height;
+                const expectedAspectRatio = 16 / 9; // 1.777...
+                const aspectRatioTolerance = 0.1; // Allow slight variations
+                
+                // Check if the aspect ratio is close to 16:9
+                const isCorrectAspectRatio = Math.abs(aspectRatio - expectedAspectRatio) <= aspectRatioTolerance;
+                
+                // Check if dimensions are within YouTube's recommended range
+                const isWithinRecommendedSize = (width >= 1280 && height >= 720) && (width <= 1920 && height <= 1080);
+                
+                const isValid = isCorrectAspectRatio && isWithinRecommendedSize;
+                
+                callback({
+                    isValid: isValid,
+                    width: width,
+                    height: height,
+                    expectedWidth: '1280-1920',
+                    expectedHeight: '720-1080',
+                    message: isValid ? 
+                        `✅ Valid thumbnail size: ${width}x${height}px (YouTube standard: 16:9 aspect ratio, 1280x720 to 1920x1080)` :
+                        `❌ Incorrect thumbnail: ${width}x${height}px. Required: 16:9 aspect ratio, 1280x720 to 1920x1080 (YouTube standard)`
+                });
+            };
+            img.onerror = function() {
+                callback({
+                    isValid: false,
+                    width: 0,
+                    height: 0,
+                    message: '❌ Could not load image to validate dimensions'
+                });
+            };
+            img.src = image.src;
+        }
+        
+        // Thumbnail upload handling
+        document.getElementById('articleThumbnail').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    // Show preview
+                    const preview = document.getElementById('thumbnailPreview');
+                    const imgElement = document.getElementById('thumbnailImg');
+                    const infoElement = document.getElementById('thumbnailInfo');
+                    const validationElement = document.getElementById('thumbnailValidation');
+                    
+                    imgElement.src = event.target.result;
+                    preview.style.display = 'block';
+                    infoElement.textContent = `Thumbnail: ${img.width}x${img.height}px (${Math.round(file.size/1024)} KB)`;
+                    
+                    // Validate dimensions
+                    validateThumbnailDimensions(img, function(result) {
+                        validationElement.textContent = result.message;
+                        validationElement.style.display = 'block';
+                        validationElement.style.color = result.isValid ? '#28a745' : '#dc3545';
+                        
+                        // Store validation result in a global variable
+                        window.thumbnailValidationResult = result;
+                    });
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Challenge Post ID verification
+        let isValidChallengePost = false;
+        let verifiedChallengeData = null;
+        
+        async function verifyChallengePostId() {
+            const challengePostId = document.getElementById('challengePostId').value.trim();
+            const verificationStatus = document.getElementById('verificationStatus');
+            const verifyBtn = document.getElementById('verifyPostId');
+            
+            if (!challengePostId) {
+                verificationStatus.innerHTML = '';
+                isValidChallengePost = false;
+                verifiedChallengeData = null;
+                return;
+            }
+            
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+            verifyBtn.disabled = true;
+            
+            try {
+                // Simple validation - accept any non-empty challenge ID
+                isValidChallengePost = true;
+                verifiedChallengeData = { id: challengePostId, title: 'Challenge Post', author_name: 'Admin' };
+                
+                verificationStatus.innerHTML = `
+                    <div style="color: #28a745; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-check-circle"></i>
+                        <strong>✅ Challenge ID Accepted!</strong>
+                    </div>
+                    <div style="color: #666; font-size: 0.85rem; margin-top: 0.3rem;">
+                        Challenge ID: ${challengePostId}
+                    </div>
+                `;
+                
+            } catch (error) {
+                isValidChallengePost = false;
+                verifiedChallengeData = null;
+                verificationStatus.innerHTML = `
+                    <div style="color: #dc3545; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-times-circle"></i>
+                        <strong>❌ Invalid Challenge Post ID</strong>
+                    </div>
+                `;
+            }
+            
+            verifyBtn.innerHTML = '<i class="fas fa-check"></i> Verify';
+            verifyBtn.disabled = false;
+        }
+        
+        // Initialize page when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Enable all input fields immediately
+            const titleInput = document.getElementById('articleTitle');
+            const challengeInput = document.getElementById('challengePostId');
+            
+            if (titleInput) {
+                titleInput.disabled = false;
+                titleInput.readOnly = false;
+            }
+            if (challengeInput) {
+                challengeInput.disabled = false;
+                challengeInput.readOnly = false;
+            }
+            
+            waitForAuth(() => {
+                updatePageContent();
+                initializeEditor();
+                
+                // Listen for auth state changes
+                window.addEventListener('authStateChanged', updatePageContent);
+                
+                // Setup mobile menu if exists
+                const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+                const mainMenu = document.getElementById('mainMenu');
+                if (mobileMenuBtn && mainMenu) {
+                    mobileMenuBtn.addEventListener('click', function() {
+                        mainMenu.classList.toggle('active');
+                    });
+                }
+                
+                // Setup challenge verification
+                document.getElementById('verifyPostId').addEventListener('click', verifyChallengePostId);
+                
+                let verifyTimeout;
+                document.getElementById('challengePostId').addEventListener('input', function() {
+                    clearTimeout(verifyTimeout);
+                    verifyTimeout = setTimeout(verifyChallengePostId, 1000);
+                });
+            });
+        });
+        // Handle form submission - Global client-side publishing
+        document.addEventListener('DOMContentLoaded', function() {
+            const articleForm = document.getElementById('articleForm');
+            if (articleForm) {
+                articleForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const publishBtn = document.getElementById('publishBtn');
+                    
+                    // Prevent multiple submissions
+                    if (publishBtn.disabled) {
+                        return;
+                    }
+                    
+                    // Disable button and show loading state
+                    publishBtn.disabled = true;
+                    publishBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+                    
+                    // Show congratulations message immediately
+                    const successMessage = document.getElementById('successMessage');
+                    const articleFormContainer = document.querySelector('.article-form-container');
+                    
+                    successMessage.style.display = 'block';
+                    articleFormContainer.style.display = 'none';
+                    
+                    // Scroll to success message
+                    successMessage.scrollIntoView({ behavior: 'smooth' });
+                    
+                    const title = document.getElementById('articleTitle').value.trim();
+                    const challengePostId = document.getElementById('challengePostId').value.trim();
+                    
+                    if (!title) {
+                        alert('Please enter a title for your article');
+                        return;
+                    }
+                    
+                    // Get content from Quill editor
+                    const htmlContent = quill.root.innerHTML;
+                    const plainTextContent = quill.getText().trim();
+                    
+                    if (plainTextContent.length < 50) {
+                        alert('Please write at least 50 characters of content');
+                        return;
+                    }
+                    
+                    // Check if thumbnail is uploaded and validated
+                    const thumbnailInput = document.getElementById('articleThumbnail');
+                    if (!thumbnailInput.files[0]) {
+                        alert('Please upload a thumbnail for your article');
+                        return;
+                    }
+                    
+                    // Validate thumbnail dimensions
+                    if (!window.thumbnailValidationResult || !window.thumbnailValidationResult.isValid) {
+                        alert('Please upload a thumbnail with correct dimensions (YouTube standard: 16:9 aspect ratio, 1280x720 to 1920x1080 pixels)');
+                        return;
+                    }
+                    
+                    // Get user info from global auth manager
+                    if (!window.globalAuth || !window.globalAuth.isLoggedIn()) {
+                        alert('Please login first to publish articles.');
+                        return;
+                    }
+                    
+                    const userName = window.globalAuth.getUserName();
+                    const currentUser = window.globalAuth.getCurrentUser();
+                    
+                    try {
+                        // First, get user's author_id and profile_photo from users table
+                        let authorId = null;
+                        let authorPhoto = null;
+                        if (currentUser && currentUser.email) {
+                            const userResponse = await fetch(`https://gkckyyyaoqsaouemjnxl.supabase.co/rest/v1/users?select=author_id,profile_photo&email=eq.${encodeURIComponent(currentUser.email)}`, {
+                                headers: {
+                                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk',
+                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk'
+                                }
+                            });
+                            
+                            const userData = await userResponse.json();
+                            if (userData && userData.length > 0) {
+                                if (userData[0].author_id) {
+                                    authorId = userData[0].author_id;
+                                    console.log('✅ Found author_id:', authorId);
+                                }
+                                if (userData[0].profile_photo && userData[0].profile_photo.startsWith('data:image/')) {
+                                    authorPhoto = userData[0].profile_photo;
+                                    console.log('✅ Found real profile photo');
+                                }
+                            }
+                        }
+                        
+                        // Convert thumbnail to base64 for immediate storage
+                        const thumbnailFile = thumbnailInput.files[0];
+                        const thumbnailUrl = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                resolve(event.target.result);
+                            };
+                            reader.onerror = function(error) {
+                                reject(error);
+                            };
+                            reader.readAsDataURL(thumbnailFile);
+                        });
+                        
+                        // Simple article save
+                        const articleData = {
+                            title: title,
+                            content: htmlContent,
+                            plain_text: plainTextContent,
+                            author_name: userName,
+                            category: challengePostId ? 'response' : 'general',
+                            challenge_post_id: challengePostId || null,
+                            published: true,
+                            is_draft: false,
+                            visibility: 'public'
+                        };
+                        
+                        // Add thumbnail_url if available
+                        if (thumbnailUrl) {
+                            articleData.thumbnail_url = thumbnailUrl;
+                        }
+                        
+                        // Add author_id if found
+                        if (authorId !== null) {
+                            articleData.author_id = authorId;
+                        }
+                        
+                        console.log('📝 Saving article:', articleData);
+                        
+                        // Try to save article with thumbnail first
+                        let response;
+                        let result;
+                        
+                        try {
+                            response = await fetch('https://gkckyyyaoqsaouemjnxl.supabase.co/rest/v1/articles', {
+                                method: 'POST',
+                                headers: {
+                                    'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk',
+                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk',
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'return=representation'
+                                },
+                                body: JSON.stringify(articleData)
+                            });
+                        } catch (networkError) {
+                            console.error('❌ Network error:', networkError);
+                            alert('❌ Network error: Could not connect to server. Please check your connection and try again.');
+                            throw networkError;
+                        }
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            console.error('❌ Error response:', errorText);
+                            
+                            // Check if error is due to unknown column (thumbnail_url)
+                            if (errorText.includes('thumbnail_url') && errorText.includes('column') && errorText.includes('does not exist')) {
+                                console.warn('⚠️ thumbnail_url column does not exist, retrying without thumbnail...');
+                                
+                                // Remove thumbnail_url and try again
+                                const articleDataWithoutThumbnail = { ...articleData };
+                                delete articleDataWithoutThumbnail.thumbnail_url;
+                                
+                                try {
+                                    response = await fetch('https://gkckyyyaoqsaouemjnxl.supabase.co/rest/v1/articles', {
+                                        method: 'POST',
+                                        headers: {
+                                            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk',
+                                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk',
+                                            'Content-Type': 'application/json',
+                                            'Prefer': 'return=representation'
+                                        },
+                                        body: JSON.stringify(articleDataWithoutThumbnail)
+                                    });
+                                } catch (retryNetworkError) {
+                                    console.error('❌ Retry network error:', retryNetworkError);
+                                    alert('❌ Network error on retry: Could not connect to server.');
+                                    throw retryNetworkError;
+                                }
+                            } else {
+                                // Parse error to provide better message
+                                let errorMessage = `HTTP ${response.status}: ${errorText}`;
+                                try {
+                                    const errorJson = JSON.parse(errorText);
+                                    if (errorJson.code === '23503' && errorJson.message.includes('foreign key constraint')) {
+                                        errorMessage = 'Database error: The author_id does not match any user. Please contact support or try again.';
+                                        console.error('Foreign key constraint violation - author_id mismatch');
+                                    } else if (errorJson.message) {
+                                        errorMessage = errorJson.message;
+                                    }
+                                } catch (e) {
+                                    // Keep original error message if parsing fails
+                                }
+                                
+                                alert('❌ Error publishing article: ' + errorMessage);
+                                throw new Error(errorMessage);
+                            }
+                        }
+                        
+                        if (!response.ok) {
+                            // Final check if response is still not ok after retry
+                            const finalErrorText = await response.text();
+                            console.error('❌ Final error response:', finalErrorText);
+                            alert('❌ Error publishing article: ' + finalErrorText);
+                            throw new Error(finalErrorText);
+                        }
+                        
+                        result = await response.json();
+                        console.log('✅ Article saved successfully:', result);
+                        
+                        alert('✅ Article published successfully!');
+                        window.location.href = '01-response-index.html';
+                        
+                    } catch (error) {
+                        console.error('Error:', error);
+                        
+                        // Re-enable button and hide success message on error
+                        publishBtn.disabled = false;
+                        publishBtn.innerHTML = 'Publish Article <i class="fas fa-paper-plane"></i>';
+                        
+                        successMessage.style.display = 'none';
+                        articleFormContainer.style.display = 'block';
+                        
+                        alert('Error publishing article. Please try again.');
+                    }
+                });
+            }
+        });
+        
+        // Send notification to all users about new article
+        function sendNewArticleNotification(articleData) {
+            try {
+                // Show local notification to publisher
+                if (window.pushManager) {
+                    window.pushManager.showLocalNotification(
+                        '📝 Article Published!',
+                        `Your article "${articleData.title}" is now live on IAMCALLING`
+                    );
+                }
+                
+                // Store notification for other users
+                const notification = {
+                    id: Date.now(),
+                    type: 'new_article',
+                    title: '🆕 New Article Published',
+                    message: `${articleData.author} published: "${articleData.title}"`,
+                    articleId: articleData.id,
+                    articleTitle: articleData.title,
+                    author: articleData.author,
+                    authorBadge: articleData.authorBadge,
+                    category: articleData.category,
+                    timestamp: new Date().toISOString(),
+                    read: false
+                };
+                
+                // Save to global notifications
+                let globalNotifications = JSON.parse(localStorage.getItem('global_notifications') || '[]');
+                globalNotifications.unshift(notification);
+                
+                // Keep only last 50 notifications
+                if (globalNotifications.length > 50) {
+                    globalNotifications = globalNotifications.slice(0, 50);
+                }
+                
+                localStorage.setItem('global_notifications', JSON.stringify(globalNotifications));
+                
+                // Trigger notification event for other tabs/windows
+                window.dispatchEvent(new CustomEvent('newArticlePublished', {
+                    detail: notification
+                }));
+                
+                console.log('🔔 New article notification sent to all users');
+                
+            } catch (error) {
+                console.error('Error sending article notification:', error);
+            }
+        }
+    </script>
+</body>
+</html>

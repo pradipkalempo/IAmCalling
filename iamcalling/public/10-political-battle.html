@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ideology Battle - Head to Head</title>
+    
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    
+    <!-- Test Navigation Script -->
+    <script src="test-navigation.js"></script>
+    
+    <script src="js/universal-error-suppressor.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin-top: 0 !important;
+            padding-top: 80px;
+        }
+        
+        
+        
+        
+        /* Header Styles */
+        
+        
+        
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #d4af37;
+            text-decoration: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: #f8f8f8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: #d4af37;
+        }
+        
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.3s;
+            text-decoration: none;
+            color: #f8f8f8;
+        }
+        
+        .profile-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f8f8f8;
+        }
+        
+        .profile-photo {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #d4af37;
+            object-fit: cover;
+        }
+        
+        .auth-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #0a3d0a, #0d4f0d);
+            color: #f8f8f8;
+            border-color: #0a3d0a;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #0d4f0d, #0a3d0a);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 61, 10, 0.3);
+            color: #f8f8f8;
+        }
+        
+        .register-btn {
+            background: linear-gradient(135deg, #d4af37, #f0c040);
+            color: #000;
+            border-color: #d4af37;
+        }
+        
+        .register-btn:hover {
+            background: linear-gradient(135deg, #f0c040, #d4af37);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            color: #000;
+        }
+        
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .game-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .game-title {
+            font-size: 2.5rem;
+            color: #e94560;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        }
+        
+        .round-info {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card {
+            background: rgba(15, 52, 96, 0.7);
+            padding: 15px 25px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+        
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e94560;
+        }
+        
+        .battle-arena {
+            background: linear-gradient(to bottom, #0f3460, #1a1a2e);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .vs-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+        }
+        
+        .fighter {
+            flex: 1;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+        }
+        
+        .fighter:hover {
+            transform: translateY(-10px);
+            border-color: #e94560;
+            box-shadow: 0 15px 30px rgba(233, 69, 96, 0.3);
+        }
+        
+        .fighter-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            border: 3px solid #fff;
+            object-fit: cover;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .fighter-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+        
+        .fighter-ideology {
+            display: none; /* Hide individual ideology labels */
+        }
+        
+        .fighter-description {
+            font-size: 0.9rem;
+            color: #aaa;
+            line-height: 1.4;
+        }
+        
+        .vs-divider {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+        }
+        
+
+        
+        .vs-text {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #e94560;
+            text-shadow: 0 0 20px rgba(233, 69, 96, 0.8);
+        }
+        
+        .battle-line {
+            width: 2px;
+            height: 100px;
+            background: linear-gradient(to bottom, #2ecc71, #e94560, #3498db);
+            box-shadow: 0 0 10px rgba(233, 69, 96, 0.5);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .results-container {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #16213e, #0f3460);
+            border-radius: 20px;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+        }
+        
+        .results-title {
+            font-size: 2rem;
+            color: #e94560;
+            margin-bottom: 20px;
+        }
+        
+        .ideology-result {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+        
+        .restart-btn {
+            background: linear-gradient(135deg, #e94560, #ff6b6b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(233, 69, 96, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            .game-container {
+                padding: 10px;
+            }
+            
+            .game-title {
+                font-size: 1.5rem;
+            }
+            
+            .round-info {
+                gap: 15px;
+            }
+            
+            .info-card {
+                padding: 8px 12px;
+            }
+            
+            .info-value {
+                font-size: 1.2rem;
+            }
+            
+            .battle-arena {
+                padding: 15px;
+            }
+            
+            .vs-container {
+                gap: 15px;
+            }
+            
+            .vs-text {
+                font-size: 1.5rem;
+            }
+            
+            .battle-line {
+                width: 60px;
+                height: 2px;
+            }
+            
+            .fighter {
+                padding: 10px;
+                min-width: 0;
+                flex: 1;
+            }
+            
+            .fighter-image {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .fighter-name {
+                font-size: 1rem;
+            }
+            
+            .fighter-description {
+                font-size: 0.7rem;
+            }
+            
+            .results-container {
+                padding: 15px;
+            }
+            
+            .results-title {
+                font-size: 1.3rem;
+            }
+            
+            .ideology-result {
+                font-size: 1rem;
+            }
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    
+    
+    <div class="game-container">
+        <div class="game-header">
+            <h1 class="game-title">Political Ideology Battle</h1>
+            <div class="round-info">
+                <div class="info-card">
+                    <div class="info-label">Round</div>
+                    <div class="info-value" id="current-round">1</div>
+                </div>
+                <div class="info-card">
+                    <div class="info-label">Remaining</div>
+                    <div class="info-value" id="rounds-remaining">14</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+        
+        <div class="battle-arena" id="battle-arena">
+            <div class="vs-container">
+                <div class="fighter left" id="left-fighter">
+                    <img class="fighter-image" id="left-image" src="" alt="">
+                    <div class="fighter-name" id="left-name"></div>
+                    <div class="fighter-ideology" id="left-ideology"></div>
+                    <div class="fighter-description" id="left-description"></div>
+                </div>
+                
+                <div class="vs-divider">
+                    <div class="vs-text">VS</div>
+                    <div class="battle-line"></div>
+                </div>
+                
+                <div class="fighter right" id="right-fighter">
+                    <img class="fighter-image" id="right-image" src="" alt="">
+                    <div class="fighter-name" id="right-name"></div>
+                    <div class="fighter-ideology" id="right-ideology"></div>
+                    <div class="fighter-description" id="right-description"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="results-container" id="results-container">
+            <h2 class="results-title">Your Political Ideology Result</h2>
+            <div class="ideology-result" id="final-result"></div>
+            <button class="restart-btn" onclick="goToAnalytics()">📊 View Analytics</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            currentRound: 1,
+            totalRounds: 15,
+            leftScore: 0,
+            rightScore: 0,
+            selections: []
+        };
+
+        // Battle rounds with correct matchups
+        const battleRounds = [
+            // Round 1: Ambedkar vs Mahatma Gandhi
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847474/63788b25ffad0c5b0ee899cdab298818_vrghm4.jpg",
+                    name: "Dr. B.R. Ambedkar"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768846917/250px-Mahatma-Gandhi_2C_studio_2C_1931_imlxbh.jpg",
+                    name: "Mahatma Gandhi"
+                }
+            },
+            // Round 2: Gandhi vs Bhagat Singh
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847489/250px-Mahatma-Gandhi_2C_studio_2C_1931_xlt5v0.jpg",
+                    name: "Mahatma Gandhi"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847598/Bhagat_Singh_1929_evvelt.jpg",
+                    name: "Bhagat Singh"
+                }
+            },
+            // Round 3: Bhagat Singh vs Savarkar
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847598/Bhagat_Singh_1929_evvelt.jpg",
+                    name: "Bhagat Singh"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847646/Swatyantra_Vir_Savarkar_ja9x9a.jpg",
+                    name: "Veer Savarkar"
+                }
+            },
+            // Round 4: Savarkar vs Subhash Chandra Bose
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847978/Swatyantra_Vir_Savarkar_u6wmos.jpg",
+                    name: "Veer Savarkar"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768936565/250px-Subhas_Chandra_Bose_NRB_wdmibt.jpg",
+                    name: "Subhash Chandra Bose"
+                }
+            },
+            // Round 5: Kejriwal vs Yogi Adityanath
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848127/kejariwal_rswjte.jpg",
+                    name: "Arvind Kejriwal"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848109/250px-PM_and_UP_CM_at_laying_the_foundation_stone_of_the_International_Cricket_Stadium_at_Varanasi_2C_in_Uttar_Pradesh__283x4_cropped_29_ph3bfq.jpg",
+                    name: "Yogi Adityanath"
+                }
+            },
+            // Round 6: Owaisi vs Ajit Pawar
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848213/250px-Asaduddin_ufrd0j.jpg",
+                    name: "Asaduddin Owaisi"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848230/Shri_Ajit_Anantrao_Pawar_cbofpa.jpg",
+                    name: "Ajit Pawar"
+                }
+            },
+            // Round 7: Winston Churchill vs Clement Attlee
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848335/250px-Sir_Winston_Churchill_-_19086236948__28restored_29_nqtd0y.jpg",
+                    name: "Winston Churchill"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848318/Person_attlee2_knqa9y.jpg",
+                    name: "Clement Attlee"
+                }
+            },
+            // Round 8: Umar Khalid vs Zakir Naik
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848482/DwI7DbvQ_400x400_q2lcao.jpg",
+                    name: "Umar Khalid"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848458/ZakirNaik_i9hkrk.jpg",
+                    name: "Zakir Naik"
+                }
+            },
+            // Round 9: Mahatma Gandhi vs Godse
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847756/Mahatma-Gandhi_2C_studio_2C_1931_hcho58.jpg",
+                    name: "Mahatma Gandhi"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847839/Nathuram_godse_a57djq.jpg",
+                    name: "Nathuram Godse"
+                }
+            },
+            // Round 10: Jinnah vs Mahatma Gandhi
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847744/Jinnah1945c_nxwxv0.jpg",
+                    name: "Muhammad Ali Jinnah"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847489/250px-Mahatma-Gandhi_2C_studio_2C_1931_xlt5v0.jpg",
+                    name: "Mahatma Gandhi"
+                }
+            },
+            // Round 11: Hitler vs Lenin (using available images)
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768933107/Adolf-Hitler-1933_tww8bu.jpg",
+                    name: "Hitler"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768933148/250px-Vladimir_Lenin_in_July_1920_by_Pavel_Zhukov_rrts6j.jpg",
+                    name: "Lenin"
+                }
+            },
+            // Round 12: Modi vs Rahul Gandhi
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847877/India_PM_Narendra_Modi-2_mrnvjo.jpg",
+                    name: "Narendra Modi"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847905/rahul-gandhis-inner-circle-a-mix-of-fresh-and-seasoned-leaders_rc9f68.jpg",
+                    name: "Rahul Gandhi"
+                }
+            },
+            // Round 13: Jawaharlal Nehru vs Subhash Chandra Bose
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769278014/735301-nehru-1_kzwdpy.jpg",
+                    name: "Jawaharlal Nehru"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769278329/Subhas_Chandra_Bose_NRB_plcfhp.jpg",
+                    name: "Subhash Chandra Bose"
+                }
+            },
+            // Round 14: Vallabhbhai Patel vs Vinayak Savarkar
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769277942/Sardar_patel__28cropped_29_ohi3ox.jpg",
+                    name: "Vallabhbhai Patel"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769278615/Swatyantra_Vir_Savarkar_u71trh.jpg",
+                    name: "Vinayak Savarkar"
+                }
+            },
+            // Round 15: Atal Bihari Vajpayee vs Indira Gandhi
+            {
+                left: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769278884/2000_eukoex.jpg",
+                    name: "Atal Bihari Vajpayee"
+                },
+                right: {
+                    url: "https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769278960/MV5BZGFlOTkxNGEtM2YzMC00N2JhLWE2YmMtNTM5ZWU1NTljMTBjXkEyXkFqcGc._V1_FMjpg_UX1000__dqjijn.jpg",
+                    name: "Indira Gandhi"
+                }
+            }
+        ];
+        
+        async function loadBattle() {
+            console.log('Loading battle for round:', gameState.currentRound);
+            
+            const battle = battleRounds[gameState.currentRound - 1];
+            if (!battle) {
+                console.error('No battle found for round:', gameState.currentRound);
+                return;
+            }
+            
+            console.log('Current battle:', battle);
+            
+            document.getElementById('current-round').textContent = gameState.currentRound;
+            document.getElementById('rounds-remaining').textContent = gameState.totalRounds - gameState.currentRound + 1;
+            
+            const progress = (gameState.currentRound - 1) / gameState.totalRounds * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            
+            const leftImg = document.getElementById('left-image');
+            const rightImg = document.getElementById('right-image');
+            
+            // Set names and descriptions immediately
+            document.getElementById('left-name').textContent = battle.left.name;
+            document.getElementById('left-description').textContent = 'Political figure';
+            document.getElementById('right-name').textContent = battle.right.name;
+            document.getElementById('right-description').textContent = 'Political figure';
+            
+            // Preload images to ensure they load together
+            const leftImageLoader = new Image();
+            const rightImageLoader = new Image();
+            
+            let leftLoaded = false;
+            let rightLoaded = false;
+            
+            function checkBothLoaded() {
+                if (leftLoaded && rightLoaded) {
+                    leftImg.src = battle.left.url;
+                    rightImg.src = battle.right.url;
+                    console.log('Battle loaded successfully');
+                }
+            }
+            
+            leftImageLoader.onload = () => {
+                leftLoaded = true;
+                checkBothLoaded();
+            };
+            
+            rightImageLoader.onload = () => {
+                rightLoaded = true;
+                checkBothLoaded();
+            };
+            
+            leftImageLoader.onerror = () => {
+                leftLoaded = true;
+                checkBothLoaded();
+            };
+            
+            rightImageLoader.onerror = () => {
+                rightLoaded = true;
+                checkBothLoaded();
+            };
+            
+            // Start preloading
+            leftImageLoader.src = battle.left.url;
+            rightImageLoader.src = battle.right.url;
+        }
+
+        // Add subtle click sound effect
+        function playClickSound() {
+            // Create audio context for subtle feedback
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                // Silent fail for browsers that don't support AudioContext
+            }
+        }
+
+        // Handle fighter selection
+        function selectFighter(side) {
+            playClickSound(); // Add sound effect
+            
+            const battle = battleRounds[gameState.currentRound - 1];
+            const leftName = battle.left.name;
+            const rightName = battle.right.name;
+            const selection = side === 'left' ? leftName : rightName;
+            
+            // Add visual feedback
+            const fighter = document.getElementById(side + '-fighter');
+            fighter.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                fighter.style.transform = '';
+            }, 150);
+            
+            // Get political classifications
+            const leftIdeology = getPoliticalClassification(leftName);
+            const rightIdeology = getPoliticalClassification(rightName);
+            
+            // Apply scoring rules
+            if (leftIdeology !== 'neutral' && rightIdeology !== 'neutral') {
+                // Rule A: Left vs Right (Standard Battle)
+                if (side === 'left') {
+                    gameState.leftScore++;
+                } else {
+                    gameState.rightScore++;
+                }
+            } else {
+                // Rule B: Partisan vs Neutral (Asymmetric Battle)
+                if (side === 'left' && leftIdeology !== 'neutral') {
+                    if (leftIdeology === 'left') gameState.leftScore++;
+                    else gameState.rightScore++;
+                } else if (side === 'right' && rightIdeology !== 'neutral') {
+                    if (rightIdeology === 'left') gameState.leftScore++;
+                    else gameState.rightScore++;
+                }
+                // If neutral is selected, no score change (Rule B)
+            }
+            
+            // Record selection
+            gameState.selections.push({
+                round: gameState.currentRound,
+                selected: selection,
+                side: side,
+                leftName: leftName,
+                rightName: rightName
+            });
+            
+            // Move to next round or show results
+            if (gameState.currentRound < gameState.totalRounds) {
+                gameState.currentRound++;
+                setTimeout(() => {
+                    loadBattle();
+                }, 500);
+            } else {
+                setTimeout(() => {
+                    showResults();
+                }, 500);
+            }
+        }
+        
+        // Get political classification helper function
+        function getPoliticalClassification(name) {
+            const classifications = {
+                'Dr. B.R. Ambedkar': 'left',
+                'Bhagat Singh': 'left',
+                'Veer Savarkar': 'right',
+                'Subhash Chandra Bose': 'left',
+                'Arvind Kejriwal': 'left',
+                'Yogi Adityanath': 'right',
+                'Asaduddin Owaisi': 'right',
+                'Ajit Pawar': 'left',
+                'Winston Churchill': 'right',
+                'Clement Attlee': 'left',
+                'Umar Khalid': 'left',
+                'Zakir Naik': 'right',
+                'Nathuram Godse': 'right',
+                'Muhammad Ali Jinnah': 'right',
+                'Hitler': 'right',
+                'Lenin': 'left',
+                'Narendra Modi': 'right',
+                'Rahul Gandhi': 'left',
+                'Jawaharlal Nehru': 'neutral',
+                'Vallabhbhai Patel': 'neutral',
+                'Mahatma Gandhi': 'neutral',
+                'Atal Bihari Vajpayee': 'neutral',
+                'Indira Gandhi': 'left',
+                'Vinayak Savarkar': 'right'
+            };
+            return classifications[name] || 'neutral';
+        }
+
+        // Show final results
+        function showResults() {
+            document.getElementById('battle-arena').style.display = 'none';
+            document.getElementById('results-container').style.display = 'block';
+            
+            let result;
+            if (gameState.leftScore > gameState.rightScore) {
+                result = `You lean LEFT/PROGRESSIVE (${gameState.leftScore}/${gameState.totalRounds} selections)`;
+            } else if (gameState.rightScore > gameState.leftScore) {
+                result = `You lean RIGHT/CONSERVATIVE (${gameState.rightScore}/${gameState.totalRounds} selections)`;
+            } else {
+                result = `You are CENTRIST (${gameState.leftScore}-${gameState.rightScore} split)`;
+            }
+            
+            document.getElementById('final-result').textContent = result;
+        }
+
+        // Go to analytics page
+        function goToAnalytics() {
+            // Store battle results in localStorage for analytics
+            const battleResults = {
+                selections: gameState.selections,
+                leftScore: gameState.leftScore,
+                rightScore: gameState.rightScore,
+                totalRounds: gameState.totalRounds,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('battleResults', JSON.stringify(battleResults));
+            
+            // Redirect to analytics page
+            window.location.href = '29-analytics_dashboard.html';
+        }
+
+        // Restart game
+        function restartGame() {
+            gameState.currentRound = 1;
+            gameState.leftScore = 0;
+            gameState.rightScore = 0;
+            gameState.selections = [];
+            
+            document.getElementById('battle-arena').style.display = 'block';
+            document.getElementById('results-container').style.display = 'none';
+            
+            loadBattle();
+        }
+
+        // Add click handlers
+        document.getElementById('left-fighter').addEventListener('click', () => selectFighter('left'));
+        document.getElementById('right-fighter').addEventListener('click', () => selectFighter('right'));
+
+        // Initialize game
+        loadBattle();
+        
+        
+        
+        function updateAuthLinks() {
+            const currentUser = localStorage.getItem('currentUser');
+            const userAuth = localStorage.getItem('userAuth');
+            const userDataStr = localStorage.getItem('userData');
+            const iamcallingUser = localStorage.getItem('iamcalling_current_user');
+            
+            let isAuthenticated = false;
+            let userData = null;
+            
+            if (currentUser && userAuth === 'true') {
+                try {
+                    userData = JSON.parse(currentUser);
+                    if (userData && (userData.name || userData.full_name || userData.email)) {
+                        isAuthenticated = true;
+                    }
+                } catch (e) {}
+            }
+            
+            if (!isAuthenticated && userDataStr) {
+                try {
+                    userData = JSON.parse(userDataStr);
+                    if (userData && (userData.name || userData.full_name || userData.email)) {
+                        isAuthenticated = true;
+                    }
+                } catch (e) {}
+            }
+            
+            if (!isAuthenticated && iamcallingUser) {
+                try {
+                    userData = JSON.parse(iamcallingUser);
+                    if (userData && (userData.full_name || userData.email)) {
+                        isAuthenticated = true;
+                    }
+                } catch (e) {}
+            }
+            
+            const authLinks = document.querySelector('nav ul');
+            if (!authLinks) return;
+            
+            if (isAuthenticated && userData) {
+                const userName = userData.name || userData.full_name || userData.firstName + ' ' + (userData.lastName || '') || 'User';
+                const userPhoto = userData.photo || userData.profile_photo || userData.profilePhoto;
+                const seed = (userName || 'user').toString().trim().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                const photoUrl = userPhoto || `https://i.pravatar.cc/150?u=${seed}`;
+                const displayName = userName.trim() || 'User';
+                
+                authLinks.innerHTML = `
+                    <li>
+                        <a href="18-profile.html" class="profile-link">
+                            <img src="${photoUrl}" alt="Profile" class="profile-photo">
+                            <span style="color: #d4af37; font-weight: 600;">${displayName}</span>
+                        </a>
+                    </li>
+                `;
+            } else {
+                authLinks.innerHTML = `
+                    <li><a href="15-login.html" class="auth-btn login-btn">Login</a></li>
+                    <li><a href="16-register.html" class="auth-btn register-btn">Register</a></li>
+                `;
+            }
+        }
+        
+        function logoutUser() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userAuth');
+            localStorage.removeItem('topbarUserData');
+            sessionStorage.clear();
+            updateAuthLinks();
+            window.location.href = '15-login.html';
+        }
+        
+        document.addEventListener('DOMContentLoaded', updateAuthLinks);
+        if (document.readyState !== 'loading') updateAuthLinks();
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>User Profile | IAMCALLING</title>
+    
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <script src="js/ultimate-console-cleaner.js"></script>
+    <script src="js/storage-fallback.js"></script>
+    <script src="js/mobile-init.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script src="js/view-tracker.js"></script>
+    <script src="js/global-security-config.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0f172a, #1e293b, #334155);
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --pure-white: #ffffff;
+            --light-blue: #60a5fa;
+            --text-primary: #ffffff;
+            --text-secondary: #cbd5e1;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            margin-top: 70px !important;
+        }
+        
+        .universal-topbar {
+            display: flex !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 10000 !important;
+        }
+        
+        .profile-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--pure-white);
+            margin-bottom: 1rem;
+        }
+        
+        .profile-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.6rem;
+        }
+        
+        .profile-info {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .profile-bio {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .profile-details {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.8rem;
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+        }
+        
+        .profile-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .profile-detail-item i {
+            color: var(--light-blue);
+        }
+        
+        .profile-detail-item a {
+            color: var(--light-blue);
+            text-decoration: none;
+        }
+        
+        .profile-detail-item a:hover {
+            text-decoration: underline;
+        }
+
+        .profile-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+            justify-content: center;
+            margin-top: 0.6rem;
+        }
+        
+        .sync-btn {
+            background: linear-gradient(135deg, #1e40af, #3730a3);
+            color: var(--pure-white);
+            border: none;
+            padding: 0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+            font-size: 0.7rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 40px;
+            min-width: 80px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+                        0 1px 0 rgba(255, 255, 255, 0.2) inset;
+            transform: translateY(0);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sync-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4), 
+                        0 0 0 1px rgba(255, 255, 255, 0.15) inset,
+                        0 1px 0 rgba(255, 255, 255, 0.3) inset;
+            background: linear-gradient(145deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+        }
+        
+        .sync-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), 
+                        0 0 0 1px rgba(0, 0, 0, 0.1) inset;
+            background: linear-gradient(145deg, #1d4ed8 0%, #1e40af 50%, #1e3a8a 100%);
+        }
+        
+        .message-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            font-weight: bold;
+            min-width: 20px;
+            padding: 0 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .message-badge:empty {
+            display: none;
+        }
+        
+        .user-articles-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .articles-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .article-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: var(--transition);
+        }
+        
+        .article-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+        
+        .article-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.4rem;
+            line-height: 1.3;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.8rem;
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+        
+        .article-date {
+            color: var(--light-blue);
+        }
+        
+        .article-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .article-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+        
+        .delete-btn {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.6rem;
+            transition: var(--transition);
+        }
+        
+        .delete-btn:hover {
+            background: linear-gradient(135deg, #b91c1c, #991b1b);
+            transform: translateY(-1px);
+        }
+        
+        .loading-message, .no-articles-message {
+            text-align: center;
+            color: var(--text-secondary);
+            padding: 2rem;
+            font-style: italic;
+            font-size: 0.7rem;
+        }
+        
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--pure-white);
+        }
+        
+        .stat-label {
+            font-size: 0.6rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0.75rem 1rem;
+            }
+            
+            .navbar-menu {
+                display: none;
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                background: var(--glass-bg);
+                backdrop-filter: blur(15px);
+                flex-direction: column;
+                padding: 1rem;
+                z-index: 999;
+            }
+            
+            .navbar-menu.active {
+                display: flex;
+            }
+            
+            .navbar-icons {
+                gap: 1rem;
+            }
+            
+            .profile-container {
+                margin: 1rem auto;
+                padding: 0 1rem;
+            }
+            
+            .profile-header {
+                margin-bottom: 1.5rem;
+            }
+            
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .profile-name {
+                font-size: 1.3rem;
+            }
+            
+            .profile-stats {
+                gap: 0.8rem;
+                flex-wrap: wrap;
+            }
+            
+            .stat-item {
+                flex: 1;
+                min-width: 60px;
+            }
+            
+            .stat-number {
+                font-size: 1.1rem;
+            }
+            
+            .sync-btn {
+                padding: 0;
+                font-size: 0.45rem;
+                height: 32px;
+                min-width: 60px;
+            }
+            
+            .user-articles-section {
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .article-card {
+                padding: 0.8rem;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.3rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .profile-container {
+                padding: 0 0.5rem;
+            }
+            
+            .profile-header {
+                margin-bottom: 1rem;
+            }
+            
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .profile-name {
+                font-size: 1.3rem;
+            }
+            
+            .profile-bio {
+                font-size: 0.9rem;
+            }
+            
+            .profile-details {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .profile-stats {
+                gap: 0.5rem;
+            }
+            
+            .stat-number {
+                font-size: 1.2rem;
+            }
+            
+            .stat-label {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+    <!-- Global Auth Manager -->
+    <script src="js/universal-topbar-injector.js"></script>
+    <script src="/config.js"></script>
+</head>
+<body>
+
+    <main class="profile-container">
+        <div class="profile-header">
+            <img src="" 
+                 alt="Profile Avatar" 
+                 class="profile-avatar" 
+                 id="profile-avatar"
+                 style="display: none;">
+            
+            <h1 class="profile-name" id="profile-name-display">Loading user from Supabase...</h1>
+            
+            <div class="profile-info">
+                <div class="profile-bio" id="profile-bio"></div>
+                <div class="profile-details" id="profile-details"></div>
+            </div>
+            
+
+            
+            <div class="profile-actions">
+                <button class="sync-btn" id="refreshProfileBtn">🔄 Sync Profile</button>
+                <a href="22-write_article.html" class="sync-btn" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); text-decoration: none; display: inline-flex;">📝 Write Article</a>
+                <a href="19-user_settings.html" class="sync-btn" style="text-decoration: none; display: inline-flex;">⚙️ Settings</a>
+                <a href="34-icalluser-messenger.html" class="sync-btn" id="messengerLink" style="text-decoration: none; display: inline-flex; position: relative;">📨 Messenger <span id="messengerBadge" class="message-badge" style="display: none;">0</span></a>
+                <a href="35-reward-claim.html" class="sync-btn" style="background: #28a745; text-decoration: none; display: inline-flex;">₹ Rewards</a>
+            </div>
+        </div>
+        
+        <!-- User Articles Section -->
+        <div class="user-articles-section">
+            <h2 class="section-title">My Articles (<span id="articles-count">0</span>)</h2>
+            <div id="userArticlesList" class="articles-grid">
+                <div class="loading-message">Loading your articles...</div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileNameDisplay = document.getElementById('profile-name-display');
+            const profileAvatar = document.getElementById('profile-avatar');
+            const refreshBtn = document.getElementById('refreshProfileBtn');
+            
+            function waitForGlobalAuth(maxWaitMs) {
+                return new Promise(function(resolve) {
+                    var elapsed = 0;
+                    var step = 50;
+                    function check() {
+                        if (window.globalAuth) {
+                            resolve(window.globalAuth);
+                            return;
+                        }
+                        elapsed += step;
+                        if (elapsed < (maxWaitMs || 3000)) {
+                            setTimeout(check, step);
+                        } else {
+                            resolve(null);
+                        }
+                    }
+                    check();
+                });
+            }
+            
+            async function loadUserProfile() {
+                var auth = window.globalAuth || await waitForGlobalAuth(3000);
+                if (auth && auth.isLoggedIn()) {
+                    const user = auth.getCurrentUser();
+                    const userName = auth.getUserName();
+                    
+                    // Keep the loading message until Supabase data is loaded
+                    profileNameDisplay.textContent = 'Loading user from Supabase...';
+                    profileAvatar.style.display = 'none';
+                    
+                    if (user.email) {
+                        ensureUserInSupabase(user);
+                        
+                        // Add timeout to prevent hanging
+                        const profileLoadTimeout = setTimeout(() => {
+                            console.log('⏰ Profile load timeout - showing fallback');
+                            showFallbackProfile();
+                        }, 5000);
+                        
+                        try {
+                            await loadProfileDetailsFromSupabase(user.email);
+                        } finally {
+                            clearTimeout(profileLoadTimeout);
+                        }
+                    }
+                    loadUserArticles();
+                    loadUnreadMessageCount();
+                    return;
+                }
+                
+                profileNameDisplay.textContent = 'Please log in';
+                profileAvatar.style.display = 'none';
+                document.getElementById('userArticlesList').innerHTML = '<div class="no-articles-message">Please <a href="15-login.html" style="color: var(--light-blue);">log in</a> to view your profile and articles.</div>';
+                document.getElementById('articles-count').textContent = '0';
+                document.getElementById('comments-count').textContent = '0';
+                document.getElementById('challenges-count').textContent = '0';
+                setTimeout(function() {
+                    window.location.href = '15-login.html';
+                }, 2500);
+            }
+            
+            async function loadProfileDetailsFromSupabase(email) {
+                try {
+                    const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                    
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?select=full_name,bio,location,website,profile_photo&email=eq.${encodeURIComponent(email)}`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const users = await response.json();
+                        console.log('👥 Users from Supabase:', users);
+                        if (users && users.length > 0) {
+                            console.log('✅ Found user data, displaying profile');
+                            displayProfileDetails(users[0]);
+                        } else {
+                            // If user not found in Supabase, ensure they exist
+                            var auth = window.globalAuth || {};
+                            var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
+                            if (user) {
+                                await ensureUserInSupabase(user);
+                                
+                                // Try loading again after creating the user
+                                const retryResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=full_name,bio,location,website,profile_photo&email=eq.${encodeURIComponent(email)}`, {
+                                    headers: {
+                                        'apikey': SUPABASE_ANON_KEY,
+                                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                                        'Accept': 'application/json'
+                                    }
+                                });
+                                
+                                if (retryResponse.ok) {
+                                    const retryUsers = await retryResponse.json();
+                                    if (retryUsers && retryUsers.length > 0) {
+                                        displayProfileDetails(retryUsers[0]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Error loading profile details from Supabase:', error);
+                    // In case of error, still show user's name from auth manager
+                    showFallbackProfile();
+                }
+            }
+            
+            function showFallbackProfile() {
+                console.log('🔄 Showing fallback profile from auth manager');
+                var auth = window.globalAuth || {};
+                var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
+                var userName = auth.getUserName ? auth.getUserName() : 'User';
+                
+                // Build display name from available auth data
+                let displayName = user.name || user.full_name || user.firstName + ' ' + (user.lastName || '') || userName || 'User';
+                console.log('👤 Displaying fallback name:', displayName);
+                
+                profileNameDisplay.textContent = displayName;
+                profileAvatar.style.display = 'block';
+                
+                // Set default avatar
+                var seed = (user.email || userName || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                profileAvatar.src = 'https://i.pravatar.cc/150?u=' + seed;
+            }
+            
+            function displayProfileDetails(data) {
+                console.log('📋 Profile data received:', data);
+                const bioElement = document.getElementById('profile-bio');
+                const detailsElement = document.getElementById('profile-details');
+                
+                // Display user's name - prioritize Supabase data, fallback to auth manager
+                let displayName = '';
+                
+                if (data.full_name && data.full_name.trim()) {
+                    displayName = data.full_name;
+                    console.log('✅ Using full_name from Supabase:', displayName);
+                } else {
+                    // Fallback to auth manager name
+                    var auth = window.globalAuth || {};
+                    var authUser = auth.getCurrentUser ? auth.getCurrentUser() : {};
+                    displayName = authUser.name || authUser.full_name || authUser.firstName + ' ' + (authUser.lastName || '') || 'User';
+                    console.log('⚠️ Using name from auth manager:', displayName);
+                }
+                
+                profileNameDisplay.textContent = displayName;
+                
+                // Display profile photo from Supabase data
+                if (data.profile_photo && data.profile_photo.trim()) {
+                    profileAvatar.src = data.profile_photo;
+                    profileAvatar.style.display = 'block';
+                } else {
+                    // Show default avatar if no profile photo from Supabase
+                    var auth = window.globalAuth || {};
+                    var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
+                    var userName = auth.getUserName ? auth.getUserName() : 'user';
+                    var seed = (user.email || userName || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                    profileAvatar.src = 'https://i.pravatar.cc/150?u=' + seed;
+                    profileAvatar.style.display = 'block';
+                }
+                
+                // Display bio
+                if (bioElement) {
+                    if (data.bio && data.bio.trim()) {
+                        bioElement.textContent = data.bio;
+                        bioElement.style.display = 'block';
+                    } else {
+                        bioElement.style.display = 'none';
+                    }
+                }
+                
+                // Display location and website
+                if (detailsElement) {
+                    let html = '';
+                    
+                    if (data.location && data.location.trim()) {
+                        html += `<div class="profile-detail-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${data.location}</span>
+                        </div>`;
+                    }
+                    
+                    if (data.website && data.website.trim()) {
+                        const websiteUrl = data.website.startsWith('http') ? data.website : `https://${data.website}`;
+                        html += `<div class="profile-detail-item">
+                            <i class="fas fa-globe"></i>
+                            <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer">${data.website}</a>
+                        </div>`;
+                    }
+                    
+                    if (html) {
+                        detailsElement.innerHTML = html;
+                        detailsElement.style.display = 'flex';
+                    } else {
+                        detailsElement.style.display = 'none';
+                    }
+                }
+            }
+            
+            // Ensure user exists in Supabase database
+            async function ensureUserInSupabase(user) {
+                if (!user || !user.email) return;
+                
+                try {
+                    const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                    
+                    // Check if user exists in Supabase
+                    const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id,email&email=eq.${encodeURIComponent(user.email)}`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (checkResponse.ok) {
+                        const existingUsers = await checkResponse.json();
+                        
+                        if (!existingUsers || existingUsers.length === 0) {
+                            // User doesn't exist in Supabase, create them
+                            console.log('🔄 Creating user in Supabase:', user.name);
+                            
+                            const newUser = {
+                                full_name: user.name,
+                                email: user.email,
+                                profile_photo: user.photo,
+                                created_at: new Date().toISOString()
+                            };
+                            
+                            const createResponse = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
+                                method: 'POST',
+                                headers: {
+                                    'apikey': SUPABASE_ANON_KEY,
+                                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'return=representation'
+                                },
+                                body: JSON.stringify(newUser)
+                            });
+                            
+                            if (createResponse.ok) {
+                                const result = await createResponse.json();
+                                console.log('✅ User created in Supabase:', result);
+                                
+                                // Update user data with Supabase ID
+                                if (result && result.length > 0 && window.globalAuth) {
+                                    const updatedUser = { ...user, id: result[0].id, userId: result[0].id };
+                                    window.globalAuth.setUser(updatedUser);
+                                }
+                            } else {
+                                console.error('❌ Failed to create user in Supabase');
+                            }
+                        } else {
+                            console.log('✅ User already exists in Supabase');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error ensuring user in Supabase:', error);
+                }
+            }
+            
+
+            
+            window.addEventListener('authStateChanged', loadUserProfile);
+            window.addEventListener('authStatusChanged', loadUserProfile);
+            
+            loadUserProfile();
+            
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    loadUserProfile();
+                });
+            }
+            
+
+        });
+        
+        async function loadUserArticles() {
+            const articlesContainer = document.getElementById('userArticlesList');
+            
+            try {
+                // Get current user from global auth manager
+                if (!window.globalAuth || !window.globalAuth.isLoggedIn()) {
+                    articlesContainer.innerHTML = '<div class="no-articles-message">Please login to view your articles</div>';
+                    return;
+                }
+                
+                const currentUser = window.globalAuth.getCurrentUser();
+                if (!currentUser || !currentUser.email) {
+                    articlesContainer.innerHTML = '<div class="no-articles-message">User data not available</div>';
+                    return;
+                }
+                
+                console.log('🔍 Looking for user:', currentUser.email);
+                
+                // Hardcoded Supabase credentials
+                const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                
+                // First, get user's author_id from users table
+                const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=author_id&email=eq.${encodeURIComponent(currentUser.email)}`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                const userData = await userResponse.json();
+                console.log('👤 User data:', userData);
+                
+                if (!userData || userData.length === 0 || !userData[0].author_id) {
+                    articlesContainer.innerHTML = '<div class="no-articles-message">User not found in database. Please contact support.</div>';
+                    return;
+                }
+                
+                const authorId = userData[0].author_id;
+                console.log('🔍 Looking for articles by author_id:', authorId);
+                
+                // Now get articles by author_id
+                const articlesResponse = await fetch(`${SUPABASE_URL}/rest/v1/articles?select=*&author_id=eq.${authorId}&order=created_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                const userArticles = await articlesResponse.json();
+                console.log('✅ User articles found:', userArticles);
+                
+                // Update count
+                document.getElementById('articles-count').textContent = userArticles.length;
+                
+                if (userArticles.length === 0) {
+                    articlesContainer.innerHTML = '<div class="no-articles-message">No articles found. <a href="22-write_article.html" style="color: var(--light-blue);">Write your first article</a></div>';
+                    return;
+                }
+                
+                // Display articles
+                articlesContainer.innerHTML = userArticles.map(article => `
+                    <div class="article-card" data-article-id="${article.id}">
+                        <h3 class="article-title">${article.title}</h3>
+                        <div class="article-meta">
+                            <span class="article-date">${new Date(article.created_at).toLocaleDateString()}</span>
+                            <span class="article-status">${article.published ? '✅ Published' : '⏳ Draft'}</span>
+                        </div>
+                        <div class="article-content">${article.content ? article.content.replace(/<[^>]*>/g, '').substring(0, 150) + '...' : 'No content'}</div>
+                        <div class="article-actions">
+                            <button class="delete-btn" onclick="deleteArticle(${article.id})">🗑️ Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading articles:', error);
+                articlesContainer.innerHTML = '<div class="no-articles-message">Error loading articles.</div>';
+            }
+        }
+        
+        // Delete article function
+        async function deleteArticle(articleId) {
+            if (!confirm('Are you sure you want to delete this article? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                // Delete from Supabase
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/articles?id=eq.${articleId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                // Remove from UI
+                const articleCard = document.querySelector(`[data-article-id="${articleId}"]`);
+                if (articleCard) {
+                    articleCard.remove();
+                }
+                
+                // Update articles count
+                const currentCount = parseInt(document.getElementById('articles-count').textContent);
+                document.getElementById('articles-count').textContent = Math.max(0, currentCount - 1);
+                
+                // Check if no articles left
+                const articlesContainer = document.getElementById('userArticlesList');
+                if (articlesContainer.children.length === 0) {
+                    articlesContainer.innerHTML = '<div class="no-articles-message">You haven\'t written any articles yet. <a href="22-write_article.html" style="color: var(--light-blue);">Write your first article</a></div>';
+                }
+                
+                alert('Article deleted successfully!');
+                
+            } catch (error) {
+                console.error('Error deleting article:', error);
+                alert('Failed to delete article. Please try again.');
+            }
+        }
+        
+        // Make deleteArticle globally available
+        window.deleteArticle = deleteArticle;
+        
+        // Load unread message count
+        async function loadUnreadMessageCount() {
+            try {
+                if (!window.globalAuth || !window.globalAuth.isLoggedIn()) {
+                    return;
+                }
+                
+                const currentUser = window.globalAuth.getCurrentUser();
+                if (!currentUser || !currentUser.id) {
+                    return;
+                }
+                
+                const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                
+                // Use same logic as messenger - sum up local unread counts
+                let totalUnread = 0;
+                
+                // Get unread counts from localStorage (same as messenger uses)
+                const allKeys = Object.keys(localStorage);
+                const unreadKeys = allKeys.filter(key => key.startsWith('unreadCount_'));
+                
+                for (const key of unreadKeys) {
+                    const count = parseInt(localStorage.getItem(key) || '0');
+                    totalUnread += count;
+                }
+                
+                const badge = document.getElementById('messengerBadge');
+                
+                if (badge) {
+                    if (totalUnread > 0) {
+                        badge.textContent = totalUnread > 99 ? '99+' : totalUnread.toString();
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading unread message count:', error);
+                const badge = document.getElementById('messengerBadge');
+                if (badge) {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+        
+        // Refresh unread count every 30 seconds
+        setInterval(loadUnreadMessageCount, 30000);
+    </script>
+</body>
+</html>

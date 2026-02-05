@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>God Beliefs Explorer</title>
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #007bff;
+            --success-green: #28a745;
+            --warning-red: #e94560;
+            --warning-orange: #ffc107;
+            --purple: #6f42c1;
+            --pink: #e83e8c;
+            --teal: #20c997;
+            --indigo: #6610f2;
+            --text-dark: #202124;
+            --text-light: #5F6368;
+            --bg-light: #F8F9FA;
+            --white: #FFFFFF;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.15);
+            --radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--white);
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.8) rotate(0deg); opacity: 0.3; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 0.6; }
+            100% { transform: scale(0.8) rotate(360deg); opacity: 0.3; }
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .header p {
+            font-size: 15px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 2;
+        }
+        
+        
+        
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #d4af37;
+            text-decoration: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: #f8f8f8;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: #d4af37;
+        }
+        
+        .profile-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            transition: background 0.3s;
+            text-decoration: none;
+            color: #f8f8f8;
+        }
+        
+        .profile-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #f8f8f8;
+        }
+        
+        .profile-photo {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #d4af37;
+            object-fit: cover;
+        }
+        
+        .auth-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            text-align: center;
+            min-width: 100px;
+        }
+        
+        .login-btn {
+            background: linear-gradient(135deg, #0a3d0a, #0d4f0d);
+            color: #f8f8f8;
+            border-color: #0a3d0a;
+        }
+        
+        .login-btn:hover {
+            background: linear-gradient(135deg, #0d4f0d, #0a3d0a);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(10, 61, 10, 0.3);
+            color: #f8f8f8;
+        }
+        
+        .register-btn {
+            background: linear-gradient(135deg, #d4af37, #f0c040);
+            color: #000;
+            border-color: #d4af37;
+        }
+        
+        .register-btn:hover {
+            background: linear-gradient(135deg, #f0c040, #d4af37);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            color: #000;
+        }
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 10px 10px;
+            line-height: 1.5;
+            margin-top: 0 !important;
+        }
+        
+        
+        
+
+        .container {
+            background-color: var(--white);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-large);
+            width: 100%;
+            max-width: 450px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: var(--white);
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .progress-container {
+            height: 8px;
+            background-color: rgba(255, 255, 255, 0.2);
+            width: 100%;
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
+            width: 0;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 4px;
+            position: relative;
+            box-shadow: 0 0 10px rgba(255, 154, 158, 0.6);
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .content {
+            padding: 30px 20px;
+            min-height: 400px;
+        }
+
+        .question-container {
+            display: none;
+            animation: slideUpFade 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .question-container.active {
+            display: block;
+        }
+
+        @keyframes slideUpFade {
+            from { 
+                opacity: 0; 
+                transform: translateY(30px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .question-container.active .illustration {
+            animation: bounceIn 0.8s ease-out;
+        }
+        
+        .question-container.active .question {
+            animation: slideUpFade 0.7s ease-out 0.1s both;
+        }
+        
+        .question-container.active .options {
+            animation: slideUpFade 0.7s ease-out 0.2s both;
+        }
+
+        .question {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 35px;
+            text-align: center;
+            color: var(--text-dark);
+            line-height: 1.4;
+            position: relative;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .question-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: var(--white);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            text-align: center;
+            margin-right: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            animation: pulseNumber 2s infinite;
+        }
+        
+        @keyframes pulseNumber {
+            0% { transform: scale(1); box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3); }
+            50% { transform: scale(1.1); box-shadow: 0 6px 15px rgba(102, 126, 234, 0.5); }
+            100% { transform: scale(1); box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3); }
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 18px 24px;
+            border: none;
+            border-radius: 16px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-yes {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: var(--white);
+            border: 2px solid transparent;
+        }
+
+        .btn-yes:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .btn-yes:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .btn-no {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+            border: 2px solid transparent;
+        }
+
+        .btn-no:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .btn-no:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .buyer-seller-container {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .buyer-seller-container.active {
+            display: flex;
+        }
+
+        .result-container {
+            display: none;
+            text-align: center;
+            animation: slideUpFade 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        .result-container.active {
+            display: block;
+        }
+
+        .result-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .result-title.warning {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glowWarning 2s infinite;
+        }
+        
+        @keyframes glowWarning {
+            0% { text-shadow: 0 0 5px rgba(240, 147, 251, 0.3); }
+            50% { text-shadow: 0 0 20px rgba(245, 87, 108, 0.6); }
+            100% { text-shadow: 0 0 5px rgba(240, 147, 251, 0.3); }
+        }
+
+        .result-title.success {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glowSuccess 2s infinite;
+        }
+        
+        @keyframes glowSuccess {
+            0% { text-shadow: 0 0 5px rgba(79, 172, 254, 0.3); }
+            50% { text-shadow: 0 0 20px rgba(0, 242, 254, 0.6); }
+            100% { text-shadow: 0 0 5px rgba(79, 172, 254, 0.3); }
+        }
+
+        .result-description {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: var(--text-light);
+        }
+
+        .reasons-container {
+            background-color: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 25px 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            display: none;
+        }
+
+        .reasons-container.active {
+            display: block;
+        }
+
+        .reasons-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .reason-item {
+            font-size: 17px;
+            line-height: 1.7;
+            margin-bottom: 25px;
+            padding: 25px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            border-left: 5px solid #667eea;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .reason-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.15);
+        }
+        
+        .reason-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb, #f5576c);
+            background-size: 300% 100%;
+            animation: gradientShift 3s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .reason-question {
+            font-weight: 800;
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+
+        .reason-explanation {
+            color: #4a5568;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .reason-counter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: var(--white);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 12px;
+            font-weight: 800;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+            flex-shrink: 0;
+        }
+
+        .consent-container {
+            margin: 30px 0;
+            display: none;
+        }
+
+        .consent-container.active {
+            display: block;
+        }
+
+        .consent-question {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .btn-consent {
+            padding: 12px 20px;
+            margin: 0 8px;
+            font-size: 15px;
+        }
+
+        .btn-agree {
+            background: linear-gradient(45deg, #28a745, #1e7e34);
+            color: var(--white);
+        }
+
+        .btn-agree:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn-disagree {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+            color: var(--white);
+        }
+
+        .btn-disagree:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-next {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: var(--white);
+            margin-top: 25px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .btn-next:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .conclusion-container {
+            display: none;
+            background-color: var(--bg-light);
+            border-radius: var(--radius);
+            padding: 25px 20px;
+            margin-top: 30px;
+            text-align: left;
+        }
+
+        .conclusion-container.active {
+            display: block;
+        }
+
+        .conclusion-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .conclusion-section {
+            margin-bottom: 20px;
+        }
+
+        .conclusion-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary-blue);
+        }
+
+        .conclusion-list {
+            padding-left: 20px;
+        }
+
+        .conclusion-list li {
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: var(--text-light);
+        }
+
+        .btn-restart {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            margin-top: 35px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-restart:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.5);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .btn-restart:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+
+        .icon {
+            font-size: 60px;
+            margin-bottom: 25px;
+            animation: bounceIn 0.8s ease-out;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .icon.warning {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: bounceIn 0.8s ease-out, pulseWarning 2s infinite 0.8s;
+        }
+        
+        @keyframes pulseWarning {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .icon.success {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: bounceIn 0.8s ease-out, pulseSuccess 2s infinite 0.8s;
+        }
+        
+        @keyframes pulseSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .question-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary-blue);
+            color: var(--white);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            margin-right: 8px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .reason-progress {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: var(--text-light);
+        }
+
+        .illustration {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .illustration img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .illustration i {
+            font-size: 70px !important;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            transition: all 0.3s ease;
+        }
+        
+        .question-container.active .illustration i {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .illustration::before {
+            content: '';
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            animation: pulseRing 2s infinite;
+        }
+        
+        @keyframes pulseRing {
+            0% { transform: scale(0.8); opacity: 0.6; }
+            70% { transform: scale(1.5); opacity: 0; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 12px;
+            color: var(--text-light);
+            background-color: var(--bg-light);
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+                border-radius: 0;
+                min-height: 100vh;
+            }
+            
+            .header {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: var(--white);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+                font-size: 20px;
+            }
+            
+            .question {
+                font-size: 18px;
+            }
+            
+            .btn {
+                font-size: 15px;
+                padding: 14px 16px;
+            }
+            
+            .reason-item {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            .reason-explanation {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <!-- Test Navigation Script -->
+    <script src="test-navigation.js"></script>
+    
+    <script src="js/ultimate-console-cleaner.js"></script>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    
+    
+    <div class="container">
+        <div class="header">
+            <h1>God Beliefs Explorer</h1>
+            <p>Let's explore what you believe about God</p>
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+        
+        <div class="content">
+            <!-- Question 1 -->
+            <div class="question-container active" id="question1">
+                <div class="illustration">
+                    <i class="fas fa-globe-americas" style="font-size: 60px; color: var(--primary-blue);"></i>
+                </div>
+                <div class="question">
+                    <span class="question-number">1</span>
+                    Do you believe God made the universe?
+                </div>
+                <div class="options">
+                    <button class="btn btn-yes" onclick="answerQuestion(1, 'yes')">
+                        <i class="fas fa-check"></i> Yes, I'm sure
+                    </button>
+                    <button class="btn btn-no" onclick="answerQuestion(1, 'no')">
+                        <i class="fas fa-question"></i> I'm not sure
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Question 2 -->
+            <div class="question-container" id="question2">
+                <div class="illustration">
+                    <i class="fas fa-bolt" style="font-size: 60px; color: var(--primary-blue);"></i>
+                </div>
+                <div class="question">
+                    <span class="question-number">2</span>
+                    Do you believe God is the most powerful?
+                </div>
+                <div class="options">
+                    <button class="btn btn-yes" onclick="answerQuestion(2, 'yes')">
+                        <i class="fas fa-check"></i> Yes, I'm sure
+                    </button>
+                    <button class="btn btn-no" onclick="answerQuestion(2, 'no')">
+                        <i class="fas fa-question"></i> I'm not sure
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Question 3 -->
+            <div class="question-container" id="question3">
+                <div class="illustration">
+                    <i class="fas fa-gavel" style="font-size: 60px; color: var(--primary-blue);"></i>
+                </div>
+                <div class="question">
+                    <span class="question-number">3</span>
+                    Do you believe God decides what's right and wrong?
+                </div>
+                <div class="options">
+                    <button class="btn btn-yes" onclick="answerQuestion(3, 'yes')">
+                        <i class="fas fa-check"></i> Yes, I'm sure
+                    </button>
+                    <button class="btn btn-no" onclick="answerQuestion(3, 'no')">
+                        <i class="fas fa-question"></i> I'm not sure
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Question 4 -->
+            <div class="question-container" id="question4">
+                <div class="illustration">
+                    <i class="fas fa-smile" style="font-size: 60px; color: var(--primary-blue);"></i>
+                </div>
+                <div class="question">
+                    <span class="question-number">4</span>
+                    Do you believe God is kind and helpful?
+                </div>
+                <div class="options">
+                    <button class="btn btn-yes" onclick="answerQuestion(4, 'yes')">
+                        <i class="fas fa-check"></i> Yes, I'm sure
+                    </button>
+                    <button class="btn btn-no" onclick="answerQuestion(4, 'no')">
+                        <i class="fas fa-question"></i> I'm not sure
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Question 5 -->
+            <div class="question-container" id="question5">
+                <div class="illustration">
+                    <i class="fas fa-heart" style="font-size: 60px; color: var(--primary-blue);"></i>
+                </div>
+                <div class="question">
+                    <span class="question-number">5</span>
+                    Do you believe God can help you feel better when sad?
+                </div>
+                <div class="options">
+                    <button class="btn btn-yes" onclick="answerQuestion(5, 'yes')">
+                        <i class="fas fa-check"></i> Yes, I'm sure
+                    </button>
+                    <button class="btn btn-no" onclick="answerQuestion(5, 'no')">
+                        <i class="fas fa-question"></i> I'm not sure
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Question 6 -->
+            <div class="question-container" id="question6">
+                <div class="illustration">
+                    <i class="fas fa-balance-scale" style="font-size: 60px; color: var(--primary-blue);"></i>
+                </div>
+                <div class="question">
+                    <span class="question-number">6</span>
+                    Do you believe God's rules must be followed by everyone?
+                </div>
+                <div class="options">
+                    <button class="btn btn-yes" onclick="answerQuestion(6, 'yes')">
+                        <i class="fas fa-check"></i> Yes, I'm sure
+                    </button>
+                    <button class="btn btn-no" onclick="answerQuestion(6, 'no')">
+                        <i class="fas fa-question"></i> I'm not sure
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Question 7 -->
+            <div class="question-container" id="question7">
+                <div class="illustration">
+                    <i class="fas fa-store" style="font-size: 60px; color: var(--primary-blue);"></i>
+                </div>
+                <div class="question">
+                    <span class="question-number">7</span>
+                    Do you feel that belief is the market, where believers are the consumers/buyers and those are seller who teach, force to believe?
+                </div>
+                <div class="options">
+                    <button class="btn btn-yes" onclick="answerQuestion(7, 'yes')">
+                        <i class="fas fa-check"></i> Yes, I'm sure
+                    </button>
+                    <button class="btn btn-no" onclick="answerQuestion(7, 'no')">
+                        <i class="fas fa-question"></i> I'm not sure
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Question 8 -->
+            <div class="question-container" id="question8">
+                <div class="illustration">
+                    <i class="fas fa-dollar-sign" style="font-size: 60px; color: var(--primary-blue);"></i>
+                </div>
+                <div class="question">
+                    <span class="question-number">8</span>
+                    Do you think in the business of belief, Products are - Fear of power, greed from power, and its most profitable business with ZERO investment?
+                </div>
+                <div class="options">
+                    <button class="btn btn-yes" onclick="answerMarketQuestion('agree')">
+                        <i class="fas fa-check"></i> I am agree on it
+                    </button>
+                    <button class="btn btn-no" onclick="answerMarketQuestion('disagree')">
+                        <i class="fas fa-times"></i> I am not agree
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Result Container -->
+            <div class="result-container" id="resultContainer">
+                <i class="fas fa-exclamation-triangle icon warning" id="resultIcon"></i>
+                <h2 class="result-title warning" id="resultTitle">Your Results</h2>
+                <p class="result-description" id="resultDescription"></p>
+                
+                <div class="reasons-container" id="reasonsContainer">
+                    <h3 class="reasons-title">Why you believe these things:</h3>
+                    <div class="reason-progress" id="reasonProgress">Reason 1 of 8</div>
+                    <div class="reason-item" id="reasonItem">
+                        <div class="reason-question" id="reasonQuestion"></div>
+                        <div class="reason-explanation" id="reasonExplanation"></div>
+                    </div>
+                    <button class="btn btn-next" id="nextReasonBtn" onclick="showNextReason()">
+                        <i class="fas fa-arrow-right"></i> Next
+                    </button>
+                </div>
+                
+                <div class="consent-container" id="consentContainer">
+                    <p class="consent-question">Ready to test your political knowledge?</p>
+                    <button class="btn btn-agree" onclick="startBattleGame()">
+                        <i class="fas fa-sword"></i> Start Political Battle
+                    </button>
+                </div>
+                
+                <div class="conclusion-container" id="conclusionContainer">
+                    <h3 class="conclusion-title">What this all means</h3>
+                    
+                    <div class="conclusion-section">
+                        <h3>What's being sold:</h3>
+                        <ul class="conclusion-list">
+                            <li>Doubt (making you unsure)</li>
+                            <li>Fear (making you scared)</li>
+                            <li>Greed (making you want more)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="conclusion-section">
+                        <h3>Who's selling it:</h3>
+                        <ul class="conclusion-list">
+                            <li>People who explain how God exists</li>
+                            <li>Religious groups and buildings</li>
+                            <li>People who believe for themselves</li>
+                            <li>People who say they speak for God</li>
+                            <li>Leaders who tell others what to believe</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="conclusion-section">
+                        <h3>Who's buying it:</h3>
+                        <ul class="conclusion-list">
+                            <li>People who listen to stories about God</li>
+                            <li>People who want to see what God looks like</li>
+                            <li>People who want to know how powerful God is</li>
+                            <li>People who want fairness in the world</li>
+                            <li>People who follow without asking questions</li>
+                            <li>People who feel lonely</li>
+                            <li>People who support leaders</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <button class="btn btn-restart" onclick="restartQuiz()">
+                    <i class="fas fa-redo"></i> Start Over
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            This quiz helps you think about what you believe and why
+        </div>
+    </div>
+
+    <script>
+        
+        
+        // Authentication management
+        function updateAuthLinks() {
+            const currentUser = localStorage.getItem('currentUser');
+            const userAuth = localStorage.getItem('userAuth');
+            const userDataStr = localStorage.getItem('userData');
+            const iamcallingUser = localStorage.getItem('iamcalling_current_user');
+            
+            let isAuthenticated = false;
+            let userData = null;
+            
+            if (currentUser && userAuth === 'true') {
+                try {
+                    userData = JSON.parse(currentUser);
+                    if (userData && (userData.name || userData.full_name || userData.email)) {
+                        isAuthenticated = true;
+                    }
+                } catch (e) {}
+            }
+            
+            if (!isAuthenticated && userDataStr) {
+                try {
+                    userData = JSON.parse(userDataStr);
+                    if (userData && (userData.name || userData.full_name || userData.email)) {
+                        isAuthenticated = true;
+                    }
+                } catch (e) {}
+            }
+            
+            if (!isAuthenticated && iamcallingUser) {
+                try {
+                    userData = JSON.parse(iamcallingUser);
+                    if (userData && (userData.full_name || userData.email)) {
+                        isAuthenticated = true;
+                    }
+                } catch (e) {}
+            }
+            
+            const authLinks = document.querySelector('nav ul');
+            if (!authLinks) return;
+            
+            if (isAuthenticated && userData) {
+                const userName = userData.name || userData.full_name || userData.firstName + ' ' + (userData.lastName || '') || 'User';
+                const userPhoto = userData.photo || userData.profile_photo || userData.profilePhoto;
+                const seed = (userName || 'user').toString().trim().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                const photoUrl = userPhoto || `https://i.pravatar.cc/150?u=${seed}`;
+                const displayName = userName.trim() || 'User';
+                
+                authLinks.innerHTML = `
+                    <li>
+                        <a href="18-profile.html" class="profile-link">
+                            <img src="${photoUrl}" alt="Profile" class="profile-photo">
+                            <span style="color: #d4af37; font-weight: 600;">${displayName}</span>
+                        </a>
+                    </li>
+                `;
+            } else {
+                authLinks.innerHTML = `
+                    <li><a href="15-login.html" class="auth-btn login-btn">Login</a></li>
+                    <li><a href="16-register.html" class="auth-btn register-btn">Register</a></li>
+                `;
+            }
+        }
+        
+        function logoutUser() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userAuth');
+            localStorage.removeItem('topbarUserData');
+            sessionStorage.clear();
+            updateAuthLinks();
+            window.location.href = '15-login.html';
+        }
+        
+        // Data for questions and reasons
+        const questionsData = {
+            1: {
+                text: "Do you believe God made the universe?",
+                reason: "To explain where everything came from.",
+                explanation: "You believe God made the universe because you want to know how everything began. When we don't have answers, it's easier to say 'God did it' than to say 'I don't know'."
+            },
+            2: {
+                text: "Do you believe God is the most powerful?",
+                reason: "To feel that someone is in charge.",
+                explanation: "You believe God is powerful because it makes you feel safe to think someone strong is watching over everything. It's like having a superhero who protects the world."
+            },
+            3: {
+                text: "Do you believe God decides what's right and wrong?",
+                reason: "To make people follow rules.",
+                explanation: "You believe God decides what's right and wrong because it helps people behave well. When people think God is watching and will punish them for being bad, they're more likely to follow the rules."
+            },
+            4: {
+                text: "Do you believe God is kind and helpful?",
+                reason: "To feel hopeful and safe.",
+                explanation: "You believe God is kind because it makes you feel good to think someone cares about you. It's like having a parent who always loves you and wants the best for you."
+            },
+            5: {
+                text: "Do you believe God can help you feel better when sad?",
+                reason: "To feel less lonely or sad.",
+                explanation: "You believe God can help you feel better because it's comforting to think someone is there for you when you're sad. It's like having an imaginary friend who always understands you."
+            },
+            6: {
+                text: "Do you believe God's rules must be followed by everyone?",
+                reason: "To make others think like you.",
+                explanation: "You believe God's rules are for everyone because it's a way to make other people think the same way you do. It's easier to say 'God wants this' than to say 'I want this'."
+            }
+        };
+
+        // Quiz state
+        let currentQuestion = 1;
+        const totalQuestions = 8;
+        const answers = {};
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = ((currentQuestion - 1) / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        // Add subtle click sound effect
+        function playClickSound() {
+            // Create audio context for subtle feedback
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                // Silent fail for browsers that don't support AudioContext
+            }
+        }
+
+        // Answer question
+        function answerQuestion(questionNum, answer) {
+            playClickSound();
+            answers[questionNum] = answer;
+            
+            // Add visual feedback
+            const button = event.target;
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 150);
+            
+            // Move to next question
+            if (questionNum < totalQuestions) {
+                document.getElementById(`question${questionNum}`).classList.remove('active');
+                currentQuestion++;
+                setTimeout(() => {
+                    document.getElementById(`question${currentQuestion}`).classList.add('active');
+                    document.getElementById(`question${currentQuestion}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+                updateProgress();
+            } else {
+                setTimeout(showResult, 300);
+            }
+        }
+
+        // Answer market question (for Q8)
+        function answerMarketQuestion(answer) {
+            playClickSound();
+            answers[8] = answer === 'agree' ? 'yes' : 'no';
+            
+            // Add visual feedback
+            const button = event.target;
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 150);
+            
+            setTimeout(showResult, 300);
+        }
+
+        // Calculate scores and analyze results
+        function analyzeResults() {
+            // Skip scoring, go directly to golden rules
+            return checkGoldenRules();
+        }
+        
+        function checkGoldenRules() {
+            // Golden Rule 3: YES for ALL questions
+            if (Object.values(answers).every(answer => answer === 'yes')) {
+                return {
+                    type: 'danger',
+                    title: 'Buyer Who Wants Loss',
+                    description: 'You are that buyer who wants loss.',
+                    icon: 'fas fa-exclamation-triangle'
+                };
+            }
+            
+            // Golden Rule 4: NO for all except Q7 & Q8 (YES, YES)
+            const noFor1to6 = [1,2,3,4,5,6].every(q => answers[q] === 'no');
+            if (noFor1to6 && answers[7] === 'yes' && answers[8] === 'yes') {
+                return {
+                    type: 'success',
+                    title: '100% Analytically Correct - Smart Thinker',
+                    description: 'You identified business logic.',
+                    icon: 'fas fa-brain'
+                };
+            }
+            
+            // Golden Rule 5: YES for 1-6, NO for Q7 & Q8
+            const yesFor1to6 = [1,2,3,4,5,6].every(q => answers[q] === 'yes');
+            if (yesFor1to6 && answers[7] === 'no' && answers[8] === 'no') {
+                return {
+                    type: 'danger',
+                    title: 'Misguided by Surroundings',
+                    description: 'You are misguided by your surroundings. You have need to explore the world, go beyond the box.',
+                    icon: 'fas fa-exclamation-triangle'
+                };
+            }
+            
+            // Golden Rule 2: NO for Q5
+            if (answers[5] === 'no') {
+                return {
+                    type: 'success',
+                    title: 'Good Thinker',
+                    description: 'You are a good thinker. Don\'t be aggressive, you have need of peace of mind.',
+                    icon: 'fas fa-leaf'
+                };
+            }
+            
+            // Specific pattern: 3rd-No, 4th-No, 5th-Yes, 6th-No, 7th-Yes, 8th-Yes
+            if (answers[3] === 'no' && answers[4] === 'no' && answers[5] === 'yes' && 
+                answers[6] === 'no' && answers[7] === 'yes' && answers[8] === 'yes') {
+                return {
+                    type: 'success',
+                    title: 'Good Thinker with Humanity',
+                    description: 'You are a good thinker, you have feelings for humanity.',
+                    icon: 'fas fa-heart'
+                };
+            }
+            
+            // Default analytical thinking (Q1 & Q2 NO gives research-oriented thinking)
+            if (answers[1] === 'no' || answers[2] === 'no') {
+                return {
+                    type: 'success',
+                    title: 'Research-Oriented Smart Thinker',
+                    description: 'You have research-oriented smart thinking.',
+                    icon: 'fas fa-search'
+                };
+            }
+            
+            // Default case
+            return {
+                type: 'info',
+                title: 'Neutral Thinker',
+                description: 'Your thinking pattern shows a balanced approach.',
+                icon: 'fas fa-balance-scale'
+            };
+        }
+
+        // Simple confetti effect
+        function createConfetti() {
+            const colors = ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe', '#00f2fe'];
+            const container = document.querySelector('.container');
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = '50%';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.top = '-10px';
+                confetti.style.opacity = '0';
+                confetti.style.zIndex = '1000';
+                confetti.style.pointerEvents = 'none';
+                
+                container.appendChild(confetti);
+                
+                // Animate confetti
+                const animation = confetti.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: '0' },
+                    { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: '1', offset: 0.3 },
+                    { transform: `translateY(${window.innerHeight}px) rotate(${Math.random() * 360}deg)`, opacity: '0', offset: 1 }
+                ], {
+                    duration: 2000 + Math.random() * 3000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.2, 1)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+
+        // Show result
+        function showResult() {
+            document.getElementById(`question${totalQuestions}`).classList.remove('active');
+            document.getElementById('progressBar').style.width = '100%';
+            
+            const result = analyzeResults();
+            const resultContainer = document.getElementById('resultContainer');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDescription = document.getElementById('resultDescription');
+            const resultIcon = document.getElementById('resultIcon');
+            
+            // Set colors based on result type
+            const colors = {
+                success: { bg: '#28a745', text: 'success' },
+                danger: { bg: '#dc3545', text: 'warning' },
+                warning: { bg: '#ffc107', text: 'warning' },
+                info: { bg: '#17a2b8', text: 'success' },
+                neutral: { bg: '#6c757d', text: 'success' }
+            };
+            
+            resultIcon.className = `${result.icon} icon ${colors[result.type].text}`;
+            resultTitle.className = `result-title ${colors[result.type].text}`;
+            resultTitle.textContent = result.title;
+            resultDescription.textContent = result.description;
+            
+            // Hide other containers
+            document.getElementById('reasonsContainer').style.display = 'none';
+            document.getElementById('consentContainer').style.display = 'block';
+            document.getElementById('consentContainer').classList.add('active');
+            
+            // Add confetti for positive results
+            if (result.type === 'success') {
+                setTimeout(createConfetti, 600);
+            }
+            
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                resultContainer.classList.add('active');
+            }, 300);
+        }
+
+        // Show a single reason
+        function showReason(reasonNum) {
+            const reasonQuestion = document.getElementById('reasonQuestion');
+            const reasonExplanation = document.getElementById('reasonExplanation');
+            const reasonProgress = document.getElementById('reasonProgress');
+            const nextBtn = document.getElementById('nextReasonBtn');
+            
+            reasonQuestion.innerHTML = `<span class="reason-counter">${reasonNum}</span>${questionsData[reasonNum].text}`;
+            reasonExplanation.textContent = questionsData[reasonNum].explanation;
+            reasonProgress.textContent = `Reason ${reasonNum} of ${yesAnswers.length}`;
+            
+            // Change button text for last reason
+            if (reasonNum === yesAnswers.length) {
+                nextBtn.innerHTML = '<i class="fas fa-flag-checkered"></i> Finish';
+            } else {
+                nextBtn.innerHTML = '<i class="fas fa-arrow-right"></i> Next';
+            }
+        }
+
+        // Show next reason
+        function showNextReason() {
+            if (currentReason < yesAnswers.length) {
+                currentReason++;
+                showReason(yesAnswers[currentReason - 1]);
+            } else {
+                // All reasons shown, show consent question
+                document.getElementById('reasonsContainer').classList.remove('active');
+                document.getElementById('consentContainer').style.display = 'block';
+                document.getElementById('consentContainer').classList.add('active');
+            }
+        }
+
+        // Start battle game
+        function startBattleGame() {
+            window.location.href = '10-political-battle.html';
+        }
+
+        // Restart quiz
+        function restartQuiz() {
+            currentQuestion = 1;
+            
+            for (let i = 1; i <= totalQuestions; i++) {
+                answers[i] = undefined;
+                document.getElementById(`question${i}`).classList.remove('active');
+            }
+            
+            document.getElementById('question1').classList.add('active');
+            document.getElementById('resultContainer').classList.remove('active');
+            document.getElementById('consentContainer').classList.remove('active');
+            document.getElementById('progressBar').style.width = '0%';
+        }
+
+        // Initialize
+        updateProgress();
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAuthLinks();
+        });
+        
+        if (document.readyState !== 'loading') {
+            updateAuthLinks();
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Content - IAmCalling</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Basic icon styles using CSS */
+        .fa-spinner::before { content: '↻'; }
+        .fa-arrow-left::before { content: '←'; }
+        .fa-home::before { content: '⌂'; }
+        .fa-eye::before { content: '👁'; }
+        
+        .fa::before { 
+            display: inline-block; 
+            margin-right: 8px; 
+            font-weight: bold;
+        }
+        
+        .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .article-header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid #d4af37;
+        }
+        
+        .article-title {
+            font-size: 2.5rem;
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #d4af37;
+        }
+        
+        .article-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .content-container {
+            min-height: 400px;
+        }
+        
+        .code-execution-container {
+            width: 100%;
+            min-height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+            background: #ffffff;
+            position: relative;
+        }
+        
+        .code-preview {
+            width: 100%;
+            min-height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: #f8f9fa;
+            font-family: 'Consolas', 'Monaco', monospace;
+            white-space: pre-wrap;
+            overflow: auto;
+            box-sizing: border-box;
+        }
+        
+        .loading-placeholder {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ffcdd2;
+            margin: 20px 0;
+        }
+        
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #c8e6c9;
+            margin: 20px 0;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .view-count {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .render-mode-selector {
+            margin: 15px 0;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .render-mode-btn {
+            padding: 8px 16px;
+            border: 1px solid #2196f3;
+            background: white;
+            color: #2196f3;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .render-mode-btn.active {
+            background: #2196f3;
+            color: white;
+        }
+        
+        .render-mode-btn:hover:not(.active) {
+            background: #bbdefb;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .article-title {
+                font-size: 2rem;
+            }
+            
+            .article-header, .article-content {
+                padding: 20px;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .render-mode-selector {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="article-header">
+            <div class="back-navigation">
+                <a href="01-index.html" class="back-button">
+                    ← Back to Home
+                </a>
+            </div>
+            
+            <h1 class="article-title" id="articleTitle">Loading...</h1>
+            
+            <div class="article-meta">
+                <div class="author-info">
+                    <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769572696/WhatsApp_Image_2026-01-14_at_7.58.42_PM_gqv8ln.jpg" 
+                         alt="Author" class="author-avatar" id="authorAvatar">
+                    <div>
+                        <div style="font-weight: bold; font-size: 1.1rem;" id="authorName">Loading...</div>
+                        <div style="color: #666;" id="publishDate">Loading...</div>
+                    </div>
+                </div>
+                
+                <div class="view-count">
+                    <i class="fa fa-eye"></i>
+                    <span id="viewCount">0</span> views
+                </div>
+            </div>
+            
+            <div id="challengeInfo" style="display: none;">
+                <span class="article-category" style="background: #dc3545; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem;">
+                    Challenge ID: <span id="challengeId"></span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="article-content">
+            <div class="content-container" id="contentContainer">
+                <div class="loading-placeholder">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading content...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || '';
+        const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || '';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Content type detection
+        function detectContentType(content) {
+            if (!content) return 'empty';
+            
+            // Check for HTML with executable code
+            if (content.includes('admin-code-executable')) {
+                return 'executable-code';
+            }
+            
+            // Check for HTML content
+            if (content.includes('<') && content.includes('>')) {
+                return 'html-content';
+            }
+            
+            // Check for JavaScript
+            if (content.includes('function') || content.includes('console.log')) {
+                return 'javascript';
+            }
+            
+            // Check for CSS
+            if (content.includes('{') && content.includes('}') && content.includes('.')) {
+                return 'css';
+            }
+            
+            // Default to plain text
+            return 'plain-text';
+        }
+        
+        // Get post ID from URL
+        function getPostId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        
+        // Fetch post data
+        async function fetchPost(postId) {
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase client not initialized');
+                }
+                
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .eq('id', postId)
+                    .single();
+                
+                if (error) {
+                    throw new Error(error.message || 'Failed to fetch post');
+                }
+                
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        // Track view
+        async function trackView(postId) {
+            try {
+                if (!supabaseClient) {
+                    return;
+                }
+                
+                await supabaseClient
+                    .from('posts')
+                    .update({ views_count: supabaseClient.sql`views_count + 1` })
+                    .eq('id', postId);
+            } catch (error) {
+                console.warn('Error tracking view:', error);
+            }
+        }
+        
+        // Extract code content from admin-code-executable divs
+        function extractCodeContent(content) {
+            // Simple extraction - find content between admin-code-executable tags
+            const startTag = '<div class="admin-code-executable"';
+            const endTag = '</div>';
+            
+            const startIndex = content.indexOf(startTag);
+            if (startIndex === -1) {
+                // No code block found, return cleaned content
+                return content.replace('<!--.*?-->', '').trim();
+            }
+            
+            // Find the closing div tag that matches this opening tag
+            let depth = 0;
+            let pos = startIndex;
+            
+            while (pos < content.length) {
+                if (content.substring(pos, pos + 4) === '<div') {
+                    depth++;
+                    pos += 4;
+                } else if (content.substring(pos, pos + 6) === '</div>') {
+                    depth--;
+                    if (depth === 0) {
+                        // Found the matching closing tag
+                        const contentStart = content.indexOf('>', startIndex) + 1;
+                        return content.substring(contentStart, pos);
+                    }
+                    pos += 6;
+                } else {
+                    pos++;
+                }
+            }
+            
+            // Fallback: return everything after the first opening tag
+            const contentStart = content.indexOf('>', startIndex) + 1;
+            return content.substring(contentStart);
+        }
+        
+        // Render as plain text preview
+        function renderAsPlainText(content, container) {
+            const codeContent = extractCodeContent(content);
+            const contentType = detectContentType(codeContent);
+            
+            container.innerHTML = `
+                <div class="render-mode-selector">
+                    <button class="render-mode-btn active" onclick="renderContentMode('preview')">Preview</button>
+                    <button class="render-mode-btn" onclick="renderContentMode('raw')">Raw Code</button>
+                    <button class="render-mode-btn" onclick="renderContentMode('execute')">Execute</button>
+                </div>
+                <div class="code-preview" id="preview-content">${codeContent}</div>
+                <div style="margin-top: 15px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-size: 0.9rem;">
+                    Content Type: <strong>${contentType}</strong> | 
+                    Length: <strong>${codeContent.length} characters</strong>
+                </div>
+            `;
+        }
+        
+        // Render as raw code
+        function renderAsRawCode(content, container) {
+            const codeContent = extractCodeContent(content);
+            const contentType = detectContentType(codeContent);
+            
+            container.innerHTML = `
+                <div class="render-mode-selector">
+                    <button class="render-mode-btn" onclick="renderContentMode('preview')">Preview</button>
+                    <button class="render-mode-btn active" onclick="renderContentMode('raw')">Raw Code</button>
+                    <button class="render-mode-btn" onclick="renderContentMode('execute')">Execute</button>
+                </div>
+                <pre class="code-preview" style="white-space: pre;"><code>${codeContent}</code></pre>
+                <div style="margin-top: 15px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-size: 0.9rem;">
+                    Content Type: <strong>${contentType}</strong> | 
+                    Length: <strong>${codeContent.length} characters</strong>
+                </div>
+            `;
+        }
+        
+        // Execute code in iframe
+        function executeCodeInIframe(codeContent, container) {
+            try {
+                // Create iframe for sandboxed execution
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '800px';
+                iframe.style.minHeight = '600px';
+                iframe.style.border = '1px solid #ddd';
+                iframe.style.borderRadius = '8px';
+                iframe.style.backgroundColor = '#ffffff';
+                iframe.style.overflow = 'auto';
+                iframe.sandbox = 'allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock';
+
+                container.appendChild(iframe);
+
+                // Create complete HTML document
+                const fullHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Execution</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            overflow: auto;
+            min-height: 100vh;
+        }
+        * { 
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        img { 
+            max-width: 100%;
+            height: auto;
+        }
+        iframe, video, canvas { 
+            max-width: 100%;
+        }
+        svg { max-width: 100%; height: auto; }
+        .container { width: 100%; }
+        .chart-wrapper { min-height: 250px; }
+        
+        h1, h2, h3, h4, h5, h6 { color: #333; }
+        p { line-height: 1.6; }
+        .highlight { background: #ffeb3b; padding: 2px 4px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    ${codeContent}
+    
+    <script>
+        console.log('Code execution environment initialized');
+        
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof window.dispatchEvent === 'function') {
+                    window.dispatchEvent(new Event('resize'));
+                }
+                
+                const canvases = document.querySelectorAll('canvas');
+                canvases.forEach(function(canvas) {
+                    if (canvas.parentElement) {
+                        const rect = canvas.parentElement.getBoundingClientRect();
+                        if (rect.width > 0 && rect.height > 0) {
+                            canvas.width = rect.width;
+                            canvas.height = rect.height;
+                        }
+                    }
+                });
+                
+                console.log('Execution environment ready');
+            }, 1000);
+        });
+    <\/script>
+</body>
+</html>`;
+
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(fullHTML);
+                iframeDoc.close();
+
+                // Set iframe height after content loads
+                iframe.onload = function() {
+                    setTimeout(() => {
+                        try {
+                            const contentHeight = Math.max(iframe.contentDocument.body.scrollHeight + 40, 800);
+                            iframe.style.height = contentHeight + 'px';
+                        } catch(e) {
+                            iframe.style.height = '1000px';
+                        }
+                    }, 1000);
+                };
+
+            } catch (error) {
+                container.innerHTML = `<div class="error-message">Error executing code: ${error.message}</div>`;
+            }
+        }
+        
+        // Render as executed code
+        function renderAsExecutedCode(content, container) {
+            const codeContent = extractCodeContent(content);
+            
+            container.innerHTML = `
+                <div class="render-mode-selector">
+                    <button class="render-mode-btn" onclick="renderContentMode('preview')">Preview</button>
+                    <button class="render-mode-btn" onclick="renderContentMode('raw')">Raw Code</button>
+                    <button class="render-mode-btn active" onclick="renderContentMode('execute')">Execute</button>
+                </div>
+                <div class="code-execution-container" id="execution-container"></div>
+                <div style="margin-top: 15px; padding: 10px; background: #f0f0f0; border-radius: 4px; font-size: 0.9rem;">
+                    Executing code content (${codeContent.length} characters)
+                </div>
+            `;
+            
+            // Execute after a small delay
+            setTimeout(() => {
+                const executionContainer = document.getElementById('execution-container');
+                if (executionContainer) {
+                    executeCodeInIframe(codeContent, executionContainer);
+                }
+            }, 100);
+        }
+        
+        // Global function for render mode switching
+        window.renderContentMode = function(mode) {
+            const postId = getPostId();
+            if (!postId || !window.currentPostContent) return;
+            
+            const contentContainer = document.getElementById('contentContainer');
+            const buttons = document.querySelectorAll('.render-mode-btn');
+            
+            // Update active button
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Render based on selected mode
+            switch(mode) {
+                case 'preview':
+                    renderAsPlainText(window.currentPostContent, contentContainer);
+                    break;
+                case 'raw':
+                    renderAsRawCode(window.currentPostContent, contentContainer);
+                    break;
+                case 'execute':
+                    renderAsExecutedCode(window.currentPostContent, contentContainer);
+                    break;
+            }
+        };
+        
+        // Render post content with multiple viewing modes
+        function renderContent(post) {
+            const contentContainer = document.getElementById('contentContainer');
+            window.currentPostContent = post.content; // Store for mode switching
+            
+            if (!post.content) {
+                contentContainer.innerHTML = '<div class="error-message">No content available for this post.</div>';
+                return;
+            }
+            
+            // Start with preview mode
+            renderAsPlainText(post.content, contentContainer);
+        }
+        
+        // Initialize page
+        async function init() {
+            const postId = getPostId();
+            
+            if (!postId) {
+                document.getElementById('contentContainer').innerHTML = `
+                    <div class="error-message">
+                        <h3>Invalid Post</h3>
+                        <p>No post ID specified in the URL.</p>
+                        <a href="01-index.html" class="back-button" style="margin-top: 20px;">
+                            ⌂ Go to Home
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                // Fetch post data
+                const post = await fetchPost(postId);
+                
+                // Update header information
+                document.getElementById('articleTitle').textContent = post.title || 'Untitled Post';
+                document.getElementById('authorName').textContent = post.author_name || post.author || 'Anonymous';
+                document.getElementById('publishDate').textContent = new Date(post.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                document.getElementById('viewCount').textContent = post.views_count || post.views || 0;
+                
+                // Show challenge info if available
+                if (post.challenge_post_id || post.challenge_id) {
+                    document.getElementById('challengeId').textContent = post.challenge_post_id || post.challenge_id;
+                    document.getElementById('challengeInfo').style.display = 'block';
+                }
+                
+                // Track view
+                await trackView(postId);
+                
+                // Render content
+                renderContent(post);
+                
+            } catch (error) {
+                document.getElementById('contentContainer').innerHTML = `
+                    <div class="error-message">
+                        <h3>Error Loading Post</h3>
+                        <p>Could not load the requested post. It may not exist or there was a connection error.</p>
+                        <p style="font-size: 0.9rem; margin-top: 15px;">Error: ${error.message}</p>
+                        <a href="01-index.html" class="back-button" style="margin-top: 20px;">
+                            ⌂ Go to Home
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudinary Fix Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .photo { margin: 10px; padding: 10px; border: 1px solid #ccc; }
+        .photo img { max-width: 200px; height: auto; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    <h1>Cloudinary Integration Test</h1>
+    <div id="status"></div>
+    <div id="photos"></div>
+
+    <script>
+        async function testCloudinaryIntegration() {
+            const statusDiv = document.getElementById('status');
+            const photosDiv = document.getElementById('photos');
+            
+            try {
+                statusDiv.innerHTML = '<div class="status">Testing Cloudinary API...</div>';
+                
+                // Test the API endpoint
+                const response = await fetch('/api/cloudinary-photos/random');
+                
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}: ${response.statusText}`);
+                }
+                
+                const photos = await response.json();
+                
+                if (!Array.isArray(photos) || photos.length === 0) {
+                    throw new Error('No photos returned from API');
+                }
+                
+                statusDiv.innerHTML = `<div class="status success">✅ Success! Loaded ${photos.length} photos from Cloudinary</div>`;
+                
+                // Display photos
+                photosDiv.innerHTML = photos.map(photo => `
+                    <div class="photo">
+                        <h3>${photo.name}</h3>
+                        <p><strong>Ideology:</strong> ${photo.ideology}</p>
+                        <p><strong>Source:</strong> ${photo.source}</p>
+                        <img src="${photo.imageUrl}" alt="${photo.name}" onload="console.log('✅ Image loaded:', '${photo.name}')" onerror="console.log('❌ Image failed:', '${photo.name}')">
+                        <p><small>URL: ${photo.imageUrl}</small></p>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+                console.error('Test failed:', error);
+            }
+        }
+        
+        // Run test when page loads
+        window.addEventListener('load', testCloudinaryIntegration);
+    </script>
+</body>
+</html>

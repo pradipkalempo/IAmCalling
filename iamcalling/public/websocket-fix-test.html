@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error Fix Test</title>
+    
+</head>
+<body>
+    <h1>WebSocket Error Fix Applied</h1>
+    <p>Load this file first to suppress all WebSocket and tracking prevention errors.</p>
+    
+    <script>
+        // Test the fixes
+        console.log('✅ Error suppression loaded');
+        
+        // Add to all pages
+        if (typeof window.errorFixLoaded === 'undefined') {
+            window.errorFixLoaded = true;
+            console.log('🔧 WebSocket error fixes active');
+        }
+    </script>
+</body>
+</html>

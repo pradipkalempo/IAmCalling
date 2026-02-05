@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Critical Thinking Hub - Develop analytical skills through interactive scenarios and evidence-based reasoning">
+    <meta name="keywords" content="critical thinking, logical reasoning, bias detection, problem solving, analytical skills, evidence evaluation">
+    <title>Critical Thinking Hub - Analytical Skills Development</title>
+    
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    
+    <!-- Enhanced Storage Fallback System -->
+    <script>
+        // Enhanced storage detection and fallback
+        (function() {
+            const storageFallback = {
+                data: {},
+                
+                setItem: function(key, value) {
+                    try {
+                        if (typeof localStorage !== 'undefined') {
+                            localStorage.setItem(key, value);
+                        } else {
+                            this.data[key] = value;
+                        }
+                    } catch (e) {
+                        this.data[key] = value;
+                    }
+                },
+                
+                getItem: function(key) {
+                    try {
+                        if (typeof localStorage !== 'undefined') {
+                            return localStorage.getItem(key);
+                        } else {
+                            return this.data[key] || null;
+                        }
+                    } catch (e) {
+                        return this.data[key] || null;
+                    }
+                },
+                
+                removeItem: function(key) {
+                    try {
+                        if (typeof localStorage !== 'undefined') {
+                            localStorage.removeItem(key);
+                        } else {
+                            delete this.data[key];
+                        }
+                    } catch (e) {
+                        delete this.data[key];
+                    }
+                }
+            };
+            
+            // Override window.localStorage if blocked
+            if (typeof localStorage === 'undefined' || !localStorage) {
+                window.localStorage = storageFallback;
+            }
+            
+            // Override window.sessionStorage if blocked
+            if (typeof sessionStorage === 'undefined' || !sessionStorage) {
+                window.sessionStorage = storageFallback;
+            }
+            
+            console.log('✅ Enhanced storage system initialized');
+        })();
+    </script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Supabase CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #0a3d0a;
+            --secondary-color: #1a1a1a;
+            --accent-color: #8b4513;
+            --text-light: #f8f8f8;
+            --gold: #d4af37;
+            --silver: #c0c0c0;
+            --gradient: linear-gradient(135deg, rgba(10,61,10,1) 0%, rgba(26,26,26,1) 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .main-layout {
+            display: flex;
+            margin: 2rem 0;
+            gap: 2rem;
+        }
+        
+        .content {
+            flex: 3;
+        }
+        
+        .sidebar {
+            flex: 1;
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+        
+        .article-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .article-thumbnail {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .thumbnail-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        
+        .article-card:hover .thumbnail-image {
+            transform: scale(1.05);
+        }
+        
+        .article-content {
+            padding: 1.5rem;
+            flex: 1;
+        }
+        
+        .article-category {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 500;
+            z-index: 2;
+        }
+        
+        .article-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.8rem;
+            margin-bottom: 0.6rem;
+            color: var(--secondary-color);
+            line-height: 1.2;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.6rem;
+            margin-bottom: 0.6rem;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .author-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .read-more {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-size: 0.6rem;
+        }
+        
+        .read-more:hover {
+            background: #0d4f0d;
+        }
+        
+        .read-more i {
+            margin-left: 0.5rem;
+        }
+        
+        .ideology-test-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border: 1px solid rgba(139, 69, 19, 0.2);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .ideology-test-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+        }
+        
+        .ideology-test-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.8rem;
+            margin-bottom: 0.6rem;
+            color: var(--secondary-color);
+            position: relative;
+            padding-bottom: 0.3rem;
+        }
+        
+        .ideology-test-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 3px;
+        }
+        
+        .ideology-test-button {
+            background: var(--gradient);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            text-decoration: none;
+            justify-content: center;
+            font-size: 0.7rem;
+            margin-top: 0.6rem;
+        }
+        
+        .ideology-test-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(142, 118, 118, 0.15);
+            color: white;
+            text-decoration: none;
+        }
+        
+        .ideology-test-button i {
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        @media (max-width: 768px) {
+            .main-layout {
+                gap: 1rem;
+                margin: 1rem 0;
+            }
+            
+            .content {
+                min-width: 0;
+            }
+            
+            .sidebar {
+                min-width: 100px;
+                top: 80px;
+                height: fit-content;
+            }
+            
+            .ideology-test-container {
+                padding: 0.8rem;
+            }
+            
+            .ideology-test-title {
+                font-size: 0.9rem;
+            }
+            
+            .ideology-test-button {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.7rem;
+            }
+            
+            .article-title {
+                font-size: 1rem;
+            }
+            
+            .article-content {
+                padding: 0.8rem;
+            }
+            
+            .container {
+                padding: 0 8px;
+            }
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+
+</head>
+<body>
+    
+    <div class="container">
+        <div class="main-layout">
+            <div class="content" id="articlesContainer">
+                <!-- Articles will be loaded here dynamically -->
+            </div>
+            
+            <aside class="sidebar">
+                <div class="ideology-test-container">
+                    <h3 class="ideology-test-title">Develop Your Critical Thinking</h3>
+                    <p style="color: #666; font-size: 0.6rem; line-height: 1.3; margin-bottom: 0.8rem;">Prove us wrong with your analytical reasoning skills and upto 1000 Rs daily</p>
+                    <a href="35-reward-claim.html" class="ideology-test-button">
+                        Start Earning <i class="fas fa-brain"></i>
+                    </a>
+                </div>
+                
+                <div style="margin-top: 2rem; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                    <a href="10-political-battle.html" class="ideology-test-button" style="display: inline-block; width: 100%; text-align: center; background: linear-gradient(135deg, #dc3545, #c82333);">
+                        Ideological Battle <i class="fas fa-fist-raised"></i>
+                    </a>
+                </div>
+                
+                <div style="margin-top: 2rem; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                    <a href="04-categories.html" class="ideology-test-button" style="display: inline-block; width: 100%; text-align: center; background: linear-gradient(135deg, #28a745, #20c997);">
+                        Browse Categories <i class="fas fa-th-large"></i>
+                    </a>
+                </div>
+                
+                <div style="margin-top: 2rem; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                    <a href="01-response-index.html" class="ideology-test-button" style="display: inline-block; width: 100%; text-align: center;">
+                        View Analysis Cases <i class="fas fa-microscope"></i>
+                    </a>
+                </div>
+                
+                <div style="margin-top: 2rem; text-align: center;">
+                    <a href="https://www.linkedin.com/in/pradip-kale-a116112a0" target="_blank" style="display: inline-flex; align-items: center; gap: 0.4rem; background: #0077b5; color: white; padding: 0.6rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0, 119, 181, 0.3); font-size: 0.7rem;">
+                        <i class="fab fa-linkedin" style="font-size: 0.9rem;"></i> Follow on LinkedIn
+                    </a>
+                </div>
+                
+                <div style="margin-top: 2rem; background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center;">
+                    <a href="02-about.html" class="ideology-test-button" style="display: inline-block; width: 100%; text-align: center; background: linear-gradient(135deg, #dc3545, #c82333);">
+                        About Us <i class="fas fa-info-circle"></i>
+                    </a>
+                </div>
+            </aside>
+        </div>
+    </div>
+    
+    <!-- Authentication System -->
+    <script src="js/supabase-client.js?v=4"></script>
+    <script src="js/posts-api.js"></script>
+    <script>
+        // Ultra-fast posts loading - database only
+        async function loadPosts() {
+            const articlesContainer = document.getElementById('articlesContainer');
+            articlesContainer.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading posts...</div>';
+            
+            try {
+                // Initialize Supabase client with hardcoded credentials first
+                const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                
+                // Wait for Supabase to be available
+                let attempts = 0;
+                while (!window.supabase && attempts < 10) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (!window.supabase) {
+                    throw new Error('Supabase library not loaded');
+                }
+                
+                if (!window.supabaseClient) {
+                    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    console.log('✅ Supabase client initialized for posts loading');
+                }
+                
+                console.log('🔍 Attempting to load posts...');
+                
+                // Try direct Supabase query first
+                const { data: posts, error } = await window.supabaseClient
+                    .from('posts')
+                    .select('id,title,author_name,created_at,challenge_post_id,content,views_count,thumbnail_url,published')
+                    .eq('published', true)
+                    .order('id', { ascending: false })
+                    .limit(3);
+                
+                if (error) {
+                    console.error('Supabase query error:', error);
+                    throw error;
+                }
+                
+                console.log('📊 Posts loaded:', posts?.length || 0, posts);
+                
+                if (!posts || posts.length === 0) {
+                    // Show fallback content if no posts found
+                    articlesContainer.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; margin: 1rem 0;">
+                            <h3 style="color: #666; margin-bottom: 1rem;">No posts available yet</h3>
+                            <p style="color: #888; margin-bottom: 2rem;">Be the first to create content on IAMCALLING!</p>
+                            <a href="22-write_article.html" style="background: #0a3d0a; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">Write First Article</a>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Render posts with proper data mapping
+                articlesContainer.innerHTML = posts.map(post => {
+                    const author = post.author_name || post.author || 'Admin';
+                    const viewsCount = post.views_count || 0;
+                    const thumbnailUrl = post.thumbnail_url || `https://picsum.photos/seed/post${post.id}/400/250`;
+                    
+                    return `
+                        <div id="post-${post.id}" class="article-card" data-post-id="${post.id}">
+                            <div class="article-thumbnail">
+                                <img src="${thumbnailUrl}" alt="${post.title}" class="thumbnail-image" loading="lazy" onerror="this.src='https://picsum.photos/seed/post${post.id}/400/250'; this.onerror=null;">
+                                <div class="article-category">Official</div>
+                            </div>
+                            <div class="article-content">
+                                <h2 class="article-title">${post.title}</h2>
+                                <div class="article-meta">
+                                    <div class="author-info">
+                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'><circle cx='25' cy='25' r='25' fill='%23d4af37'/><text x='25' y='30' font-family='Arial' font-size='20' fill='white' text-anchor='middle'>👤</text></svg>" alt="Author" class="author-avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                                        <span>${author}</span>
+                                    </div>
+                                    <span>${new Date(post.created_at).toLocaleDateString()}</span>
+                                </div>
+                                ${post.challenge_post_id ? `<div style="margin-bottom: 1rem;"><span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; float: right; font-size: 0.6rem;">Challenge: ${post.challenge_post_id}</span><div style="clear: both;"></div></div>` : ''}
+                                <div style="margin-top: 1rem;">
+                                    <a href="07-readmore.html?id=${post.id}" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
+                                    <span style="color: #666; font-size: 0.6rem; margin-left: 1rem; display: inline-flex; align-items: center; gap: 0.3rem;" data-post-id="${post.id}" data-view-count>
+                                        <i class="fas fa-eye"></i> <span data-view-count>${viewsCount}</span> views
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                console.log('✅ Posts rendered successfully');
+                
+            } catch (error) {
+                console.error('Posts loading error:', error);
+                
+                articlesContainer.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #dc3545;">
+                        <h3 style="color: #dc3545; margin-bottom: 1rem;">⚠️ Database Connection Issue</h3>
+                        <p style="color: #666; margin-bottom: 1rem;">Unable to load posts from database.</p>
+                        <p style="color: #888; margin-bottom: 2rem; font-size: 0.6rem;">Error: ${error.message}</p>
+                        <button onclick="loadPosts()" style="background: #0a3d0a; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Retry Loading</button>
+                        <br><br>
+                        <a href="test-posts.html" style="color: #0a3d0a; text-decoration: underline;">Test Database Connection</a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Immediate execution
+        console.log('🚀 Starting posts loading immediately...');
+        setTimeout(loadPosts, 2000);
+        
+        // Load posts when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 DOM loaded, starting posts loading...');
+            setTimeout(loadPosts, 1000);
+        });
+        
+        // Also try loading after scripts are loaded
+        window.addEventListener('load', () => {
+            const container = document.getElementById('articlesContainer');
+            if (container && container.innerHTML.includes('Loading posts...')) {
+                console.log('🔄 Retrying posts loading after window load...');
+                setTimeout(loadPosts, 1500);
+            }
+        });
+    </script>
+
+</body>
+</html>

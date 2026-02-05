@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - IAMCALLING</title>
+    
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📞</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e0e0e0 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin-top: 60px;
+        }
+        
+        .register-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        
+        .register-form {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .register-header h1 {
+            font-size: 2rem;
+            color: #0a1f0a;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #0a1f0a;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            color: #333;
+            font-size: 1rem;
+        }
+        
+        .pin-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .pin-input {
+            width: 50px !important;
+            height: 50px !important;
+            text-align: center !important;
+            font-size: 1.5rem !important;
+            font-weight: bold !important;
+            border: 2px solid rgba(0, 0, 0, 0.1) !important;
+            border-radius: 8px !important;
+            background: white !important;
+            padding: 0 !important;
+            outline: none !important;
+        }
+        
+        .pin-input:focus {
+            border-color: #2d5a2d !important;
+            box-shadow: 0 0 0 3px rgba(45, 90, 45, 0.2) !important;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #2d5a2d 0%, #d4af37 100%);
+            color: #000;
+            border: 2px solid #d4af37;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .login-link {
+            text-align: center;
+        }
+        
+        .login-link a {
+            color: #2d5a2d;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .photo-upload {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .photo-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #2d5a2d;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0;
+            overflow: hidden;
+        }
+        
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-upload input[type="file"] {
+            display: none;
+        }
+        
+        .photo-upload-btn {
+            background: #2d5a2d;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="topbar-container"></div>
+    
+    <div class="register-container">
+        <div class="register-form">
+            <div class="register-header">
+                <h1>Create Account</h1>
+                <p>Join IAMCALLING to access exclusive content</p>
+            </div>
+            
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pin1">4-Character PIN (Letters & Numbers)</label>
+                    <div class="pin-container">
+                        <input type="text" class="pin-input" id="pin1" maxlength="1" required>
+                        <input type="text" class="pin-input" id="pin2" maxlength="1" required>
+                        <input type="text" class="pin-input" id="pin3" maxlength="1" required>
+                        <input type="text" class="pin-input" id="pin4" maxlength="1" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="cpin1">Confirm PIN</label>
+                    <div class="pin-container">
+                        <input type="text" class="pin-input" id="cpin1" maxlength="1" required>
+                        <input type="text" class="pin-input" id="cpin2" maxlength="1" required>
+                        <input type="text" class="pin-input" id="cpin3" maxlength="1" required>
+                        <input type="text" class="pin-input" id="cpin4" maxlength="1" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="photo-upload">
+                        <div class="photo-preview" id="photoPreview">
+                            <i class="fas fa-user" style="font-size: 2rem; color: #ccc;"></i>
+                        </div>
+                        <input type="file" id="profilePhoto" accept="image/*">
+                        <button type="button" class="photo-upload-btn" onclick="document.getElementById('profilePhoto').click()">Upload Photo</button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <label for="rememberMe">Remember me on this device</label>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">Create Account</button>
+            </form>
+            
+            <div class="login-link">
+                <p>Already have an account? <a href="15-login.html">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/universal-topbar-injector.js"></script>
+    <script src="js/login-guard.js"></script>
+    <script src="js/ultimate-console-cleaner.js"></script>
+    <script src="js/storage-fallback.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/session-manager.js"></script>
+    <script>
+        // Clear all conflicting user data on page load
+        localStorage.removeItem('iamcalling_current_user');
+        sessionStorage.removeItem('iamcalling_current_user');
+        
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // PIN input handling
+            const pinInputs = ['pin1', 'pin2', 'pin3', 'pin4'];
+            const confirmPinInputs = ['cpin1', 'cpin2', 'cpin3', 'cpin4'];
+            
+            function setupPinInputs(inputs) {
+                inputs.forEach((id, index) => {
+                    const input = document.getElementById(id);
+                    if (!input) return;
+                    
+                    // Remove any existing event listeners
+                    input.removeAttribute('readonly');
+                    input.removeAttribute('disabled');
+                    
+                    input.addEventListener('input', function(e) {
+                        // Allow letters and numbers, convert to uppercase
+                        let value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                        this.value = value;
+                        
+                        // Move to next input if character entered
+                        if (value && index < inputs.length - 1) {
+                            const nextInput = document.getElementById(inputs[index + 1]);
+                            if (nextInput) nextInput.focus();
+                        }
+                    });
+                    
+                    input.addEventListener('keydown', function(e) {
+                        // Move to previous input on backspace if current is empty
+                        if (e.key === 'Backspace' && !this.value && index > 0) {
+                            const prevInput = document.getElementById(inputs[index - 1]);
+                            if (prevInput) prevInput.focus();
+                        }
+                    });
+                    
+                    // Ensure input is focusable
+                    input.addEventListener('click', function() {
+                        this.focus();
+                    });
+                });
+            }
+            
+            setupPinInputs(pinInputs);
+            setupPinInputs(confirmPinInputs);
+            
+            // Photo upload handling
+            document.getElementById('profilePhoto').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('photoPreview');
+                        preview.innerHTML = `<img src="${e.target.result}" alt="Profile">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const pin = pinInputs.map(id => {
+                    const input = document.getElementById(id);
+                    return input ? input.value : '';
+                }).join('');
+                
+                const confirmPin = confirmPinInputs.map(id => {
+                    const input = document.getElementById(id);
+                    return input ? input.value : '';
+                }).join('');
+                
+                if (pin.length !== 4) {
+                    alert('Please enter all 4 characters of your PIN!');
+                    return;
+                }
+                
+                if (pin !== confirmPin) {
+                    alert('PINs do not match!');
+                    return;
+                }
+                
+                // Collect form data
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const email = document.getElementById('email').value;
+                const rememberMe = document.getElementById('rememberMe').checked;
+                const photoFile = document.getElementById('profilePhoto').files[0];
+                
+                let profilePhoto = null;
+                if (photoFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profilePhoto = e.target.result;
+                        saveUserData();
+                    };
+                    reader.readAsDataURL(photoFile);
+                } else {
+                    saveUserData();
+                }
+                
+                function saveUserData() {
+                    const fullName = `${firstName} ${lastName}`;
+                    
+                    // Save to Supabase first
+                    saveToSupabase({
+                        first_name: firstName,
+                        last_name: lastName,
+                        full_name: fullName,
+                        email: email,
+                        password: pin,
+                        profile_photo: profilePhoto
+                    });
+                }
+                
+                async function saveToSupabase(userData) {
+                    try {
+                        console.log('🚀 Saving user to Supabase:', userData.email);
+                        
+                        // Initialize Supabase with fallback config
+                        let SUPABASE_URL = window.APP_CONFIG?.supabaseUrl;
+                        let SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey;
+                        
+                        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+                            // Fallback configuration
+                            SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                            SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                        }
+                        
+                        if (typeof supabase === 'undefined') {
+                            throw new Error('Supabase library not loaded');
+                        }
+                        
+                        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                        
+                        // Insert user into Supabase
+                        const { data, error } = await supabaseClient
+                            .from('users')
+                            .insert([
+                                {
+                                    first_name: userData.first_name,
+                                    last_name: userData.last_name,
+                                    email: userData.email,
+                                    password: userData.password,
+                                    profile_photo: userData.profile_photo
+                                }
+                            ])
+                            .select();
+                        
+                        if (error) {
+                            console.error('❌ Supabase error:', error.message);
+                            alert(`Registration failed: ${error.message}`);
+                            return;
+                        }
+                        
+                        console.log('✅ User saved to Supabase:', data);
+                        
+                        // Save locally after successful Supabase save
+                        saveLocally(userData, data[0]);
+                        
+                    } catch (error) {
+                        console.error('❌ Registration error:', error);
+                        alert(`Registration failed: ${error.message}`);
+                    }
+                }
+                
+                function saveLocally(userData, supabaseData) {
+                    const userRecord = {
+                        id: supabaseData.id,
+                        name: userData.full_name,
+                        full_name: userData.full_name,
+                        first_name: userData.first_name,
+                        last_name: userData.last_name,
+                        email: userData.email,
+                        profilePhoto: userData.profile_photo,
+                        profile_photo: userData.profile_photo,
+                        photo: userData.profile_photo,
+                        rememberMe: rememberMe
+                    };
+                    
+                    // Set persistent login
+                    localStorage.setItem('persistentLogin', 'true');
+                    localStorage.setItem('userAuth', 'true');
+                    localStorage.setItem('currentUser', JSON.stringify(userRecord));
+                    
+                    // Use global auth manager if available
+                    if (window.globalAuth) {
+                        window.globalAuth.setUser(userRecord);
+                    }
+                    
+                    alert('✅ Registration successful! Welcome to IAMCALLING!');
+                    window.location.href = '18-profile.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Access - PIN Entry</title>
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .pin-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .pin-display {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .pin-dot {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ddd;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .pin-dot.filled {
+            background: #667eea;
+            border-color: #667eea;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .key {
+            width: 70px;
+            height: 70px;
+            border: none;
+            border-radius: 50%;
+            background: #f8f9fa;
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .key:hover {
+            background: #e9ecef;
+            transform: scale(1.05);
+        }
+
+        .key:active {
+            transform: scale(0.95);
+        }
+
+        .key.backspace {
+            background: #fff;
+            color: #666;
+            font-size: 20px;
+        }
+
+        .key.disabled {
+            background: #dee2e6;
+            color: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        .key.disabled:hover {
+            transform: none;
+            background: #dee2e6;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-message.show {
+            opacity: 1;
+        }
+
+        .lockout-message {
+            color: #dc3545;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .attempts-remaining {
+            color: #856404;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+            background: #fff3cd;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ffeaa7;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 480px) {
+            .pin-container {
+                padding: 30px 20px;
+            }
+            
+            .key {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="back-btn" onclick="window.location.href='01-index.html'">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <div class="pin-container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        <h1 class="title">Admin Access</h1>
+        <p class="subtitle">Enter your 5-digit PIN to continue</p>
+        
+        <div class="pin-display">
+            <div class="pin-dot" id="dot1"></div>
+            <div class="pin-dot" id="dot2"></div>
+            <div class="pin-dot" id="dot3"></div>
+            <div class="pin-dot" id="dot4"></div>
+            <div class="pin-dot" id="dot5"></div>
+        </div>
+
+        <div class="keypad" id="keypad">
+            <button class="key" onclick="addDigit('1')">1</button>
+            <button class="key" onclick="addDigit('2')">2</button>
+            <button class="key" onclick="addDigit('3')">3</button>
+            <button class="key" onclick="addDigit('4')">4</button>
+            <button class="key" onclick="addDigit('5')">5</button>
+            <button class="key" onclick="addDigit('6')">6</button>
+            <button class="key" onclick="addDigit('7')">7</button>
+            <button class="key" onclick="addDigit('8')">8</button>
+            <button class="key" onclick="addDigit('9')">9</button>
+            <button class="key" onclick="addDigit('A')">A</button>
+            <button class="key" onclick="addDigit('0')">0</button>
+            <button class="key" onclick="addDigit('B')">B</button>
+            <button class="key" onclick="addDigit('C')">C</button>
+            <button class="key" onclick="addDigit('D')">D</button>
+            <button class="key" onclick="addDigit('E')">E</button>
+            <button class="key" onclick="addDigit('F')">F</button>
+            <button class="key" onclick="addDigit('G')">G</button>
+            <button class="key" onclick="addDigit('H')">H</button>
+            <button class="key" onclick="addDigit('I')">I</button>
+            <button class="key" onclick="addDigit('J')">J</button>
+            <button class="key" onclick="addDigit('K')">K</button>
+            <button class="key" onclick="addDigit('L')">L</button>
+            <button class="key" onclick="addDigit('M')">M</button>
+            <button class="key" onclick="addDigit('N')">N</button>
+            <button class="key" onclick="addDigit('O')">O</button>
+            <button class="key" onclick="addDigit('P')">P</button>
+            <button class="key" onclick="addDigit('Q')">Q</button>
+            <button class="key" onclick="addDigit('R')">R</button>
+            <button class="key" onclick="addDigit('S')">S</button>
+            <button class="key" onclick="addDigit('T')">T</button>
+            <button class="key" onclick="addDigit('U')">U</button>
+            <button class="key" onclick="addDigit('V')">V</button>
+            <button class="key" onclick="addDigit('W')">W</button>
+            <button class="key" onclick="addDigit('X')">X</button>
+            <button class="key" onclick="addDigit('Y')">Y</button>
+            <button class="key backspace" onclick="removeDigit()">
+                <i class="fas fa-backspace"></i>
+            </button>
+            <button class="key" onclick="addDigit('Z')">Z</button>
+        </div>
+
+        <div class="error-message" id="errorMessage">
+            Incorrect PIN. Please try again.
+        </div>
+        
+        <div class="attempts-remaining" id="attemptsRemaining">
+            Attempts remaining: 3
+        </div>
+        
+        <div class="lockout-message" id="lockoutMessage">
+            Too many failed attempts. Please try again after 1 hour.
+        </div>
+    </div>
+
+    <script>
+        let currentPin = '';
+        const correctPin = 'PRA03';
+        let failedAttempts = parseInt(localStorage.getItem('adminFailedAttempts') || '0');
+        let lockoutTime = parseInt(localStorage.getItem('adminLockoutTime') || '0');
+        
+        // Check if currently locked out
+        function checkLockout() {
+            const now = Date.now();
+            if (lockoutTime && now < lockoutTime) {
+                showLockout();
+                return true;
+            } else if (lockoutTime && now >= lockoutTime) {
+                // Lockout expired, reset
+                localStorage.removeItem('adminFailedAttempts');
+                localStorage.removeItem('adminLockoutTime');
+                failedAttempts = 0;
+                lockoutTime = 0;
+            }
+            return false;
+        }
+        
+        function showLockout() {
+            document.getElementById('lockoutMessage').style.display = 'block';
+            document.getElementById('keypad').style.display = 'none';
+            document.getElementById('attemptsRemaining').style.display = 'none';
+            
+            // Update remaining time
+            const remaining = Math.ceil((lockoutTime - Date.now()) / (1000 * 60));
+            document.getElementById('lockoutMessage').innerHTML = 
+                `Too many failed attempts. Please try again in ${remaining} minutes.`;
+        }
+        
+        function updateAttemptsDisplay() {
+            const remaining = 3 - failedAttempts;
+            const attemptsEl = document.getElementById('attemptsRemaining');
+            if (remaining > 0) {
+                attemptsEl.textContent = `Attempts remaining: ${remaining}`;
+                attemptsEl.style.display = 'block';
+            } else {
+                attemptsEl.style.display = 'none';
+            }
+        }
+
+        function addDigit(digit) {
+            if (checkLockout()) return;
+            
+            if (currentPin.length < 5) {
+                currentPin += digit;
+                updateDisplay();
+                
+                if (currentPin.length === 5) {
+                    setTimeout(checkPin, 300);
+                }
+            }
+        }
+
+        function removeDigit() {
+            if (checkLockout()) return;
+            
+            if (currentPin.length > 0) {
+                currentPin = currentPin.slice(0, -1);
+                updateDisplay();
+                hideError();
+            }
+        }
+
+        function updateDisplay() {
+            for (let i = 1; i <= 5; i++) {
+                const dot = document.getElementById(`dot${i}`);
+                if (i <= currentPin.length) {
+                    dot.classList.add('filled');
+                } else {
+                    dot.classList.remove('filled');
+                }
+            }
+        }
+
+        function checkPin() {
+            if (currentPin === correctPin) {
+                // Success - reset attempts and redirect
+                localStorage.removeItem('adminFailedAttempts');
+                localStorage.removeItem('adminLockoutTime');
+                localStorage.setItem('adminAuth', 'true');
+                localStorage.setItem('adminLoginTime', Date.now().toString());
+                window.location.href = '40-admin-dashboard-simple.html';
+            } else {
+                // Failed attempt
+                failedAttempts++;
+                localStorage.setItem('adminFailedAttempts', failedAttempts.toString());
+                
+                if (failedAttempts >= 3) {
+                    // Lock out for 1 hour
+                    lockoutTime = Date.now() + (60 * 60 * 1000); // 1 hour
+                    localStorage.setItem('adminLockoutTime', lockoutTime.toString());
+                    showLockout();
+                } else {
+                    // Show error and reset
+                    showError();
+                    updateAttemptsDisplay();
+                    setTimeout(() => {
+                        currentPin = '';
+                        updateDisplay();
+                        hideError();
+                    }, 1500);
+                }
+            }
+        }
+
+        function showError() {
+            document.getElementById('errorMessage').classList.add('show');
+            // Add shake animation
+            document.querySelector('.pin-container').style.animation = 'shake 0.5s';
+            setTimeout(() => {
+                document.querySelector('.pin-container').style.animation = '';
+            }, 500);
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkLockout()) {
+                // Update lockout message every minute
+                setInterval(() => {
+                    if (lockoutTime && Date.now() < lockoutTime) {
+                        const remaining = Math.ceil((lockoutTime - Date.now()) / (1000 * 60));
+                        document.getElementById('lockoutMessage').innerHTML = 
+                            `Too many failed attempts. Please try again in ${remaining} minutes.`;
+                    } else {
+                        location.reload();
+                    }
+                }, 60000);
+            } else {
+                updateAttemptsDisplay();
+            }
+        });
+
+        // Add shake animation CSS
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (checkLockout()) return;
+            
+            if (e.key >= '0' && e.key <= '9') {
+                addDigit(e.key);
+            } else if (e.key.toUpperCase() >= 'A' && e.key.toUpperCase() <= 'Z') {
+                addDigit(e.key.toUpperCase());
+            } else if (e.key === 'Backspace') {
+                removeDigit();
+            } else if (e.key === 'Enter' && currentPin.length === 5) {
+                checkPin();
+            }
+        });
+    </script>
+</body>
+</html>

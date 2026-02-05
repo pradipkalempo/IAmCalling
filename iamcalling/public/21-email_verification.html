@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - IAMCALLING</title>
+    <meta name="description" content="Verify your email address to complete your IAMCALLING registration.">
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #0a1f0a;
+            --secondary-dark: #1a3a1a;
+            --accent-green: #2d5a2d;
+            --accent-red: #4a1010;
+            --gold: #d4af37;
+            --silver: #c0c0c0;
+            --white: #ffffff;
+            --milky: #f8f8f8;
+            --dark-brown: #3e2723;
+            --text-dark: #333333;
+            --text-light: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--milky) 0%, #e0e0e0 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--gold);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: var(--gold);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .verification-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 0;
+        }
+
+        .verification-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .verification-icon {
+            font-size: 4rem;
+            color: var(--accent-green);
+            margin-bottom: 20px;
+        }
+
+        .verification-title {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+
+        .verification-message {
+            color: var(--text-dark);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .verification-email {
+            font-weight: bold;
+            color: var(--accent-green);
+        }
+
+        .verification-form {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--primary-dark);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--text-dark);
+            font-size: 1rem;
+            text-align: center;
+            letter-spacing: 5px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(45, 90, 45, 0.2);
+        }
+
+        .verification-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--gold) 100%);
+            color: var(--white);
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .verification-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .resend-link {
+            color: var(--accent-green);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: inline-block;
+        }
+
+        .resend-link:hover {
+            color: var(--primary-dark);
+        }
+
+        .resend-timer {
+            color: var(--text-dark);
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        .verification-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .verification-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 0, 0, 0.1);
+            z-index: 0;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            width: 30%;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: var(--text-dark);
+            border: 2px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .step.active .step-icon {
+            background: var(--accent-green);
+            color: var(--white);
+            border-color: var(--accent-green);
+        }
+
+        .step.completed .step-icon {
+            background: var(--gold);
+            color: var(--white);
+            border-color: var(--gold);
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            text-align: center;
+        }
+
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--accent-green);
+            color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--accent-red);
+        }
+
+        footer {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            padding: 40px 0 20px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--gold);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--gold);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-light);
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--secondary-dark);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                transform: translateY(-150%);
+                transition: transform 0.3s;
+                z-index: 99;
+            }
+
+            nav ul.active {
+                transform: translateY(0);
+            }
+
+            nav ul li {
+                margin: 10px 0;
+            }
+
+            .verification-card {
+                padding: 30px 20px;
+            }
+
+            .verification-steps {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .verification-steps::before {
+                display: none;
+            }
+
+            .step {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    
+
+    <section class="verification-container">
+        <div class="verification-card">
+            <div class="verification-icon">
+                <i class="fas fa-envelope-open-text"></i>
+            </div>
+            <h2 class="verification-title">Verify Your Email</h2>
+            <p class="verification-message">
+                We've sent a verification code to <span class="verification-email">alex.johnson@example.com</span>. 
+                Please enter the code below to verify your email address and complete your registration.
+            </p>
+
+            <div class="verification-steps">
+                <div class="step completed">
+                    <div class="step-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="step-label">Registration</div>
+                </div>
+                <div class="step active">
+                    <div class="step-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="step-label">Email Verification</div>
+                </div>
+                <div class="step">
+                    <div class="step-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="step-label">Account Active</div>
+                </div>
+            </div>
+
+            <form id="verificationForm" class="verification-form">
+                <div class="form-group">
+                    <label for="verificationCode">Verification Code</label>
+                    <input type="text" id="verificationCode" name="verificationCode" placeholder="000000" maxlength="6" required>
+                </div>
+                <button type="submit" class="verification-btn">Verify Email</button>
+            </form>
+
+            <div>
+                <p>Didn't receive the email?</p>
+                <a href="#" class="resend-link" id="resendLink">Resend verification code</a>
+                <div class="resend-timer" id="resendTimer" style="display: none;">
+                    You can resend the code in <span id="timerCount">60</span> seconds
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>IAMCALLING</h3>
+                    <p>A platform for diverse perspectives and ideology analysis.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="01-index.html">Home</a></li>
+                        <li><a href="02-about.html">About Us</a></li>
+                        <li><a href="04-categories.html">Categories</a></li>
+                        <li><a href="09-ideology-analyzer.html">Ideology Test</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="36-terms-conditions.html">Terms & Conditions</a></li>
+                        <li><a href="37-privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="38-article-guidelines.html">Article Guidelines</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> info@iamcalling.com</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Main St, City, Country</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 IAMCALLING. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="notification" id="notification">Email verified successfully!</div>
+
+    <script>
+        // Function to update authentication links based on login status
+        function updateAuthLinks() {
+            const authLinks = document.getElementById('auth-links');
+            if (!authLinks) return;
+            
+            // Check authentication status
+            const authToken = localStorage.getItem('userToken') || localStorage.getItem('authToken') || localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('user_data') || localStorage.getItem('currentUser');
+            
+            if (authToken || userData) {
+                // User is logged in
+                try {
+                    const userInfo = userData ? JSON.parse(userData) : {};
+                    const userName = userInfo?.first_name || userInfo?.name || userInfo?.full_name || 'User';
+                    authLinks.innerHTML = `
+                        <li><a href="18-profile.html" style="color: #d4af37; font-weight: 600;">${userName}</a></li>
+                        <li><a href="#" onclick="logoutUser(); return false;">Logout</a></li>
+                    `;
+                } catch (e) {
+                    authLinks.innerHTML = `
+                        <li><a href="18-profile.html" style="color: #d4af37; font-weight: 600;">Profile</a></li>
+                        <li><a href="#" onclick="logoutUser(); return false;">Logout</a></li>
+                    `;
+                }
+            } else {
+                // User is not logged in
+                authLinks.innerHTML = `
+                    <li><a href="15-login.html">Login</a></li>
+                    <li><a href="16-register.html">Register</a></li>
+                `;
+            }
+        }
+        
+        // Function to handle user logout
+        function logoutUser() {
+            // Clear all authentication tokens
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('user_data');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('loginTimestamp');
+            
+            // Clear sessionStorage
+            sessionStorage.removeItem('userSession');
+            sessionStorage.removeItem('currentUser');
+            
+            // Update UI
+            updateAuthLinks();
+            
+            // Redirect to home page
+            window.location.href = '01-index.html';
+        }
+        
+        // Initialize authentication links when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAuthLinks();
+            
+            // Listen for auth changes
+            window.addEventListener('authStatusChanged', updateAuthLinks);
+            
+            // Mobile menu functionality
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainMenu = document.getElementById('mainMenu');
+            
+            if (mobileMenuBtn && mainMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mainMenu.classList.toggle('active');
+                });
+            }
+        });
+    </script>
+    <script src="21-email_verification.js"></script>
+</body>
+</html>

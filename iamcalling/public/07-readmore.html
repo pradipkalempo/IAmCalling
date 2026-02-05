@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Content - IAmCalling</title>
+    <script src="js/universal-topbar-injector.js"></script>
+    <style>
+        /* Basic icon styles using CSS */
+        .fa-spinner::before { content: '↻'; }
+        .fa-arrow-left::before { content: '←'; }
+        .fa-home::before { content: '⌂'; }
+        .fa-eye::before { content: '👁'; }
+        
+        .fa::before { 
+            display: inline-block; 
+            margin-right: 8px; 
+            font-weight: bold;
+        }
+        
+        .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #0a3d0a 0%, #1a1a1a 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .article-header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid #d4af37;
+        }
+        
+        .article-title {
+            font-size: 1rem;
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #d4af37;
+        }
+        
+        .article-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .content-container {
+            min-height: 400px;
+            position: relative;
+        }
+        
+        .loading-placeholder {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ffcdd2;
+            margin: 20px 0;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #0a3d0a, #1a1a1a);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(10, 61, 10, 0.4);
+            font-size: 0.7rem;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(10, 61, 10, 0.6);
+        }
+        
+        .view-count {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8f9fa;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+        }
+        
+        /* Universal content display container */
+        .universal-content-display {
+            width: 100%;
+            min-height: 600px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: auto;
+            position: relative;
+        }
+        
+        /* Ensure all visual elements render properly */
+        canvas, svg, img {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        .visualization-container {
+            width: 100%;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .article-title {
+                font-size: 2rem;
+            }
+            
+            .article-header, .article-content {
+                padding: 20px;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="article-header">
+            <div class="back-navigation">
+                <a href="01-index.html" class="back-button">
+                    ← Back to Home
+                </a>
+            </div>
+            
+            <h1 class="article-title" id="articleTitle">Loading...</h1>
+            
+            <div class="article-meta">
+                <div class="author-info">
+                    <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769572696/WhatsApp_Image_2026-01-14_at_7.58.42_PM_gqv8ln.jpg" 
+                         alt="Author" class="author-avatar" id="authorAvatar">
+                    <div>
+                        <div style="font-weight: bold; font-size: 0.8rem;" id="authorName">Loading...</div>
+                        <div style="color: #666; font-size: 0.7rem;" id="publishDate">Loading...</div>
+                    </div>
+                </div>
+                
+                <div class="view-count">
+                    <i class="fa fa-eye"></i>
+                    <span id="viewCount">0</span> views
+                </div>
+            </div>
+            
+            <div id="challengeInfo" style="display: none;">
+                <span class="article-category" style="background: #dc3545; color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.7rem;">
+                    Challenge ID: <span id="challengeId"></span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="article-content">
+            <div class="content-container" id="contentContainer">
+                <div class="loading-placeholder">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading content...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase configuration with hardcoded fallbacks
+        const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Get post ID from URL
+        function getPostId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        
+        // Fetch post data
+        async function fetchPost(postId) {
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase client not initialized');
+                }
+                
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .eq('id', postId)
+                    .single();
+                
+                if (error) {
+                    throw new Error(error.message || 'Failed to fetch post');
+                }
+                
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        // Track view using unified ViewTracker
+        async function trackView(postId) {
+            try {
+                // Initialize ViewTracker if not already present
+                if (!window.ViewTracker) {
+                    // Create a minimal ViewTracker instance for this page
+                    window.ViewTracker = {
+                        trackView: async function(contentId, contentType) {
+                            try {
+                                // Get current count first
+                                const { data: currentData } = await supabaseClient
+                                    .from(contentType === 'post' ? 'posts' : 'articles')
+                                    .select('views_count')
+                                    .eq('id', contentId)
+                                    .single();
+                                
+                                const currentCount = currentData?.views_count || 0;
+                                const newCount = currentCount + 1;
+                                
+                                // Update with new count
+                                await supabaseClient
+                                    .from(contentType === 'post' ? 'posts' : 'articles')
+                                    .update({ views_count: newCount })
+                                    .eq('id', contentId);
+                                
+                                return {
+                                    view_counts: {
+                                        total_views: newCount,
+                                        unique_views: newCount,
+                                        recently_viewed: true
+                                    }
+                                };
+                            } catch (error) {
+                                console.warn('Error tracking view:', error);
+                                return {
+                                    view_counts: {
+                                        total_views: 0,
+                                        unique_views: 0,
+                                        recently_viewed: false
+                                    },
+                                    error: error.message
+                                };
+                            }
+                        },
+                        
+                        updateViewDisplay: function(contentId, contentType, viewCounts) {
+                            // Update the view count display on this page
+                            const viewCountElement = document.getElementById('viewCount');
+                            if (viewCountElement) {
+                                viewCountElement.textContent = viewCounts.total_views;
+                                
+                                // Add visual feedback
+                                viewCountElement.style.transition = 'all 0.3s ease';
+                                viewCountElement.style.transform = 'scale(1.2)';
+                                viewCountElement.style.color = '#4CAF50';
+                                
+                                setTimeout(() => {
+                                    viewCountElement.style.transform = 'scale(1)';
+                                    viewCountElement.style.color = '';
+                                }, 300);
+                            }
+                        }
+                    };
+                }
+                
+                // Track the view using unified system
+                const result = await window.ViewTracker.trackView(postId, 'post');
+                
+                if (result.view_counts) {
+                    // Update display
+                    window.ViewTracker.updateViewDisplay(postId, 'post', result.view_counts);
+                    console.log('📊 View tracked and displayed:', result.view_counts);
+                }
+                
+                return result;
+                
+            } catch (error) {
+                console.warn('Error in view tracking:', error);
+            }
+        }
+        
+        // Universal content extraction that preserves all content
+        function extractContent(content) {
+            if (!content) return '';
+            
+            console.log('🔍 Starting content extraction, total length:', content.length);
+            
+            // Look for admin-code-executable div
+            const startMarker = 'admin-code-executable';
+            if (content.includes(startMarker)) {
+                // Find the opening div tag
+                const startIndex = content.indexOf('<div class="admin-code-executable');
+                if (startIndex === -1) {
+                    console.log('❌ Could not find admin-code-executable opening tag');
+                    return content;
+                }
+                
+                // Find the end of the opening tag
+                const tagEndIndex = content.indexOf('>', startIndex);
+                if (tagEndIndex === -1) {
+                    console.log('❌ Could not find end of opening tag');
+                    return content;
+                }
+                
+                // Count div tags to find the matching closing tag
+                let depth = 1;
+                let pos = tagEndIndex + 1;
+                
+                while (pos < content.length && depth > 0) {
+                    if (content.substr(pos, 4) === '<div') {
+                        depth++;
+                        pos += 4;
+                    } else if (content.substr(pos, 6) === '</div>') {
+                        depth--;
+                        if (depth === 0) {
+                            // Found the closing tag
+                            const extracted = content.substring(tagEndIndex + 1, pos);
+                            
+                            // Clean up unnecessary wrapper elements but preserve all content
+                            let cleaned = extracted.replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
+                            cleaned = cleaned.replace(/^\s+|\s+$/g, ''); // Trim whitespace
+                            return cleaned.trim();
+                        }
+                        pos += 6;
+                    } else {
+                        pos++;
+                    }
+                }
+                
+                console.log('❌ Could not find matching closing tag, returning full content');
+                return content;
+            }
+            
+            // If no admin-code-executable found, return cleaned content
+            console.log('❌ No admin-code-executable found, cleaning content');
+            let cleaned = content.replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
+            cleaned = cleaned.replace(/^\s+|\s+$/g, ''); // Trim whitespace
+            cleaned = cleaned.trim();
+            return cleaned;
+        }
+        
+        // Universal content rendering that works for all types of content
+        function renderUniversalContent(content, container) {
+            console.log('🎨 Rendering universal content, length:', content.length);
+            
+            // Create a universal display container
+            const displayContainer = document.createElement('div');
+            displayContainer.className = 'universal-content-display';
+            displayContainer.id = 'universal-content-display';
+            
+            // Set the content directly (this preserves all elements)
+            displayContainer.innerHTML = content;
+            
+            // Clear the container and add the display
+            container.innerHTML = '';
+            container.appendChild(displayContainer);
+            
+            // Execute any scripts that were embedded in the content
+            executeScriptsInContainer(displayContainer);
+            
+            // Handle any visualization libraries that need initialization
+            initializeVisualizations(displayContainer);
+            
+            console.log('✅ Universal content rendered and displayed');
+        }
+        
+        // Execute scripts within the container
+        function executeScriptsInContainer(container) {
+            try {
+                // Find all script tags in the container
+                const scripts = container.querySelectorAll('script');
+                
+                // Create a DocumentFragment to hold new scripts
+                const fragment = document.createDocumentFragment();
+                
+                scripts.forEach(originalScript => {
+                    const newScript = document.createElement('script');
+                    
+                    // Copy all attributes
+                    for (let attr of originalScript.attributes) {
+                        newScript.setAttribute(attr.name, attr.value);
+                    }
+                    
+                    // Copy script content
+                    newScript.textContent = originalScript.textContent;
+                    
+                    // Add to fragment to execute in order
+                    fragment.appendChild(newScript);
+                    
+                    // Replace the old script with a placeholder to avoid duplicate execution
+                    originalScript.parentNode.replaceChild(document.createTextNode(''), originalScript);
+                });
+                
+                // Append the fragment to execute all scripts
+                if (fragment.children.length > 0) {
+                    container.appendChild(fragment);
+                    console.log('✅ Scripts executed in container');
+                }
+            } catch (error) {
+                console.error('❌ Error executing scripts:', error);
+            }
+        }
+        
+        // Initialize visualization libraries after content is loaded
+        function initializeVisualizations(container) {
+            // Wait a bit for DOM to be fully ready
+            setTimeout(() => {
+                console.log('🎨 Initializing visualizations...');
+                
+                // Handle Chart.js if present
+                if (typeof window.Chart !== 'undefined') {
+                    console.log('📊 Chart.js detected, looking for charts to initialize');
+                    
+                    // Reinitialize any chart canvases
+                    const chartCanvases = container.querySelectorAll('canvas[data-chart]');
+                    chartCanvases.forEach(canvas => {
+                        try {
+                            if (canvas.chart) {
+                                canvas.chart.destroy();
+                            }
+                            
+                            // Re-initialize with proper sizing
+                            setTimeout(() => {
+                                if (canvas.parentElement) {
+                                    canvas.width = canvas.parentElement.clientWidth;
+                                    canvas.height = Math.max(400, canvas.parentElement.clientHeight);
+                                }
+                                console.log('📊 Canvas resized and ready');
+                            }, 100);
+                        } catch (e) {
+                            console.log('📊 Chart reinitialization error:', e);
+                        }
+                    });
+                }
+                
+                // Handle other visualization libraries
+                const vizElements = container.querySelectorAll('[data-visualization], .visualization, .chart-container, .diagram-container');
+                console.log(`🎨 Found ${vizElements.length} visualization elements to initialize`);
+                
+                // Trigger resize events to ensure proper layout
+                window.dispatchEvent(new Event('resize'));
+                window.dispatchEvent(new Event('load'));
+                
+                console.log('✅ Visualization initialization completed');
+            }, 500);
+        }
+        
+        // Render post content with universal support
+        function renderContent(post) {
+            const contentContainer = document.getElementById('contentContainer');
+            
+            if (!post.content) {
+                contentContainer.innerHTML = '<div class="error-message">No content available for this post.</div>';
+                return;
+            }
+            
+            console.log('🎨 Starting universal content rendering for post ID:', post.id);
+            console.log('🎨 Raw content length:', post.content.length);
+            
+            // Extract the actual content
+            const extractedContent = extractContent(post.content);
+            console.log('🎨 Extracted content length:', extractedContent.length);
+            
+            // Render the content universally
+            renderUniversalContent(extractedContent, contentContainer);
+        }
+        
+        // Initialize page
+        async function init() {
+            const postId = getPostId();
+            
+            if (!postId) {
+                document.getElementById('contentContainer').innerHTML = `
+                    <div class="error-message">
+                        <h3>Invalid Post</h3>
+                        <p>No post ID specified in the URL.</p>
+                        <a href="01-index.html" class="back-button" style="margin-top: 20px;">
+                            ⌂ Go to Home
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                // Fetch post data
+                const post = await fetchPost(postId);
+                
+                // Update header information
+                document.getElementById('articleTitle').textContent = post.title || 'Untitled Post';
+                document.getElementById('authorName').textContent = post.author_name || post.author || 'Anonymous';
+                document.getElementById('publishDate').textContent = new Date(post.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                document.getElementById('viewCount').textContent = post.views_count || post.views || 0;
+                
+                // Show challenge info if available
+                if (post.challenge_post_id || post.challenge_id) {
+                    document.getElementById('challengeId').textContent = post.challenge_post_id || post.challenge_id;
+                    document.getElementById('challengeInfo').style.display = 'block';
+                }
+                
+                // Track view
+                await trackView(postId);
+                
+                // Render content with universal support
+                renderContent(post);
+                
+            } catch (error) {
+                document.getElementById('contentContainer').innerHTML = `
+                    <div class="error-message">
+                        <h3>Error Loading Post</h3>
+                        <p>Could not load the requested post. It may not exist or there was a connection error.</p>
+                        <p style="font-size: 0.9rem; margin-top: 15px;">Error: ${error.message}</p>
+                        <a href="01-index.html" class="back-button" style="margin-top: 20px;">
+                            ⌂ Go to Home
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

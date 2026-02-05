@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Critical Thinking Challenge - Analytical Skills Test</title>
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .challenge-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        
+        .scenario-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: #007bff;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+        
+        .response-area {
+            margin: 1.5rem 0;
+        }
+        
+        .response-input {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .submit-btn {
+            background: #28a745;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .feedback-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .feedback-excellent { background: #d4edda; border: 1px solid #c3e6cb; }
+        .feedback-good { background: #fff3cd; border: 1px solid #ffeaa7; }
+        .feedback-needs-work { background: #f8d7da; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="challenge-container">
+            <h1>Critical Thinking Challenge</h1>
+            <p>Enhance your analytical skills through interactive scenarios</p>
+            
+            <div id="scenarioContainer">
+                <div class="scenario-card">
+                    <span class="category-badge" id="categoryBadge">Logical Reasoning</span>
+                    <h3 id="scenarioTitle">Argument Analysis</h3>
+                    <p id="scenarioDescription">Evaluate the logical structure of this argument and identify any fallacies.</p>
+                    
+                    <div style="background: white; padding: 1rem; border-radius: 6px; margin: 1rem 0; font-style: italic;">
+                        <p id="scenarioPrompt">"All successful people work hard. John works hard. Therefore, John is successful."</p>
+                    </div>
+                    
+                    <div class="response-area">
+                        <label for="userResponse"><strong>Your Analysis:</strong></label>
+                        <textarea id="userResponse" class="response-input" placeholder="Analyze the argument above. What logical issues do you identify?"></textarea>
+                    </div>
+                    
+                    <button onclick="submitResponse()" class="submit-btn">Submit Analysis</button>
+                </div>
+            </div>
+            
+            <div id="feedbackSection" class="feedback-section">
+                <h4>Feedback</h4>
+                <p id="feedbackText"></p>
+                <div style="margin-top: 1rem;">
+                    <strong>Correct Answer:</strong> <span id="correctAnswer"></span>
+                </div>
+                <div style="margin-top: 0.5rem;">
+                    <strong>Explanation:</strong> <span id="explanation"></span>
+                </div>
+                <button onclick="nextScenario()" class="submit-btn" style="background: #007bff; margin-top: 1rem;">Next Challenge</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = [
+            {
+                id: 1,
+                category: 'Logical Reasoning',
+                title: 'Argument Analysis',
+                description: 'Evaluate the logical structure of this argument and identify any fallacies.',
+                prompt: 'All successful people work hard. John works hard. Therefore, John is successful.',
+                correctAnswer: 'Affirming the consequent fallacy',
+                explanation: 'This commits the logical fallacy of affirming the consequent. Working hard is necessary but not sufficient for success.'
+            },
+            {
+                id: 2,
+                category: 'Bias Detection',
+                title: 'Confirmation Bias',
+                description: 'Identify the cognitive bias present in this scenario.',
+                prompt: 'Sarah only reads news sources that align with her political views and dismisses contradictory information without consideration.',
+                correctAnswer: 'Confirmation bias',
+                explanation: 'Sarah is exhibiting confirmation bias by seeking information that confirms her existing beliefs while avoiding contradictory evidence.'
+            },
+            {
+                id: 3,
+                category: 'Evidence Evaluation',
+                title: 'Source Credibility',
+                description: 'Assess the reliability of this evidence.',
+                prompt: 'A study claims that 90% of people prefer Brand X, but the study was funded by Brand X company and only surveyed 50 people.',
+                correctAnswer: 'Unreliable due to conflict of interest and small sample size',
+                explanation: 'The study has a clear conflict of interest and an inadequate sample size, making the results unreliable.'
+            }
+        ];
+
+        let currentScenarioIndex = 0;
+
+        function loadScenario(index) {
+            const scenario = scenarios[index];
+            document.getElementById('categoryBadge').textContent = scenario.category;
+            document.getElementById('scenarioTitle').textContent = scenario.title;
+            document.getElementById('scenarioDescription').textContent = scenario.description;
+            document.getElementById('scenarioPrompt').textContent = scenario.prompt;
+            document.getElementById('userResponse').value = '';
+            document.getElementById('feedbackSection').style.display = 'none';
+        }
+
+        function submitResponse() {
+            const userResponse = document.getElementById('userResponse').value.trim();
+            if (!userResponse) {
+                alert('Please provide your analysis before submitting.');
+                return;
+            }
+
+            const scenario = scenarios[currentScenarioIndex];
+            const score = calculateScore(scenario.correctAnswer, userResponse);
+            
+            showFeedback(score, scenario);
+        }
+
+        function calculateScore(correct, response) {
+            const correctLower = correct.toLowerCase();
+            const responseLower = response.toLowerCase();
+            
+            if (responseLower.includes(correctLower) || correctLower.includes(responseLower)) {
+                return 100;
+            }
+            
+            const correctWords = correctLower.split(' ');
+            const responseWords = responseLower.split(' ');
+            const matches = correctWords.filter(word => responseWords.includes(word));
+            
+            return Math.round((matches.length / correctWords.length) * 100);
+        }
+
+        function showFeedback(score, scenario) {
+            const feedbackSection = document.getElementById('feedbackSection');
+            const feedbackText = document.getElementById('feedbackText');
+            
+            let feedbackClass = 'feedback-needs-work';
+            let feedback = 'This is a learning opportunity. Review the explanation and try again.';
+            
+            if (score >= 80) {
+                feedbackClass = 'feedback-excellent';
+                feedback = 'Excellent! You correctly identified the key concept.';
+            } else if (score >= 60) {
+                feedbackClass = 'feedback-good';
+                feedback = 'Good effort! You\'re on the right track but consider the nuances.';
+            }
+            
+            feedbackSection.className = `feedback-section ${feedbackClass}`;
+            feedbackText.textContent = feedback;
+            document.getElementById('correctAnswer').textContent = scenario.correctAnswer;
+            document.getElementById('explanation').textContent = scenario.explanation;
+            
+            feedbackSection.style.display = 'block';
+        }
+
+        function nextScenario() {
+            currentScenarioIndex = (currentScenarioIndex + 1) % scenarios.length;
+            loadScenario(currentScenarioIndex);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadScenario(0);
+        });
+    </script>
+</body>
+</html>

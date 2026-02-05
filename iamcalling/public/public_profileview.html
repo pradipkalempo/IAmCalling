@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - IAMCALLING</title>
+    <meta name="description" content="View public user profiles on IAMCALLING and explore their articles and contributions.">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: blob: https: http://localhost:3002; connect-src 'self' http://localhost:3002 http://localhost:5501 https://*.supabase.co">
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #0a1f0a;
+            --secondary-dark: #1a3a1a;
+            --accent-green: #2d5a2d;
+            --accent-red: #4a1010;
+            --gold: #d4af37;
+            --silver: #c0c0c0;
+            --white: #ffffff;
+            --milky: #f8f8f8;
+            --dark-brown: #3e2723;
+            --text-dark: #333333;
+            --text-light: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--milky) 0%, #e0e0e0 100%);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--gold);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        nav ul li a:hover {
+            color: var(--gold);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .profile-container {
+            flex: 1;
+            padding: 40px 0;
+        }
+
+        .profile-
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--gold);
+            margin-right: 30px;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+        }
+
+        .profile-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-left: 10px;
+            font-size: 0.8rem;
+            color: var(--white);
+        }
+
+        .leftist-badge {
+            background: linear-gradient(135deg, #e53935, #c62828);
+        }
+
+        .rightist-badge {
+            background: linear-gradient(135deg, #1e88e5, #1565c0);
+        }
+
+        .neutral-badge {
+            background: linear-gradient(135deg, #43a047, #2e7d32);
+        }
+
+        .profile-username {
+            color: var(--text-dark);
+            margin-bottom: 15px;
+        }
+
+        .profile-bio {
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .profile-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .profile-btn i {
+            margin-right: 5px;
+        }
+
+        .follow-btn {
+            background: linear-gradient(135deg, var(--accent-green) 0%, var(--gold) 100%);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .message-btn {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-dark);
+        }
+
+        .profile-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .profile-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .profile-section {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-
+
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: var(--accent-green);
+        }
+
+        .section-link {
+            color: var(--accent-green);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .section-link:hover {
+            color: var(--primary-dark);
+        }
+
+        .articles-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .article-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .article-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .article-thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .article-info {
+            flex: 1;
+        }
+
+        .article-title {
+            font-weight: 500;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+            display: block;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .article-title:hover {
+            color: var(--accent-green);
+        }
+
+        .article-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.8rem;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .article-excerpt {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .article-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+        }
+
+        .article-stat {
+            display: flex;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-dark);
+        }
+
+        .article-stat i {
+            margin-right: 5px;
+            color: var(--accent-green);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(45, 90, 45, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--accent-green);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--text-dark);
+        }
+
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--accent-green);
+            color: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(150%);
+            transition: transform 0.3s ease-out;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--accent-red);
+        }
+
+        footer {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            padding: 40px 0 20px;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--gold);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--gold);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--text-light);
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .social-links a:hover {
+            background: var(--gold);
+            transform: translateY(-3px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+        }
+
+        /* Updated text-clamp styles */
+        .text-clamp {
+          display: -webkit-box;
+          display: box;
+          -webkit-box-orient: vertical;
+          box-orient: vertical;
+          -webkit-line-clamp: 2;
+          line-clamp: 2;
+          overflow: hidden;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav ul {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background: var(--secondary-dark);
+                flex-direction: column;
+                align-items: center;
+                padding: 20px 0;
+                transform: translateY(-150%);
+                transition: transform 0.3s;
+                z-index: 99;
+            }
+
+            nav ul.active {
+                transform: translateY(0);
+            }
+
+            nav ul li {
+                margin: 10px 0;
+            }
+
+            .profile-
+
+            .profile-avatar {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .profile-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+    <script src="/config.js"></script>
+</head>
+<body>
+    
+
+    <section class="profile-container">
+        <div class="container">
+            <div class="profile-header">
+                <img src="https://picsum.photos/seed/user123/120/120.jpg" alt="Profile Avatar" class="profile-avatar" id="profile-avatar">
+                <div class="profile-info">
+                    <h2 class="profile-name" id="profile-name">
+                        Loading...
+                    </h2>
+                    <p class="profile-username" id="profile-username">@loading</p>
+                    <p class="profile-bio" id="profile-bio">Loading bio...</p>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="articles-count">0</div>
+                        <div class="stat-label">Articles</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="followers-count">0</div>
+                        <div class="stat-label">Followers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="following-count">0</div>
+                        <div class="stat-label">Following</div>
+                    </div>
+                </div>
+                <div class="profile-actions">
+                    <button class="profile-btn follow-btn" id="followBtn">
+                        <i class="fas fa-user-plus"></i> Follow
+                    </button>
+                    <a href="34-icalluser-messenger.html" class="profile-btn message-btn">
+                        <i class="fas fa-envelope"></i> Message
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <div class="profile-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-newspaper"></i> Recent Articles
+                        </h3>
+                        <a href="#" class="section-link">View All</a>
+                    </div>
+                    <div class="articles-list" id="articles-list">
+                        <div style="text-align: center; color: #666; padding: 20px;">
+                            <i class="fas fa-newspaper" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                            <p>Loading articles...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="fas fa-history"></i> Recent Activity
+                        </h3>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-comment"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Commented on "The Future of Democracy in the Digital Age"</div>
+                            <div class="activity-time">2 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Liked "Understanding Economic Inequality"</div>
+                            <div class="activity-time">5 hours ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Published "The Fight for Gender Equality in Modern Society"</div>
+                            <div class="activity-time">1 day ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Started following Michael Chen</div>
+                            <div class="activity-time">2 days ago</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-text">Earned the "Top Contributor" badge</div>
+                            <div class="activity-time">3 days ago</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>IAMCALLING</h3>
+                    <p>A platform for diverse perspectives and ideology analysis.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="01-index.html">Home</a></li>
+                        <li><a href="02-about.html">About Us</a></li>
+                        <li><a href="04-categories.html">Categories</a></li>
+                        <li><a href="09-ideology-analyzer.html">Ideology Test</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="36-terms-conditions.html">Terms & Conditions</a></li>
+                        <li><a href="37-privacy-policy.html">Privacy Policy</a></li>
+                        <li><a href="38-article-guidelines.html">Article Guidelines</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> info@iamcalling.com</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Main St, City, Country</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 IAMCALLING. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div class="notification" id="notification">Action completed successfully!</div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/view-tracker.js"></script>
+    <script>
+        // Function to update authentication links based on login status
+        function updateAuthLinks() {
+            const authLinks = document.getElementById('auth-links');
+            if (!authLinks) return;
+            
+            // Check authentication status
+            const authToken = localStorage.getItem('userToken') || localStorage.getItem('authToken') || localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('user_data') || localStorage.getItem('currentUser');
+            
+            if (authToken || userData) {
+                // User is logged in
+                try {
+                    const userInfo = userData ? JSON.parse(userData) : {};
+                    const userName = userInfo?.first_name || userInfo?.name || userInfo?.full_name || 'User';
+                    authLinks.innerHTML = `
+                        <li><a href="18-profile.html" style="color: #d4af37; font-weight: 600;">${userName}</a></li>
+                        <li><a href="#" onclick="logoutUser(); return false;">Logout</a></li>
+                    `;
+                } catch (e) {
+                    authLinks.innerHTML = `
+                        <li><a href="18-profile.html" style="color: #d4af37; font-weight: 600;">Profile</a></li>
+                        <li><a href="#" onclick="logoutUser(); return false;">Logout</a></li>
+                    `;
+                }
+            } else {
+                // User is not logged in
+                authLinks.innerHTML = `
+                    <li><a href="15-login.html">Login</a></li>
+                    <li><a href="16-register.html">Register</a></li>
+                `;
+            }
+        }
+        
+        // Function to handle user logout
+        function logoutUser() {
+            // Clear all authentication tokens
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('user_data');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('loginTimestamp');
+            
+            // Clear sessionStorage
+            sessionStorage.removeItem('userSession');
+            sessionStorage.removeItem('currentUser');
+            
+            // Update UI
+            updateAuthLinks();
+            
+            // Redirect to home page
+            window.location.href = '01-index.html';
+        }
+        
+        // Initialize authentication links when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAuthLinks();
+            
+            // Listen for auth changes
+            window.addEventListener('authStatusChanged', updateAuthLinks);
+            
+            // Mobile menu functionality
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mainMenu = document.getElementById('mainMenu');
+            
+            if (mobileMenuBtn && mainMenu) {
+                mobileMenuBtn.addEventListener('click', function() {
+                    mainMenu.classList.toggle('active');
+                });
+            }
+        });
+        
+        // Get user ID from URL parameter
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(window.location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+
+        // Initialize Supabase
+        const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || '';
+        const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || '';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const memberParam = getUrlParameter('member');
+            const userIdParam = getUrlParameter('id');
+            
+            try {
+                let userData;
+                let targetUserId;
+                
+                // Check if we're viewing a specific user profile by ID or member
+                if (userIdParam) {
+                    console.log('Loading registered user profile for ID:', userIdParam);
+                    targetUserId = userIdParam;
+                    // Let Supabase fetch handle the user data
+                } else if (memberParam) {
+                    console.log('Loading member profile for:', memberParam);
+                    
+                    // Clear old data first
+                    localStorage.removeItem('viewingMemberProfile');
+                    
+                    // Check if we have member data in localStorage (prioritize profile_user_data)
+                    const profileUserData = localStorage.getItem('profile_user_data');
+                    
+                    if (profileUserData) {
+                        console.log('Using profile_user_data:', profileUserData);
+                        userData = JSON.parse(profileUserData);
+                        targetUserId = userData.id;
+                    } else {
+                        // Fallback: try to find member in network_users
+                        console.log('No profile_user_data found, searching network_users');
+                        const networkUsers = JSON.parse(localStorage.getItem('network_users') || '[]');
+                        const memberData = networkUsers.find(user => user.id === memberParam);
+                        if (memberData) {
+                            console.log('Found member in network_users:', memberData);
+                            userData = {
+                                id: memberData.id,
+                                first_name: memberData.name?.split(' ')[0] || memberData.name,
+                                last_name: memberData.name?.split(' ').slice(1).join(' ') || '',
+                                full_name: memberData.name,
+                                email: memberData.email,
+                                username: memberData.name,
+                                bio: `Network member since ${new Date(memberData.joinDate || Date.now()).toLocaleDateString()}`
+                            };
+                            targetUserId = memberData.id;
+                        } else {
+                            console.error('Member not found in network_users:', memberParam);
+                            showError('Member not found');
+                            return;
+                        }
+                    }
+                } else {
+                    // Load current user's profile
+                    console.log('Public profile - checking localStorage');
+                    let currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+                    if (!currentUser.id) {
+                        currentUser = JSON.parse(localStorage.getItem('user_data') || '{}');
+                    }
+                    
+                    if (!currentUser.id) {
+                        console.log('No user found in localStorage');
+                        showError('Please login first');
+                        return;
+                    }
+                    
+                    targetUserId = currentUser.id;
+                }
+                
+                console.log('Loading public profile for user:', targetUserId);
+                
+                // If we already have userData from localStorage, use it, otherwise fetch from Supabase
+                if (!userData) {
+                    const { data, error } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('id', targetUserId)
+                        .single();
+                    
+                    if (error) {
+                        console.error('Public profile Supabase error:', error);
+                        // Try to get any user from the table for testing
+                        const { data: allUsers } = await supabase
+                            .from('users')
+                            .select('*')
+                            .limit(1);
+                        
+                        if (allUsers && allUsers.length > 0) {
+                            console.log('Using first available user for testing:', allUsers[0]);
+                            userData = allUsers[0];
+                        } else {
+                            showError('No users found in database');
+                            return;
+                        }
+                    } else {
+                        console.log('Public profile loaded data:', data);
+                        userData = data;
+                    }
+                } else {
+                    console.log('Using localStorage member data:', userData);
+                }
+                
+
+                
+                // Update profile display
+                updateProfileDisplay(userData);
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showError('Profile not found');
+            }
+        });
+        
+        // Update profile display with real data
+        async function updateProfileDisplay(userData) {
+            // Update profile photo
+            const profileAvatar = document.getElementById('profile-avatar');
+            if (profileAvatar) {
+                if (userData.profile_photo && !/\.svg|ui-avatars/i.test(String(userData.profile_photo))) {
+                    profileAvatar.src = userData.profile_photo;
+                } else {
+                    var pvSeed = (userData.full_name || userData.email || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                    profileAvatar.src = 'https://i.pravatar.cc/150?u=' + pvSeed;
+                }
+            }
+            
+            // Update name with ideology badge
+            const profileName = document.getElementById('profile-name');
+            if (profileName) {
+                const ideologyBadge = getIdeologyBadge(userData.ideology || 'Centrist');
+                profileName.innerHTML = `${userData.full_name || 'User'} ${ideologyBadge}`;
+            }
+            
+            // Update username and bio
+            const profileUsername = document.getElementById('profile-username');
+            if (profileUsername) {
+                profileUsername.textContent = `@${userData.email?.split('@')[0] || 'user'}`;
+            }
+            
+            const profileBio = document.getElementById('profile-bio');
+            if (profileBio) {
+                profileBio.textContent = userData.bio || 'Passionate about political discourse and social change.';
+            }
+            
+            // Get articles count
+            const { count: articlesCount } = await supabase
+                .from('articles')
+                .select('*', { count: 'exact', head: true })
+                .eq('author_id', userData.id);
+            
+            // Update stats
+            const articlesCountEl = document.getElementById('articles-count');
+            if (articlesCountEl) articlesCountEl.textContent = articlesCount || 0;
+            
+            const followersCount = document.getElementById('followers-count');
+            if (followersCount) followersCount.textContent = userData.followers_count || 0;
+            
+            const followingCount = document.getElementById('following-count');
+            if (followingCount) followingCount.textContent = userData.following_count || 0;
+            
+            // Load articles
+            loadUserArticles(userData.id);
+        }
+        
+        // Load user's articles
+        async function loadUserArticles(userId) {
+            try {
+                const { data: articles } = await supabase
+                    .from('articles')
+                    .select('*')
+                    .eq('author_id', userId)
+                    .order('created_at', { ascending: false })
+                    .limit(3);
+                
+                const articlesList = document.getElementById('articles-list');
+                if (!articlesList) return;
+                
+                if (articles && articles.length > 0) {
+                    articlesList.innerHTML = '';
+                    
+                    articles.forEach(article => {
+                        const articleItem = document.createElement('div');
+                        articleItem.className = 'article-item';
+                        
+                        // Use thumbnail_url if available, otherwise generate fallback
+                        const thumbnailSrc = article.thumbnail_url || 
+                            `https://i.pravatar.cc/150?u=${encodeURIComponent((article.title || 'article').toString().replace(/[^a-zA-Z0-9]/g, '').slice(0,20) || 'article')}`;
+                        
+                        articleItem.innerHTML = `
+                            <img src="${thumbnailSrc}" alt="Article" class="article-thumbnail" onerror="this.src='https://i.pravatar.cc/150?u=article'; this.onerror=null;">
+                            <div class="article-info">
+                                <span class="article-title">${article.title}</span>
+                                <div class="article-meta">
+                                    <span><i class="fas fa-calendar"></i> ${new Date(article.created_at).toLocaleDateString()}</span>
+                                    <span><i class="fas fa-folder"></i> ${article.category || 'General'}</span>
+                                </div>
+                                <div class="article-excerpt">${article.content?.substring(0, 100) + '...' || 'Article content preview...'}</div>
+                                <div class="article-stats">
+                                    <div class="article-stat"><i class="fas fa-eye"></i> ${article.views || 0}</div>
+                                    <div class="article-stat"><i class="fas fa-comment"></i> ${article.comments_count || 0}</div>
+                                    <div class="article-stat"><i class="fas fa-share"></i> ${article.shares || 0}</div>
+                                </div>
+                            </div>
+                        `;
+                        articlesList.appendChild(articleItem);
+                    });
+                } else {
+                    articlesList.innerHTML = `
+                        <div style="text-align: center; color: #666; padding: 40px;">
+                            <i class="fas fa-newspaper" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
+                            <p>No articles published yet</p>
+                            <small>No articles have been written yet.</small>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading articles:', error);
+            }
+        }
+        
+        // Get ideology badge HTML
+        function getIdeologyBadge(ideology) {
+            const badges = {
+                'Leftist': '<div class="profile-badge leftist-badge" title="Leftist Ideology"><i class="fas fa-fist-raised"></i></div>',
+                'Rightist': '<div class="profile-badge rightist-badge" title="Rightist Ideology"><i class="fas fa-flag"></i></div>',
+                'Centrist': '<div class="profile-badge neutral-badge" title="Centrist Ideology"><i class="fas fa-balance-scale"></i></div>',
+                'Liberal': '<div class="profile-badge leftist-badge" title="Liberal Ideology"><i class="fas fa-dove"></i></div>',
+                'Conservative': '<div class="profile-badge rightist-badge" title="Conservative Ideology"><i class="fas fa-shield-alt"></i></div>'
+            };
+            return badges[ideology] || badges['Centrist'];
+        }
+        
+        // Set up real-time synchronization with private profile
+        function setupProfileSync() {
+            // Listen for profile updates
+            window.addEventListener('profileUpdated', async function(e) {
+                console.log('Profile updated, refreshing view');
+                const userId = getUrlParameter('id');
+                let profileData;
+                
+                if (userId) {
+                    profileData = await window.profileManager.getProfileData(userId);
+                } else {
+                    profileData = await window.profileManager.getCurrentUserProfile();
+                }
+                
+                if (profileData) {
+                    window.profileManager.renderProfile(profileData, false);
+                }
+            });
+        }
+        
+        function showError(message) {
+            const profileName = document.getElementById('profile-name');
+            if (profileName) {
+                profileName.textContent = message;
+            }
+        }
+        
+
+        // Initialize view tracking after page load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.ViewTracker) {
+                setTimeout(() => {
+                    window.ViewTracker.initPageTracking();
+                }, 300);
+            }
+        });
+    </script>
+</body>
+</html>

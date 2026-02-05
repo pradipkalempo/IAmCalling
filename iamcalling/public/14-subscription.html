@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Subscribe - IAMCALLING</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+        #subscribe-button {
+            background-color: #ff0000;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+        }
+        #subscribe-button:hover {
+            background-color: #cc0000;
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    <button id="subscribe-button">Subscribe</button>
+
+    <script>
+        const subscribeButton = document.getElementById('subscribe-button');
+
+        // Check if Push API and Service Workers are supported
+        if ('serviceWorker' in navigator && 'PushManager' in window) {
+            subscribeButton.addEventListener('click', async () => {
+                try {
+                    // Register service worker
+                    const registration = await navigator.serviceWorker.register('/service-worker.js');
+
+                    // Subscribe to push notifications
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: 'YOUR_PUBLIC_VAPID_KEY', // Replace with your VAPID public key
+                    });
+
+                    // Send subscription to the server
+                    const response = await fetch('/api/subscribe-push', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(subscription),
+                    });
+
+                    if (response.ok) {
+                        alert('Push notifications enabled!');
+                    } else {
+                        alert('Failed to enable push notifications.');
+                    }
+                } catch (error) {
+                    console.error('Error during subscription:', error);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        } else {
+            alert('Push notifications are not supported in your browser.');
+            subscribeButton.disabled = true;
+        }
+    </script>
+</body>
+</html>

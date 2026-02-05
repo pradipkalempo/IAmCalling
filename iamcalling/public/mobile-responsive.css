@@ -1,0 +1,166 @@
+/* Mobile Responsive CSS for IAmCalling Platform */
+
+/* Base mobile-first styles */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 15px;
+        margin: 15px auto;
+    }
+    
+    .form-container {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-input, select {
+        padding: 12px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .btn {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .btn-group .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    /* Code editor responsive */
+    .code-editor {
+        font-size: 14px;
+        padding: 10px;
+        min-height: 120px;
+    }
+    
+    /* Preview container */
+    .code-preview {
+        height: 250px;
+    }
+    
+    /* Checkbox groups */
+    .checkbox-group {
+        margin: 10px 0;
+    }
+    
+    .checkbox-group label {
+        font-size: 14px;
+    }
+}
+
+/* Tablet styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .container {
+        width: 90%;
+        padding: 25px;
+    }
+    
+    .form-container {
+        padding: 25px;
+    }
+    
+    .btn-group {
+        flex-direction: row;
+    }
+    
+    .btn-group .btn {
+        width: auto;
+        flex: 1;
+        margin: 0 5px;
+    }
+}
+
+/* Large screen styles */
+@media (min-width: 1025px) {
+    .container {
+        max-width: 1200px;
+    }
+    
+    .btn-group {
+        flex-direction: row;
+    }
+    
+    .btn-group .btn {
+        width: auto;
+        margin: 0 10px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .btn {
+        padding: 18px;
+        font-size: 16px;
+    }
+    
+    .form-input, select {
+        padding: 15px;
+    }
+    
+    .code-editor {
+        padding: 15px;
+    }
+}
+
+/* Dark mode specific mobile adjustments */
+@media (max-width: 768px) {
+    body {
+        font-size: 16px;
+    }
+    
+    .form-label {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+    
+    .checkbox-group label {
+        font-size: 16px;
+        line-height: 1.4;
+    }
+}
+
+/* Orientation changes */
+@media (orientation: landscape) and (max-height: 500px) {
+    .container {
+        padding: 10px;
+        margin: 10px auto;
+    }
+    
+    .form-container {
+        padding: 15px;
+    }
+    
+    .code-editor {
+        min-height: 100px;
+    }
+    
+    .code-preview {
+        height: 200px;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .btn {
+        border-width: 2px;
+    }
+    
+    .form-input, select {
+        border-width: 2px;
+    }
+}

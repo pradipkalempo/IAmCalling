@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Connection Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>IAMCALLING - Supabase Connection Test</h1>
+    
+    <div id="results"></div>
+    
+    <button onclick="testConnection()">Test Connection</button>
+    <button onclick="testPosts()">Test Posts Loading</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <script>
+        const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+        
+        let supabaseClient;
+        
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            results.appendChild(div);
+            results.scrollTop = results.scrollHeight;
+        }
+        
+        async function testConnection() {
+            addResult('Testing Supabase connection...', 'info');
+            
+            try {
+                // Test if Supabase library is loaded
+                if (typeof supabase === 'undefined') {
+                    throw new Error('Supabase library not loaded');
+                }
+                addResult('✅ Supabase library loaded', 'success');
+                
+                // Initialize client
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                addResult('✅ Supabase client initialized', 'success');
+                
+                // Test basic connection
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .select('count')
+                    .limit(1);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                addResult('✅ Database connection successful', 'success');
+                
+            } catch (error) {
+                addResult(`❌ Connection failed: ${error.message}`, 'error');
+                console.error('Connection test failed:', error);
+            }
+        }
+        
+        async function testPosts() {
+            addResult('Testing posts loading...', 'info');
+            
+            try {
+                if (!supabaseClient) {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                }
+                
+                // Test posts query
+                const { data: posts, error } = await supabaseClient
+                    .from('posts')
+                    .select('id,title,author_name,created_at,published')
+                    .eq('published', true)
+                    .order('id', { ascending: false })
+                    .limit(5);
+                
+                if (error) {
+                    throw error;
+                }
+                
+                addResult(`✅ Posts query successful - Found ${posts.length} posts`, 'success');
+                
+                if (posts.length > 0) {
+                    posts.forEach(post => {
+                        addResult(`📄 Post ${post.id}: "${post.title}" by ${post.author_name || 'Unknown'}`, 'info');
+                    });
+                } else {
+                    addResult('⚠️ No published posts found in database', 'error');
+                }
+                
+            } catch (error) {
+                addResult(`❌ Posts loading failed: ${error.message}`, 'error');
+                console.error('Posts test failed:', error);
+            }
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            addResult('Page loaded - Ready for testing', 'info');
+            setTimeout(testConnection, 1000);
+        });
+    </script>
+</body>
+</html>

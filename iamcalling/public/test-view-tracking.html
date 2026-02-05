@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Tracking Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/view-tracker.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-card { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .view-count { color: #007bff; font-weight: bold; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .log { background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 20px 0; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>📊 View Tracking System Test</h1>
+    
+    <div class="test-card">
+        <h3>Test Post 1</h3>
+        <p>This is a test post to verify view tracking functionality.</p>
+        <div>
+            Views: <span class="view-count" data-post-id="test-post-1" data-view-count>0</span>
+            <button onclick="trackTestView('test-post-1', 'post')">Track View</button>
+        </div>
+    </div>
+    
+    <div class="test-card">
+        <h3>Test Article 1</h3>
+        <p>This is a test article to verify view tracking functionality.</p>
+        <div>
+            Views: <span class="view-count" data-article-id="test-article-1" data-view-count>0</span>
+            <button onclick="trackTestView('test-article-1', 'article')">Track View</button>
+        </div>
+    </div>
+    
+    <div class="test-card">
+        <h3>Batch Operations</h3>
+        <button onclick="testBatchViewCounts()">Get Batch View Counts</button>
+        <button onclick="testTrendingContent()">Get Trending Content</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div class="log" id="log">
+        Test logs will appear here...
+    </div>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = 'Test logs will appear here...';
+        }
+        
+        async function trackTestView(contentId, contentType) {
+            log(`Tracking view for ${contentType} ${contentId}`);
+            
+            try {
+                const result = await window.ViewTracker.trackView(contentId, contentType);
+                log(`✅ View tracked: ${JSON.stringify(result)}`);
+                
+                // Update display
+                if (result.view_counts) {
+                    window.ViewTracker.updateViewDisplay(contentId, contentType, result.view_counts);
+                }
+            } catch (error) {
+                log(`❌ Error tracking view: ${error.message}`);
+            }
+        }
+        
+        async function testBatchViewCounts() {
+            log('Testing batch view counts...');
+            
+            const contentList = [
+                { content_id: 'test-post-1', content_type: 'post' },
+                { content_id: 'test-article-1', content_type: 'article' }
+            ];
+            
+            try {
+                const results = await window.ViewTracker.getBatchViewCounts(contentList);
+                log(`✅ Batch results: ${JSON.stringify(results, null, 2)}`);
+            } catch (error) {
+                log(`❌ Error in batch request: ${error.message}`);
+            }
+        }
+        
+        async function testTrendingContent() {
+            log('Testing trending content...');
+            
+            try {
+                const trendingPosts = await window.ViewTracker.getTrendingContent('post', 5);
+                log(`✅ Trending posts: ${JSON.stringify(trendingPosts, null, 2)}`);
+                
+                const trendingArticles = await window.ViewTracker.getTrendingContent('article', 5);
+                log(`✅ Trending articles: ${JSON.stringify(trendingArticles, null, 2)}`);
+            } catch (error) {
+                log(`❌ Error getting trending content: ${error.message}`);
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 View tracking system initialized');
+            log(`Session ID: ${window.ViewTracker.sessionId}`);
+        });
+    </script>
+</body>
+</html>

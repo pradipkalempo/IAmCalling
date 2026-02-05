@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Search for articles on IAMCALLING">
+    <meta name="keywords" content="search, find articles, discover content">
+    <title>Search - IAMCALLING</title>
+    
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #0a3d0a; /* Dark green */
+            --secondary-color: #1a1a1a; /* Dark black */
+            --accent-color: #8b4513; /* Dark brown */
+            --text-light: #f8f8f8; /* Milky white */
+            --gold: #d4af37; /* Gold */
+            --silver: #c0c0c0; /* Silver */
+            --gradient: linear-gradient(135deg, rgba(10,61,10,1) 0%, rgba(26,26,26,1) 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* Header Styles */
+        
+        
+        
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gold);
+            text-decoration: none;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            color: var(--gold);
+        }
+        
+        /* Search Section */
+        .search-section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+        }
+        
+        .search-
+        
+        .search-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .search-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .search-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(10, 61, 10, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #777;
+            font-size: 1.2rem;
+        }
+        
+        .search-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .filter-chip {
+            padding: 0.5rem 1rem;
+            background: #f0f0f0;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+        }
+        
+        .filter-chip:hover {
+            background: rgba(10, 61, 10, 0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .filter-chip.active {
+            background: var(--gradient);
+            color: white;
+        }
+        
+        .filter-chip i {
+            margin-right: 0.5rem;
+        }
+        
+        .search-button {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            padding: 0.8rem 1.5rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+        }
+        
+        .search-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Search Results */
+        .search-results {
+            margin: 2rem 0;
+        }
+        
+        .results-
+        
+        .results-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--secondary-color);
+        }
+        
+        .results-count {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .sort-options {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .sort-option {
+            padding: 0.4rem 0.8rem;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .sort-option:hover {
+            background: rgba(10, 61, 10, 0.1);
+        }
+        
+        .sort-option.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        /* Articles Grid */
+        .articles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .article-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        
+        .article-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .article-content {
+            padding: 1rem;
+        }
+        
+        .article-category {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .article-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+            line-height: 1.3;
+        }
+        
+        .article-excerpt {
+            color: #555;
+            font-size: 0.9rem;
+            margin-bottom: 0.8rem;
+            line-height: 1.4;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.8rem;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .author-avatar {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 0.3rem;
+        }
+        
+        /* Badge Styles */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+        
+        .badge-leftist {
+            background: #e53935; /* Red */
+            color: white;
+        }
+        
+        .badge-rightist {
+            background: #1e88e5; /* Blue */
+            color: white;
+        }
+        
+        .badge-communist {
+            background: #d32f2f; /* Darker Red */
+            color: white;
+        }
+        
+        .badge-fascist {
+            background: #303f9f; /* Darker Blue */
+            color: white;
+        }
+        
+        .badge-neutral {
+            background: #757575; /* Gray */
+            color: white;
+        }
+        
+        /* Popular Searches */
+        .popular-searches {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(139, 69, 19, 0.3);
+        }
+        
+        .popular-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .popular-title i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .popular-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        
+        .popular-tag {
+            padding: 0.5rem 1rem;
+            background: rgba(10, 61, 10, 0.05);
+            border-radius: 30px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: all 0.3s;
+            border: 1px solid rgba(10, 61, 10, 0.1);
+        }
+        
+        .popular-tag:hover {
+            background: rgba(10, 61, 10, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+        
+        .no-results-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary-color);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .search-filters {
+                justify-content: flex-start;
+            }
+            
+            .results-
+            
+            .articles-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    
+    
+    <div class="container">
+        <div class="search-section">
+            <div class="search-header">
+                <h1 class="search-title">Search Articles</h1>
+                <p class="search-subtitle">Find content that matches your interests and perspective</p>
+            </div>
+            
+            <form class="search-form" id="searchForm">
+                <div class="search-input-group">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search for articles, topics, or authors..." autofocus>
+                </div>
+                
+                <div class="search-filters">
+                    <div class="filter-chip active" data-filter="all">
+                        <i class="fas fa-globe"></i> All Content
+                    </div>
+                    <div class="filter-chip" data-filter="leftist">
+                        <i class="fas fa-arrow-left"></i> Leftist
+                    </div>
+                    <div class="filter-chip" data-filter="rightist">
+                        <i class="fas fa-arrow-right"></i> Rightist
+                    </div>
+                    <div class="filter-chip" data-filter="communist">
+                        <i class="fas fa-star"></i> Communist
+                    </div>
+                    <div class="filter-chip" data-filter="fascist">
+                        <i class="fas fa-flag"></i> Fascist
+                    </div>
+                    <div class="filter-chip" data-filter="neutral">
+                        <i class="fas fa-balance-scale"></i> Neutral
+                    </div>
+                </div>
+                
+                <button type="submit" class="search-button">
+                    Search <i class="fas fa-search" style="margin-left: 0.5rem;"></i>
+                </button>
+            </form>
+        </div>
+        
+        <div class="search-results" id="searchResults">
+            <div class="results-header">
+                <h2 class="results-title">Search Results</h2>
+                <div class="results-count" id="resultsCount">Showing 8 results</div>
+                <div class="sort-options">
+                    <div class="sort-option active">Relevance</div>
+                    <div class="sort-option">Newest</div>
+                    <div class="sort-option">Popular</div>
+                </div>
+            </div>
+            
+            <div class="articles-grid" id="articlesGrid">
+                <div class="article-card">
+                    <img src="https://picsum.photos/seed/search1/300/150.jpg" alt="Article" class="article-image">
+                    <div class="article-content">
+                        <span class="article-category">Politics</span>
+                        <h3 class="article-title">The Shifting Landscape of Global Politics in 2023</h3>
+                        <p class="article-excerpt">As we navigate through the complexities of modern political discourse, it's becoming increasingly clear that traditional ideologies are being challenged...</p>
+                        <div class="article-meta">
+                            <div class="author-info">
+                                <img src="https://picsum.photos/seed/author1/20/20.jpg" alt="Author" class="author-avatar">
+                                <span>Dr. Sarah Johnson</span>
+                                <span class="badge badge-leftist">L</span>
+                            </div>
+                            <span>542 views</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <img src="https://picsum.photos/seed/search2/300/150.jpg" alt="Article" class="article-image">
+                    <div class="article-content">
+                        <span class="article-category">Economy</span>
+                        <h3 class="article-title">Economic Disparities in Urban Centers</h3>
+                        <p class="article-excerpt">A deep dive into the growing economic divide within major cities and its implications for social cohesion and political stability...</p>
+                        <div class="article-meta">
+                            <div class="author-info">
+                                <img src="https://picsum.photos/seed/author2/20/20.jpg" alt="Author" class="author-avatar">
+                                <span>Michael Chen</span>
+                                <span class="badge badge-neutral">N</span>
+                            </div>
+                            <span>387 views</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <img src="https://picsum.photos/seed/search3/300/150.jpg" alt="Article" class="article-image">
+                    <div class="article-content">
+                        <span class="article-category">Society</span>
+                        <h3 class="article-title">The Digital Transformation of Social Movements</h3>
+                        <p class="article-excerpt">How social media and digital platforms have reshaped the way we organize and participate in social movements across the globe...</p>
+                        <div class="article-meta">
+                            <div class="author-info">
+                                <img src="https://picsum.photos/seed/author3/20/20.jpg" alt="Author" class="author-avatar">
+                                <span>Alex Rivera</span>
+                                <span class="badge badge-rightist">R</span>
+                            </div>
+                            <span>298 views</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <img src="https://picsum.photos/seed/search4/300/150.jpg" alt="Article" class="article-image">
+                    <div class="article-content">
+                        <span class="article-category">World</span>
+                        <h3 class="article-title">Climate Change and International Relations</h3>
+                        <p class="article-excerpt">Examining how climate change is becoming a central factor in international diplomacy and cooperation between nations...</p>
+                        <div class="article-meta">
+                            <div class="author-info">
+                                <img src="https://picsum.photos/seed/author4/20/20.jpg" alt="Author" class="author-avatar">
+                                <span>Emma Williams</span>
+                                <span class="badge badge-communist">C</span>
+                            </div>
+                            <span>456 views</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <img src="https://picsum.photos/seed/search5/300/150.jpg" alt="Article" class="article-image">
+                    <div class="article-content">
+                        <span class="article-category">Politics</span>
+                        <h3 class="article-title">The Future of Democracy in the Digital Age</h3>
+                        <p class="article-excerpt">Exploring the challenges and opportunities facing democratic institutions in an era of digital disruption and misinformation...</p>
+                        <div class="article-meta">
+                            <div class="author-info">
+                                <img src="https://picsum.photos/seed/author5/20/20.jpg" alt="Author" class="author-avatar">
+                                <span>James Wilson</span>
+                                <span class="badge badge-leftist">L</span>
+                            </div>
+                            <span>321 views</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <img src="https://picsum.photos/seed/search6/300/150.jpg" alt="Article" class="article-image">
+                    <div class="article-content">
+                        <span class="article-category">Economy</span>
+                        <h3 class="article-title">Income Inequality: Causes and Solutions</h3>
+                        <p class="article-excerpt">An analysis of the factors contributing to growing income disparity and potential policy solutions to address this issue...</p>
+                        <div class="article-meta">
+                            <div class="author-info">
+                                <img src="https://picsum.photos/seed/author6/20/20.jpg" alt="Author" class="author-avatar">
+                                <span>Lisa Chen</span>
+                                <span class="badge badge-communist">C</span>
+                            </div>
+                            <span>276 views</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <img src="https://picsum.photos/seed/search7/300/150.jpg" alt="Article" class="article-image">
+                    <div class="article-content">
+                        <span class="article-category">Society</span>
+                        <h3 class="article-title">Cultural Shifts in the 21st Century</h3>
+                        <p class="article-excerpt">How changing demographics, technology, and globalization are reshaping cultural norms and values around the world...</p>
+                        <div class="article-meta">
+                            <div class="author-info">
+                                <img src="https://picsum.photos/seed/author7/20/20.jpg" alt="Author" class="author-avatar">
+                                <span>Robert Taylor</span>
+                                <span class="badge badge-neutral">N</span>
+                            </div>
+                            <span>198 views</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="article-card">
+                    <img src="https://picsum.photos/seed/search8/300/150.jpg" alt="Article" class="article-image">
+                    <div class="article-content">
+                        <span class="article-category">Technology</span>
+                        <h3 class="article-title">The Impact of AI on Political Discourse</h3>
+                        <p class="article-excerpt">Examining how artificial intelligence is transforming political communication, campaigning, and public opinion...</p>
+                        <div class="article-meta">
+                            <div class="author-info">
+                                <img src="https://picsum.photos/seed/author8/20/20.jpg" alt="Author" class="author-avatar">
+                                <span>David Kim</span>
+                                <span class="badge badge-rightist">R</span>
+                            </div>
+                            <span>412 views</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="popular-searches">
+            <h3 class="popular-title"><i class="fas fa-fire"></i> Popular Searches</h3>
+            <div class="popular-tags">
+                <a href="#" class="popular-tag">Global Politics</a>
+                <a href="#" class="popular-tag">Economic Inequality</a>
+                <a href="#" class="popular-tag">Climate Change</a>
+                <a href="#" class="popular-tag">Democracy</a>
+                <a href="#" class="popular-tag">Social Movements</a>
+                <a href="#" class="popular-tag">Technology</a>
+                <a href="#" class="popular-tag">Culture</a>
+                <a href="#" class="popular-tag">International Relations</a>
+                <a href="#" class="popular-tag">Political Ideology</a>
+                <a href="#" class="popular-tag">Digital Transformation</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Function to update authentication links based on login status
+        function updateAuthLinks() {
+            const authLinks = document.getElementById('auth-links');
+            if (!authLinks) return;
+            
+            // Check authentication status
+            const authToken = localStorage.getItem('userToken') || localStorage.getItem('authToken') || localStorage.getItem('auth_token');
+            const userData = localStorage.getItem('userData') || localStorage.getItem('user_data') || localStorage.getItem('currentUser');
+            
+            if (authToken || userData) {
+                // User is logged in
+                try {
+                    const userInfo = userData ? JSON.parse(userData) : {};
+                    const userName = userInfo?.first_name || userInfo?.name || userInfo?.full_name || 'User';
+                    authLinks.innerHTML = `
+                        <li><a href="18-profile.html" style="color: #d4af37; font-weight: 600;">${userName}</a></li>
+                        <li><a href="#" onclick="logoutUser(); return false;">Logout</a></li>
+                    `;
+                } catch (e) {
+                    authLinks.innerHTML = `
+                        <li><a href="18-profile.html" style="color: #d4af37; font-weight: 600;">Profile</a></li>
+                        <li><a href="#" onclick="logoutUser(); return false;">Logout</a></li>
+                    `;
+                }
+            } else {
+                // User is not logged in
+                authLinks.innerHTML = `
+                    <li><a href="15-login.html">Login</a></li>
+                `;
+            }
+        }
+        
+        // Function to handle user logout
+        function logoutUser() {
+            // Clear all authentication tokens
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('userData');
+            localStorage.removeItem('user_data');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('loginTimestamp');
+            
+            // Clear sessionStorage
+            sessionStorage.removeItem('userSession');
+            sessionStorage.removeItem('currentUser');
+            
+            // Update UI
+            updateAuthLinks();
+            
+            // Redirect to home page
+            window.location.href = '01-index.html';
+        }
+        
+        // Initialize authentication links when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAuthLinks();
+            
+            // Listen for auth changes
+            window.addEventListener('authStatusChanged', updateAuthLinks);
+        });
+        
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('searchForm');
+            const searchInput = document.getElementById('searchInput');
+            
+            if (searchForm && searchInput) {
+                searchForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        // In a real implementation, this would call your search API
+                        console.log('Searching for:', query);
+                        // For demo purposes, we'll just show a notification
+                        showNotification(`Searching for "${query}"...`);
+                    }
+                });
+            }
+        });
+        
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 5px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

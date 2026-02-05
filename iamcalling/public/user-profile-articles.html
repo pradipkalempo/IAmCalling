@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Critical Thinking Hub</title>
+    
+    <!-- Mobile-First CSS -->
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    
+    <style>
+        .profile-container { max-width: 800px; margin: 2rem auto; padding: 2rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .stat-card { background: #f8f9fa; padding: 1.5rem; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #007bff; }
+        .article-list { margin-top: 2rem; }
+        .article-item { background: white; padding: 1rem; margin: 1rem 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .article-meta { color: #666; font-size: 0.9rem; margin-top: 0.5rem; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/view-tracker.js"></script>
+</head>
+<body>
+    <div class="profile-container">
+        <h1>User Profile</h1>
+        
+        <div id="userInfo">
+            <h2 id="userName">Loading...</h2>
+            <p id="userEmail"></p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalArticles">0</div>
+                <div>Total Articles</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalLikes">0</div>
+                <div>Total Likes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalViews">0</div>
+                <div>Total Views</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="publishedArticles">0</div>
+                <div>Published</div>
+            </div>
+        </div>
+
+        <div class="article-list">
+            <h3>Your Articles</h3>
+            <div id="articlesList">Loading articles...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadUserProfile() {
+            try {
+                // Get user ID from URL or localStorage
+                const urlParams = new URLSearchParams(window.location.search);
+                const userId = urlParams.get('userId') || getCurrentUserId();
+                
+                if (!userId) {
+                    document.getElementById('articlesList').innerHTML = 'Please log in to view your profile.';
+                    return;
+                }
+
+                // Load user stats
+                const statsResponse = await fetch(`/api/profile/stats/${userId}`);
+                const statsData = await statsResponse.json();
+                
+                if (statsData.success) {
+                    document.getElementById('totalArticles').textContent = statsData.stats.totalArticles;
+                    document.getElementById('totalLikes').textContent = statsData.stats.totalLikes;
+                    document.getElementById('totalViews').textContent = statsData.stats.totalViews;
+                    document.getElementById('publishedArticles').textContent = statsData.stats.publishedArticles;
+                }
+
+                // Load user articles
+                const articlesResponse = await fetch(`/api/profile/articles/${userId}`);
+                const articlesData = await articlesResponse.json();
+                
+                if (articlesData.success) {
+                    displayArticles(articlesData.data);
+                }
+
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('articlesList').innerHTML = 'Error loading articles.';
+            }
+        }
+
+        function displayArticles(data) {
+            const articlesList = document.getElementById('articlesList');
+            const allContent = [...data.articles, ...data.posts];
+            
+            if (allContent.length === 0) {
+                articlesList.innerHTML = '<p>No articles written yet. <a href="22-write_article.html">Write your first article!</a></p>';
+                return;
+            }
+
+            articlesList.innerHTML = allContent.map(item => `
+                <div class="article-item">
+                    <h4>${item.title}</h4>
+                    <p>${item.content ? item.content.substring(0, 150) + '...' : 'No content preview'}</p>
+                    <div class="article-meta">
+                        ${new Date(item.created_at).toLocaleDateString()} | 
+                        ${item.likes_count || 0} likes | 
+                        <span data-${item.id ? "article" : "post"}-id="${item.id}" data-view-count>${item.views_count || 0}</span> views |
+                        ${item.category || 'General'} |
+                        ${item.published ? 'Published' : 'Draft'}
+                        ${item.challenge_id ? ` | Challenge: ${item.challenge_id}` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getCurrentUserId() {
+            // Try to get user ID from localStorage
+            try {
+                const userData = localStorage.getItem('currentUser') || localStorage.getItem('userData');
+                if (userData) {
+                    const user = JSON.parse(userData);
+                    return user.id;
+                }
+            } catch (e) {
+                console.log('No user data found');
+            }
+            return null;
+        }
+
+        // Load profile on page load        
+        document.addEventListener('DOMContentLoaded', loadUserProfile);
+                
+        // Initialize view tracking
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.ViewTracker) {
+                setTimeout(() => {
+                    window.ViewTracker.initPageTracking();
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html>

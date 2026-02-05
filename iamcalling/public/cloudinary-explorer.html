@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudinary Folder Explorer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+        .folder {
+            margin: 10px 0;
+            padding: 10px;
+            background: #16213e;
+            border-radius: 5px;
+        }
+        .folder-name {
+            font-weight: bold;
+            color: #e94560;
+        }
+        .photos {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+        .photo {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px;
+            background: #0f3460;
+            border-radius: 3px;
+        }
+        .error {
+            color: #ff6b6b;
+        }
+        .loading {
+            color: #ffd93d;
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    <h1>Cloudinary Folder Structure</h1>
+    <div id="structure"></div>
+
+    <script>
+        async function exploreCloudinary() {
+            const structureDiv = document.getElementById('structure');
+            structureDiv.innerHTML = '<div class="loading">Loading folder structure...</div>';
+            
+            try {
+                // Try to get all photos first
+                const allResponse = await fetch('/api/photos/all');
+                if (allResponse.ok) {
+                    const allData = await allResponse.json();
+                    displayFolder('All Photos', allData.photos || []);
+                }
+                
+                // Try political_battles main folder
+                const politicalResponse = await fetch('/api/photos/political_battles');
+                if (politicalResponse.ok) {
+                    const politicalData = await politicalResponse.json();
+                    displayFolder('political_battles', politicalData.photos || []);
+                }
+                
+                // Try each round folder
+                for (let i = 1; i <= 10; i++) {
+                    try {
+                        const roundResponse = await fetch(`/api/photos/political_battles/round${i}`);
+                        if (roundResponse.ok) {
+                            const roundData = await roundResponse.json();
+                            displayFolder(`political_battles/round${i}`, roundData.photos || []);
+                        }
+                    } catch (e) {
+                        console.log(`Round ${i} not accessible`);
+                    }
+                }
+                
+                // Try round with space
+                try {
+                    const round2Response = await fetch('/api/photos/political_battles/round%202');
+                    if (round2Response.ok) {
+                        const round2Data = await round2Response.json();
+                        displayFolder('political_battles/round 2', round2Data.photos || []);
+                    }
+                } catch (e) {
+                    console.log('Round 2 with space not accessible');
+                }
+                
+            } catch (error) {
+                structureDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+        
+        function displayFolder(folderName, photos) {
+            const structureDiv = document.getElementById('structure');
+            
+            const folderDiv = document.createElement('div');
+            folderDiv.className = 'folder';
+            
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'folder-name';
+            nameDiv.textContent = `📁 ${folderName} (${photos.length} photos)`;
+            folderDiv.appendChild(nameDiv);
+            
+            if (photos.length > 0) {
+                const photosDiv = document.createElement('div');
+                photosDiv.className = 'photos';
+                
+                photos.forEach(photo => {
+                    const photoDiv = document.createElement('div');
+                    photoDiv.className = 'photo';
+                    photoDiv.textContent = photo.name || photo;
+                    photosDiv.appendChild(photoDiv);
+                });
+                
+                folderDiv.appendChild(photosDiv);
+            }
+            
+            structureDiv.appendChild(folderDiv);
+        }
+        
+        // Start exploration
+        exploreCloudinary();
+    </script>
+</body>
+</html>

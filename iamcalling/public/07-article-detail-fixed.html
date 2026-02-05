@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Content - IAmCalling</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Basic icon styles using CSS */
+        .fa-spinner::before { content: '↻'; }
+        .fa-arrow-left::before { content: '←'; }
+        .fa-home::before { content: '⌂'; }
+        .fa-eye::before { content: '👁'; }
+        
+        .fa::before { 
+            display: inline-block; 
+            margin-right: 8px; 
+            font-weight: bold;
+        }
+        
+        .fa-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .article-header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid #d4af37;
+        }
+        
+        .article-title {
+            font-size: 2.5rem;
+            margin: 0 0 20px 0;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #d4af37;
+        }
+        
+        .article-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .content-container {
+            min-height: 400px;
+        }
+        
+        .code-execution-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        
+        .loading-placeholder {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ffcdd2;
+            margin: 20px 0;
+        }
+        
+        .debug-info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .view-count {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8f9fa;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .article-title {
+                font-size: 2rem;
+            }
+            
+            .article-header, .article-content {
+                padding: 20px;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="article-header">
+            <div class="back-navigation">
+                <a href="01-index.html" class="back-button">
+                    ← Back to Home
+                </a>
+            </div>
+            
+            <h1 class="article-title" id="articleTitle">Loading...</h1>
+            
+            <div class="article-meta">
+                <div class="author-info">
+                    <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769572696/WhatsApp_Image_2026-01-14_at_7.58.42_PM_gqv8ln.jpg" 
+                         alt="Author" class="author-avatar" id="authorAvatar">
+                    <div>
+                        <div style="font-weight: bold; font-size: 1.1rem;" id="authorName">Loading...</div>
+                        <div style="color: #666;" id="publishDate">Loading...</div>
+                    </div>
+                </div>
+                
+                <div class="view-count">
+                    <i class="fa fa-eye"></i>
+                    <span id="viewCount">0</span> views
+                </div>
+            </div>
+            
+            <div id="challengeInfo" style="display: none;">
+                <span class="article-category" style="background: #dc3545; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.9rem;">
+                    Challenge ID: <span id="challengeId"></span>
+                </span>
+            </div>
+        </div>
+        
+        <div class="article-content">
+            <div class="content-container" id="contentContainer">
+                <div class="loading-placeholder">
+                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                    <p>Loading content...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Supabase configuration
+        const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || '';
+        const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || '';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Debug logging function
+        function debugLog(message) {
+            console.log(`[DEBUG] ${message}`);
+            // Add debug info to page (only in development)
+            if (window.location.hostname === 'localhost') {
+                const debugDiv = document.createElement('div');
+                debugDiv.className = 'debug-info';
+                debugDiv.textContent = `[DEBUG] ${message}`;
+                document.body.appendChild(debugDiv);
+            }
+        }
+        
+        // Get post ID from URL
+        function getPostId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        
+        // Fetch post data
+        async function fetchPost(postId) {
+            debugLog(`Fetching post ID: ${postId}`);
+            try {
+                if (!supabaseClient) {
+                    throw new Error('Supabase client not initialized');
+                }
+                
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .eq('id', postId)
+                    .single();
+                
+                if (error) {
+                    debugLog(`Supabase error: ${error.message}`);
+                    throw new Error(error.message || 'Failed to fetch post');
+                }
+                
+                debugLog(`Post fetched successfully. Content length: ${data.content?.length || 0}`);
+                return data;
+            } catch (error) {
+                debugLog(`Error fetching post: ${error.message}`);
+                throw error;
+            }
+        }
+        
+        // Track view
+        async function trackView(postId) {
+            try {
+                if (!supabaseClient) {
+                    debugLog('Supabase client not initialized, skipping view tracking');
+                    return;
+                }
+                
+                await supabaseClient
+                    .from('posts')
+                    .update({ views_count: supabaseClient.sql`views_count + 1` })
+                    .eq('id', postId);
+                    
+                debugLog(`View tracked for post ${postId}`);
+            } catch (error) {
+                debugLog(`Error tracking view: ${error.message}`);
+            }
+        }
+        
+        // Safely execute code in container
+        function executeCodeInContainer(codeBlock, container) {
+            debugLog(`Executing code block. Length: ${codeBlock.length}`);
+            try {
+                // Create iframe for sandboxed execution
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '800px';
+                iframe.style.minHeight = '600px';
+                iframe.style.border = '1px solid #ddd';
+                iframe.style.borderRadius = '8px';
+                iframe.style.backgroundColor = '#ffffff';
+                iframe.style.overflow = 'auto';
+                iframe.sandbox = 'allow-scripts allow-same-origin allow-popups allow-forms allow-pointer-lock';
+
+                container.appendChild(iframe);
+                debugLog('Iframe created and appended to container');
+
+                // Write content to iframe
+                const fullHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Preview</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            overflow: auto;
+        }
+        * { 
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        img { 
+            max-width: 100%;
+            height: auto;
+        }
+        iframe, video, canvas { 
+            max-width: 100%;
+        }
+        svg { max-width: 100%; height: auto; }
+        .container, .wrapper, .content { width: 100%; }
+        .chart-wrapper { min-height: 250px; }
+    </style>
+</head>
+<body>
+    ${codeBlock}
+</body>
+</html>`;
+
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                iframeDoc.open();
+                iframeDoc.write(fullHTML);
+                iframeDoc.close();
+                debugLog('Content written to iframe');
+
+                // Set iframe height after content loads
+                iframe.onload = function() {
+                    setTimeout(() => {
+                        try {
+                            const contentHeight = Math.max(iframe.contentDocument.body.scrollHeight + 40, 800);
+                            iframe.style.height = contentHeight + 'px';
+                            debugLog(`Iframe height set to: ${contentHeight}px`);
+                        } catch(e) {
+                            debugLog(`Error setting iframe height: ${e.message}`);
+                            iframe.style.height = '1000px';
+                        }
+                    }, 500);
+                };
+
+            } catch (error) {
+                debugLog(`Error executing code: ${error.message}`);
+                container.innerHTML = `<div class="error-message">Error executing code: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-correct and clean code content
+        function autoCorrectCodeContent(content) {
+            debugLog(`Auto-correcting content. Length: ${content.length}`);
+            
+            let cleanedContent = content;
+            
+            // Handle multiple code blocks - extract the main one
+            const codeBlocks = cleanedContent.match(/<div\s+class=["']admin-code-executable["'][^>]*>([\s\S]*?)<\/div>/gi);
+            
+            debugLog(`Code blocks found: ${codeBlocks ? codeBlocks.length : 0}`);
+            
+            if (codeBlocks && codeBlocks.length > 0) {
+                // Use the first/main code block
+                const mainCodeBlock = codeBlocks[0].match(/<div\s+class=["']admin-code-executable["'][^>]*>([\s\S]*?)<\/div>/i);
+                if (mainCodeBlock && mainCodeBlock[1]) {
+                    debugLog(`Successfully extracted code content. Length: ${mainCodeBlock[1].length}`);
+                    return mainCodeBlock[1];
+                }
+            }
+            
+            // If no specific code block found, return the content as-is but clean it
+            const cleaned = cleanedContent
+                .replace(/<!--.*?-->/g, '') // Remove comments
+                .replace(/^\s+|\s+$/g, '') // Trim whitespace
+                .trim();
+            debugLog(`No code blocks found, returning cleaned content. Length: ${cleaned.length}`);
+            return cleaned;
+        }
+        
+        // Render post content
+        function renderContent(post) {
+            debugLog(`Rendering content for post: ${post.id}`);
+            const contentContainer = document.getElementById('contentContainer');
+            
+            if (!post.content) {
+                debugLog('No content found in post');
+                contentContainer.innerHTML = '<div class="error-message">No content available for this post.</div>';
+                return;
+            }
+            
+            // Check if this is a code post
+            const isCodePost = post.content.includes('admin-code-executable');
+            debugLog(`Is code post: ${isCodePost}`);
+            
+            if (isCodePost) {
+                // For code posts, auto-correct and render the code
+                debugLog('Processing code post');
+                const correctedCode = autoCorrectCodeContent(post.content);
+                debugLog(`Corrected code length: ${correctedCode.length}`);
+                
+                // Create container for code execution
+                const codeContainer = document.createElement('div');
+                codeContainer.className = 'code-execution-container';
+                codeContainer.id = 'code-execution-' + post.id;
+                debugLog('Created code container');
+                
+                contentContainer.innerHTML = '';
+                contentContainer.appendChild(codeContainer);
+                debugLog('Appended code container to content container');
+                
+                // Execute code after a small delay
+                setTimeout(() => {
+                    debugLog('Executing code in container');
+                    executeCodeInContainer(correctedCode, codeContainer);
+                }, 100);
+            } else {
+                // For regular content, display as-is
+                debugLog('Processing regular content');
+                debugLog(`Content length: ${post.content.length}`);
+                contentContainer.innerHTML = `
+                    <div style="line-height: 1.8; font-size: 1.1rem;">
+                        ${post.content}
+                    </div>
+                `;
+                debugLog('Regular content rendered');
+            }
+        }
+        
+        // Initialize page
+        async function init() {
+            debugLog('Initializing page');
+            const postId = getPostId();
+            debugLog(`Post ID from URL: ${postId}`);
+            
+            if (!postId) {
+                debugLog('No post ID specified');
+                document.getElementById('contentContainer').innerHTML = `
+                    <div class="error-message">
+                        <h3>Invalid Post</h3>
+                        <p>No post ID specified in the URL.</p>
+                        <a href="01-index.html" class="back-button" style="margin-top: 20px;">
+                            ⌂ Go to Home
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            try {
+                // Fetch post data
+                debugLog('Fetching post data');
+                const post = await fetchPost(postId);
+                debugLog(`Post data received: ${post.title}`);
+                
+                // Update header information
+                document.getElementById('articleTitle').textContent = post.title || 'Untitled Post';
+                document.getElementById('authorName').textContent = post.author_name || post.author || 'Anonymous';
+                document.getElementById('publishDate').textContent = new Date(post.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                document.getElementById('viewCount').textContent = post.views_count || post.views || 0;
+                
+                // Show challenge info if available
+                if (post.challenge_post_id || post.challenge_id) {
+                    document.getElementById('challengeId').textContent = post.challenge_post_id || post.challenge_id;
+                    document.getElementById('challengeInfo').style.display = 'block';
+                }
+                
+                // Track view
+                await trackView(postId);
+                
+                // Render content
+                debugLog('Rendering content');
+                renderContent(post);
+                debugLog('Content rendering completed');
+                
+            } catch (error) {
+                debugLog(`Error in init: ${error.message}`);
+                document.getElementById('contentContainer').innerHTML = `
+                    <div class="error-message">
+                        <h3>Error Loading Post</h3>
+                        <p>Could not load the requested post. It may not exist or there was a connection error.</p>
+                        <p style="font-size: 0.9rem; margin-top: 15px;">Error: ${error.message}</p>
+                        <a href="01-index.html" class="back-button" style="margin-top: 20px;">
+                            ⌂ Go to Home
+                        </a>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
