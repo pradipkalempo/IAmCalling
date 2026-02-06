@@ -73,17 +73,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
+                console.log('🖼️ Profile photo from Supabase:', user.profile_photo ? 'EXISTS (length: ' + user.profile_photo.length + ')' : 'NULL/EMPTY');
+                
                 // Login successful - use global auth manager
                 if (window.globalAuth) {
-                    window.globalAuth.setUser({
+                    const userData = {
                         id: user.id,
                         email: user.email,
                         name: user.first_name + ' ' + (user.last_name || ''),
                         first_name: user.first_name,
                         last_name: user.last_name,
                         full_name: user.first_name + ' ' + (user.last_name || ''),
-                        profile_photo: user.profile_photo
-                    });
+                        profile_photo: user.profile_photo,
+                        profilePhoto: user.profile_photo,
+                        photo: user.profile_photo
+                    };
+                    console.log('💾 Saving user data to globalAuth:', { ...userData, profile_photo: userData.profile_photo ? 'EXISTS' : 'NULL' });
+                    window.globalAuth.setUser(userData);
                 }
                 
                 // Show success notification (GREEN)

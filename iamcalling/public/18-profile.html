@@ -610,6 +610,7 @@
             
             function displayProfileDetails(data) {
                 console.log('📋 Profile data received:', data);
+                console.log('🖼️ Profile photo value:', data.profile_photo ? 'EXISTS (length: ' + data.profile_photo.length + ')' : 'NULL/EMPTY');
                 const bioElement = document.getElementById('profile-bio');
                 const detailsElement = document.getElementById('profile-details');
                 
@@ -631,9 +632,19 @@
                 
                 // Display profile photo from Supabase data
                 if (data.profile_photo && data.profile_photo.trim()) {
+                    console.log('✅ Setting profile photo from Supabase');
                     profileAvatar.src = data.profile_photo;
                     profileAvatar.style.display = 'block';
+                    profileAvatar.onerror = function() {
+                        console.error('❌ Failed to load profile photo, using fallback');
+                        var auth = window.globalAuth || {};
+                        var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
+                        var userName = auth.getUserName ? auth.getUserName() : 'user';
+                        var seed = (user.email || userName || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                        profileAvatar.src = 'https://i.pravatar.cc/150?u=' + seed;
+                    };
                 } else {
+                    console.log('⚠️ No profile photo in Supabase, using default avatar');
                     // Show default avatar if no profile photo from Supabase
                     var auth = window.globalAuth || {};
                     var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
@@ -690,7 +701,7 @@
                     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                     
                     // Check if user exists in Supabase
-                    const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id,email&email=eq.${encodeURIComponent(user.email)}`, {
+                    const checkResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id,email,profile_photo&email=eq.${encodeURIComponent(user.email)}`, {
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
                             'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -708,9 +719,11 @@
                             const newUser = {
                                 full_name: user.name,
                                 email: user.email,
-                                profile_photo: user.photo,
+                                profile_photo: user.profilePhoto || user.profile_photo || user.photo,
                                 created_at: new Date().toISOString()
                             };
+                            
+                            console.log('🖼️ Profile photo being saved:', newUser.profile_photo ? 'EXISTS' : 'NULL');
                             
                             const createResponse = await fetch(`${SUPABASE_URL}/rest/v1/users`, {
                                 method: 'POST',
@@ -737,6 +750,7 @@
                             }
                         } else {
                             console.log('✅ User already exists in Supabase');
+                            console.log('🖼️ Existing profile photo:', existingUsers[0].profile_photo ? 'EXISTS' : 'NULL');
                         }
                     }
                 } catch (error) {

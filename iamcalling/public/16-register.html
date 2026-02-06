@@ -378,6 +378,7 @@
                 async function saveToSupabase(userData) {
                     try {
                         console.log('🚀 Saving user to Supabase:', userData.email);
+                        console.log('🖼️ Profile photo:', userData.profile_photo ? 'EXISTS (length: ' + userData.profile_photo.length + ')' : 'NULL');
                         
                         // Initialize Supabase with fallback config
                         let SUPABASE_URL = window.APP_CONFIG?.supabaseUrl;
@@ -416,6 +417,7 @@
                         }
                         
                         console.log('✅ User saved to Supabase:', data);
+                        console.log('✅ Profile photo saved:', data[0].profile_photo ? 'YES (length: ' + data[0].profile_photo.length + ')' : 'NO');
                         
                         // Save locally after successful Supabase save
                         saveLocally(userData, data[0]);
