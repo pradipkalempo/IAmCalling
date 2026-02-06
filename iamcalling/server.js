@@ -14,6 +14,7 @@ const require = createRequire(import.meta.url);
 const viewsRoutes = require('./routes/views.cjs');
 const adminRoutes = require('./routes/admin.cjs');
 import SimpleSupabaseClient from './services/simpleSupabaseClient.js';
+import healthCheckRoute from './routes/health.js';
 
 dotenv.config();
 
@@ -21,7 +22,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const { PORT } = require('./config/port-config.cjs');
+const PORT = process.env.PORT || 10000;
 
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
@@ -54,6 +55,9 @@ app.use((req, res, next) => {
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Health check routes
+healthCheckRoute(app);
 
 // API routes
 app.use('/api', configRoutes);
