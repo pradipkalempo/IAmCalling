@@ -8,6 +8,7 @@ import rateLimit from 'express-rate-limit';
 import userProfileRoutes from './routes/userProfile.js';
 import criticalThinkingRoutes from './routes/criticalThinking.js';
 import configRoutes from './routes/config.js';
+import postsRoutes from './routes/posts.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const viewsRoutes = require('./routes/views.cjs');
@@ -56,6 +57,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // API routes
 app.use('/api', configRoutes);
+app.use('/api/posts', postsRoutes);
 app.use('/api/profile', userProfileRoutes);
 app.use('/api/critical-thinking', criticalThinkingRoutes);
 app.use('/api/views', viewsRoutes);

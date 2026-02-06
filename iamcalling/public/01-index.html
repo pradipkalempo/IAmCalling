@@ -397,55 +397,28 @@
         </div>
     </div>
     
-    <!-- Authentication System -->
-    <script src="js/supabase-client.js?v=4"></script>
-    <script src="js/posts-api.js"></script>
+    <!-- Load posts from server API -->
     <script>
-        // Ultra-fast posts loading - database only
+        // Load posts from server API (secure method)
         async function loadPosts() {
             const articlesContainer = document.getElementById('articlesContainer');
             articlesContainer.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading posts...</div>';
             
             try {
-                // Use hardcoded credentials (safe for frontend - anon key only)
-                const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                console.log('🔍 Loading posts from server API...');
                 
-                // Wait for Supabase library to load
-                let attempts = 0;
-                while (!window.supabase && attempts < 10) {
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    attempts++;
+                // Fetch from server API (server handles Supabase connection)
+                const response = await fetch('/api/posts');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
-                if (!window.supabase) {
-                    throw new Error('Supabase library not loaded');
-                }
+                const posts = await response.json();
                 
-                // Initialize client if not already done
-                if (!window.supabaseClient) {
-                    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    console.log('✅ Supabase client initialized');
-                }
-                
-                console.log('🔍 Loading posts from database...');
-                
-                // Query posts (no published filter to show all posts)
-                const { data: posts, error } = await window.supabaseClient
-                    .from('posts')
-                    .select('id,title,author_name,created_at,challenge_post_id,content,views_count,thumbnail_url,published')
-                    .order('id', { ascending: false })
-                    .limit(3);
-                
-                if (error) {
-                    console.error('Supabase query error:', error);
-                    throw error;
-                }
-                
-                console.log('📊 Posts loaded:', posts?.length || 0, posts);
+                console.log('📊 Posts loaded:', posts?.length || 0);
                 
                 if (!posts || posts.length === 0) {
-                    // Show fallback content if no posts found
                     articlesContainer.innerHTML = `
                         <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; margin: 1rem 0;">
                             <h3 style="color: #666; margin-bottom: 1rem;">No posts available yet</h3>
@@ -456,8 +429,8 @@
                     return;
                 }
                 
-                // Render posts with proper data mapping
-                articlesContainer.innerHTML = posts.map(post => {
+                // Render posts (limit to 3 for homepage)
+                articlesContainer.innerHTML = posts.slice(0, 3).map(post => {
                     const author = post.author_name || post.author || 'Admin';
                     const viewsCount = post.views_count || 0;
                     const thumbnailUrl = post.thumbnail_url || `https://picsum.photos/seed/post${post.id}/400/250`;
@@ -496,35 +469,17 @@
                 
                 articlesContainer.innerHTML = `
                     <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #dc3545;">
-                        <h3 style="color: #dc3545; margin-bottom: 1rem;">⚠️ Database Connection Issue</h3>
-                        <p style="color: #666; margin-bottom: 1rem;">Unable to load posts from database.</p>
+                        <h3 style="color: #dc3545; margin-bottom: 1rem;">⚠️ Unable to Load Posts</h3>
+                        <p style="color: #666; margin-bottom: 1rem;">Could not connect to server.</p>
                         <p style="color: #888; margin-bottom: 2rem; font-size: 0.6rem;">Error: ${error.message}</p>
                         <button onclick="loadPosts()" style="background: #0a3d0a; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Retry Loading</button>
-                        <br><br>
-                        <a href="test-posts.html" style="color: #0a3d0a; text-decoration: underline;">Test Database Connection</a>
                     </div>
                 `;
             }
         }
         
-        // Immediate execution
-        console.log('🚀 Starting posts loading immediately...');
-        setTimeout(loadPosts, 2000);
-        
         // Load posts when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 DOM loaded, starting posts loading...');
-            setTimeout(loadPosts, 1000);
-        });
-        
-        // Also try loading after scripts are loaded
-        window.addEventListener('load', () => {
-            const container = document.getElementById('articlesContainer');
-            if (container && container.innerHTML.includes('Loading posts...')) {
-                console.log('🔄 Retrying posts loading after window load...');
-                setTimeout(loadPosts, 1500);
-            }
-        });
+        document.addEventListener('DOMContentLoaded', loadPosts);
     </script>
 
 </body>
