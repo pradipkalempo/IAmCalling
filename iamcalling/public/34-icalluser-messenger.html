@@ -11,6 +11,7 @@
     <script src="js/ultimate-suppress.js"></script>
     <script src="js/auth-fix.js"></script>
     <script src="js/fast-users-loader.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <!-- Mobile-First CSS -->
     <link rel="stylesheet" href="css/mobile-responsive.css">
@@ -874,27 +875,61 @@
         const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
         const currentUserId = currentUser.id || 157;
         
+        let supabaseClient = null;
+        let realtimeChannel = null;
+        
         // Auto-setup messaging database and enable real-time
         async function initializeMessaging() {
             try {
-                // Test messages table with correct schema
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/messages?limit=1`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                    }
-                });
-                
-                if (response.ok) {
-                    console.log('✅ Messages table ready - real-time disabled to prevent unread count issues');
-                    // Disabled automatic message checking
+                // Load Supabase client
+                if (typeof supabase !== 'undefined') {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('✅ Supabase client initialized');
+                    
+                    // Setup realtime subscription
+                    setupRealtimeSubscription();
                 } else {
-                    console.log(`❌ Messages table issue: ${response.status}`);
-                    console.log('Table exists but access denied - check permissions');
+                    console.log('⚠️ Supabase library not loaded, loading now...');
+                    // Load Supabase library
+                    const script = document.createElement('script');
+                    script.src = 'https://unpkg.com/@supabase/supabase-js@2';
+                    script.onload = () => {
+                        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                        console.log('✅ Supabase client initialized after loading');
+                        setupRealtimeSubscription();
+                    };
+                    document.head.appendChild(script);
                 }
             } catch (error) {
                 console.log('❌ Database initialization failed:', error);
             }
+        }
+        
+        // Setup realtime subscription for new messages
+        function setupRealtimeSubscription() {
+            if (!supabaseClient) return;
+            
+            console.log('🔔 Setting up realtime subscription for user:', currentUserId);
+            
+            // Subscribe to messages where current user is the receiver
+            realtimeChannel = supabaseClient
+                .channel('messages')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'messages',
+                        filter: `receiver_id=eq.${currentUserId}`
+                    },
+                    (payload) => {
+                        console.log('📨 New message received:', payload);
+                        handleIncomingMessage(payload.new);
+                    }
+                )
+                .subscribe((status) => {
+                    console.log('Realtime subscription status:', status);
+                });
         }
         
         // Initialize messaging on page load
@@ -1149,13 +1184,7 @@
                 console.log('❌ Error sending message:', error);
             }
         }
-        
-        // Check for new messages - DISABLED TO PREVENT UNREAD COUNT ISSUES
-        async function checkForNewMessages() {
-            // Completely disabled to stop automatic unread count increment
-            return;
-        }
-        
+
         // Handle incoming message
         function handleIncomingMessage(msg) {
             const senderId = msg.sender_id;
@@ -1168,14 +1197,6 @@
             // Check if message already processed
             if (isMessageRead(msg.id)) {
                 console.log('⚠️ Message already processed, skipping');
-                return;
-            }
-            
-            // Only process messages from the last 30 seconds to avoid old message processing
-            const messageAge = Date.now() - timestamp.getTime();
-            if (messageAge > 30000) {
-                console.log('⚠️ Old message ignored, marking as read');
-                markMessageAsRead(msg.id);
                 return;
             }
             
@@ -1207,12 +1228,10 @@
                 // Update badge in conversation list
                 updateConversationBadge(senderId, unreadCounts[senderId]);
             } else {
-                // If currently viewing this chat, mark as read immediately
+                // If currently viewing this chat, mark as read immediately and display
                 markMessageAsRead(msg.id);
-            }
-            
-            // Add to chat if currently viewing this conversation
-            if (currentChatUser && currentChatUser.id == senderId) {
+                
+                // Add to chat in real-time
                 const chatMessages = document.getElementById('chat-messages');
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message received';
@@ -1227,7 +1246,7 @@
                 
                 chatMessages.appendChild(messageDiv);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-                console.log('✅ Message added to current chat and marked as read');
+                console.log('✅ Message added to current chat in real-time');
             }
             
             // Move conversation to top and update preview
