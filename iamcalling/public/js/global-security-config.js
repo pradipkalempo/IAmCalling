@@ -74,19 +74,7 @@
     
     // 2. Fix API Base URL Detection
     function getApiBaseUrl() {
-        // For production (Render)
-        if (window.location.hostname.includes('render.com') || 
-            window.location.hostname.includes('onrender.com')) {
-            return window.location.origin;
-        }
-        
-        // For local development
-        if (window.location.hostname === 'localhost' || 
-            window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:1000';
-        }
-        
-        // Default fallback
+        // Always use relative URLs (works in both local and production)
         return window.location.origin;
     }
     
