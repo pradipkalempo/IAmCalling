@@ -150,11 +150,39 @@
             cursor: pointer;
             font-size: 1rem;
             margin-bottom: 20px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
         
         .submit-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        
+        .btn-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        .submit-btn.loading .btn-spinner {
+            display: inline-block;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
         
         .login-link {
@@ -220,93 +248,21 @@
         }
         
         .checkbox-group input[type="checkbox"] {
-            width: auto;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #2d5a2d;
         }
         
-        .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-        
-        .loading-overlay.active {
-            display: flex;
-        }
-        
-        .dice-container {
-            perspective: 1000px;
-        }
-        
-        .dice {
-            width: 80px;
-            height: 80px;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: rotateDice 2s infinite ease-in-out;
-        }
-        
-        @keyframes rotateDice {
-            0% { transform: rotateX(0deg) rotateY(0deg); }
-            25% { transform: rotateX(180deg) rotateY(90deg); }
-            50% { transform: rotateX(180deg) rotateY(180deg); }
-            75% { transform: rotateX(270deg) rotateY(270deg); }
-            100% { transform: rotateX(360deg) rotateY(360deg); }
-        }
-        
-        .dice-face {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #2d5a2d 0%, #d4af37 100%);
-            border: 2px solid #d4af37;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            color: white;
-        }
-        
-        .dice-face.front  { transform: rotateY(0deg) translateZ(40px); }
-        .dice-face.back   { transform: rotateY(180deg) translateZ(40px); }
-        .dice-face.right  { transform: rotateY(90deg) translateZ(40px); }
-        .dice-face.left   { transform: rotateY(-90deg) translateZ(40px); }
-        .dice-face.top    { transform: rotateX(90deg) translateZ(40px); }
-        .dice-face.bottom { transform: rotateX(-90deg) translateZ(40px); }
-        
-        .loading-text {
-            color: white;
-            font-size: 1.2rem;
-            margin-top: 30px;
-            text-align: center;
+        .checkbox-group label {
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 0;
         }
     </style>
 </head>
 <body>
     <div id="topbar-container"></div>
-    
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="dice-container">
-            <div class="dice">
-                <div class="dice-face front">📞</div>
-                <div class="dice-face back">✅</div>
-                <div class="dice-face right">🎯</div>
-                <div class="dice-face left">💡</div>
-                <div class="dice-face top">🚀</div>
-                <div class="dice-face bottom">⭐</div>
-            </div>
-        </div>
-        <div class="loading-text">Creating your account...<br>Please wait</div>
-    </div>
     
     <div class="register-container">
         <div class="register-form">
@@ -368,7 +324,10 @@
                     </div>
                 </div>
                 
-                <button type="submit" class="submit-btn">Create Account</button>
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <span class="btn-text">Create Account</span>
+                    <span class="btn-spinner"></span>
+                </button>
             </form>
             
             <div class="login-link">
@@ -449,8 +408,10 @@
             document.getElementById('registerForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
-                // Show loading overlay
-                document.getElementById('loadingOverlay').classList.add('active');
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.classList.add('loading');
+                submitBtn.querySelector('.btn-text').textContent = 'Creating...';
                 
                 const pin = pinInputs.map(id => {
                     const input = document.getElementById(id);
@@ -463,14 +424,16 @@
                 }).join('');
                 
                 if (pin.length !== 4) {
-                    document.getElementById('loadingOverlay').classList.remove('active');
-                    alert('Please enter all 4 characters of your PIN!');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                    submitBtn.querySelector('.btn-text').textContent = 'Create Account';
                     return;
                 }
                 
                 if (pin !== confirmPin) {
-                    document.getElementById('loadingOverlay').classList.remove('active');
-                    alert('PINs do not match!');
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('loading');
+                    submitBtn.querySelector('.btn-text').textContent = 'Create Account';
                     return;
                 }
                 
@@ -544,14 +507,9 @@
                         
                         if (error) {
                             console.error('❌ Supabase error:', error.message);
-                            document.getElementById('loadingOverlay').classList.remove('active');
-                            
-                            // User-friendly error messages
-                            if (error.message.includes('duplicate key') || error.message.includes('users_email_key')) {
-                                alert('⚠️ This email is already registered. Please login or use a different email.');
-                            } else {
-                                alert(`Registration failed: ${error.message}`);
-                            }
+                            submitBtn.disabled = false;
+                            submitBtn.classList.remove('loading');
+                            submitBtn.querySelector('.btn-text').textContent = 'Create Account';
                             return;
                         }
                         
@@ -563,8 +521,9 @@
                         
                     } catch (error) {
                         console.error('❌ Registration error:', error);
-                        document.getElementById('loadingOverlay').classList.remove('active');
-                        alert(`Registration failed: ${error.message || 'Unknown error'}`);
+                        submitBtn.disabled = false;
+                        submitBtn.classList.remove('loading');
+                        submitBtn.querySelector('.btn-text').textContent = 'Create Account';
                     }
                 }
                 
@@ -576,6 +535,8 @@
                         first_name: userData.first_name,
                         last_name: userData.last_name,
                         email: userData.email,
+                        profilePhoto: userData.profile_photo,
+                        profile_photo: userData.profile_photo,
                         rememberMe: rememberMe
                     };
                     
@@ -590,15 +551,13 @@
                         window.globalAuth.setUser(userRecord);
                     }
                     
-                    // Hide loading overlay
-                    document.getElementById('loadingOverlay').classList.remove('active');
+                    // Show success message in button
+                    submitBtn.querySelector('.btn-text').textContent = '✅ Success! Redirecting...';
                     
-                    alert('✅ Registration successful! Welcome to IAMCALLING!');
-                    
-                    // Small delay to ensure localStorage is saved
+                    // Redirect after 1 second
                     setTimeout(() => {
                         window.location.href = '18-profile.html';
-                    }, 100);
+                    }, 1000);
                 }
             });
         });
