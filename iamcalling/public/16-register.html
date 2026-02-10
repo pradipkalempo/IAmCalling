@@ -243,21 +243,73 @@
         .checkbox-group {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 20px;
         }
         
+        /* Hide default checkbox */
         .checkbox-group input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
+            position: absolute;
+            opacity: 0;
             cursor: pointer;
-            accent-color: #2d5a2d;
+            height: 0;
+            width: 0;
         }
         
+        /* Custom checkbox container */
         .checkbox-group label {
             cursor: pointer;
             user-select: none;
             margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            padding-left: 30px;
+        }
+        
+        /* Custom checkbox box */
+        .checkbox-group label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #2d5a2d;
+            border-radius: 4px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        /* Checkmark */
+        .checkbox-group label::after {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg) scale(0);
+            width: 6px;
+            height: 12px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transition: all 0.3s ease;
+        }
+        
+        /* Checked state */
+        .checkbox-group input[type="checkbox"]:checked + label::before {
+            background: #2d5a2d;
+            border-color: #2d5a2d;
+        }
+        
+        .checkbox-group input[type="checkbox"]:checked + label::after {
+            transform: translateY(-50%) rotate(45deg) scale(1);
+        }
+        
+        /* Hover effect */
+        .checkbox-group label:hover::before {
+            border-color: #1a3a1a;
         }
     </style>
 </head>
