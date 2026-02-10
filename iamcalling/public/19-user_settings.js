@@ -13,26 +13,21 @@ class ProfileSettingsSync {
     }
 
     async waitForSupabase() {
-        // Wait for Supabase library and client to be available
         let attempts = 0;
-        const maxAttempts = 100; // 10 seconds total
+        const maxAttempts = 50;
         
         while (attempts < maxAttempts) {
-            // Check if Supabase library is loaded
             if (typeof window !== 'undefined' && window.supabase && window.supabase.createClient) {
-                // Try to initialize if not already done
                 if (!window.supabaseClient) {
                     try {
-                        const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || '';
-                        const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || '';
+                        const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                        const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                         window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                        console.log('✅ Supabase client initialized in settings');
                     } catch (error) {
-                        console.error('Error initializing Supabase client:', error);
+                        console.error('Error initializing Supabase:', error);
                     }
                 }
                 
-                // If client is now available, use it
                 if (window.supabaseClient) {
                     this.supabase = window.supabaseClient;
                     return;
@@ -42,8 +37,6 @@ class ProfileSettingsSync {
             await new Promise(resolve => setTimeout(resolve, 100));
             attempts++;
         }
-        
-        console.warn('⚠️ Supabase client not available after waiting, will use REST API fallback');
     }
 
     async loadCurrentProfile() {
@@ -277,8 +270,8 @@ class ProfileSettingsSync {
     
     async saveToSupabaseREST(email, updateData) {
         try {
-            const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || '';
-            const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || '';
+            const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+            const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
             
             // Filter out any problematic fields and ensure we only send valid data
             const cleanUpdateData = {};

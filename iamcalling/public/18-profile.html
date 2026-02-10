@@ -499,29 +499,14 @@
             }
             
             async function loadUserProfile() {
-                var auth = window.globalAuth || await waitForGlobalAuth(3000);
+                const auth = window.globalAuth || await waitForGlobalAuth(2000);
                 if (auth && auth.isLoggedIn()) {
                     const user = auth.getCurrentUser();
-                    const userName = auth.getUserName();
-                    
-                    // Keep the loading message until Supabase data is loaded
-                    profileNameDisplay.textContent = 'Loading user from Supabase...';
-                    profileAvatar.style.display = 'none';
                     
                     if (user.email) {
-                        ensureUserInSupabase(user);
-                        
-                        // Add timeout to prevent hanging
-                        const profileLoadTimeout = setTimeout(() => {
-                            console.log('⏰ Profile load timeout - showing fallback');
-                            showFallbackProfile();
-                        }, 5000);
-                        
-                        try {
-                            await loadProfileDetailsFromSupabase(user.email);
-                        } finally {
-                            clearTimeout(profileLoadTimeout);
-                        }
+                        await loadProfileDetailsFromSupabase(user.email);
+                    } else {
+                        showFallbackProfile();
                     }
                     loadUserArticles();
                     loadUnreadMessageCount();
@@ -530,13 +515,9 @@
                 
                 profileNameDisplay.textContent = 'Please log in';
                 profileAvatar.style.display = 'none';
-                document.getElementById('userArticlesList').innerHTML = '<div class="no-articles-message">Please <a href="15-login.html" style="color: var(--light-blue);">log in</a> to view your profile and articles.</div>';
+                document.getElementById('userArticlesList').innerHTML = '<div class="no-articles-message">Please <a href="15-login.html" style="color: var(--light-blue);">log in</a> to view your profile.</div>';
                 document.getElementById('articles-count').textContent = '0';
-                document.getElementById('comments-count').textContent = '0';
-                document.getElementById('challenges-count').textContent = '0';
-                setTimeout(function() {
-                    window.location.href = '15-login.html';
-                }, 2500);
+                setTimeout(() => window.location.href = '15-login.html', 2500);
             }
             
             async function loadProfileDetailsFromSupabase(email) {
@@ -544,7 +525,7 @@
                     const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
                     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                     
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?select=full_name,bio,location,website,profile_photo&email=eq.${encodeURIComponent(email)}`, {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?select=first_name,last_name,full_name,bio,location,website,profile_photo&email=eq.${encodeURIComponent(email)}`, {
                         headers: {
                             'apikey': SUPABASE_ANON_KEY,
                             'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
@@ -554,38 +535,16 @@
                     
                     if (response.ok) {
                         const users = await response.json();
-                        console.log('👥 Users from Supabase:', users);
                         if (users && users.length > 0) {
-                            console.log('✅ Found user data, displaying profile');
                             displayProfileDetails(users[0]);
                         } else {
-                            // If user not found in Supabase, ensure they exist
-                            var auth = window.globalAuth || {};
-                            var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
-                            if (user) {
-                                await ensureUserInSupabase(user);
-                                
-                                // Try loading again after creating the user
-                                const retryResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=full_name,bio,location,website,profile_photo&email=eq.${encodeURIComponent(email)}`, {
-                                    headers: {
-                                        'apikey': SUPABASE_ANON_KEY,
-                                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                                        'Accept': 'application/json'
-                                    }
-                                });
-                                
-                                if (retryResponse.ok) {
-                                    const retryUsers = await retryResponse.json();
-                                    if (retryUsers && retryUsers.length > 0) {
-                                        displayProfileDetails(retryUsers[0]);
-                                    }
-                                }
-                            }
+                            showFallbackProfile();
                         }
+                    } else {
+                        showFallbackProfile();
                     }
                 } catch (error) {
-                    console.error('❌ Error loading profile details from Supabase:', error);
-                    // In case of error, still show user's name from auth manager
+                    console.error('❌ Error loading profile:', error);
                     showFallbackProfile();
                 }
             }
@@ -609,86 +568,59 @@
             }
             
             function displayProfileDetails(data) {
-                console.log('📋 Profile data received:', data);
-                console.log('🖼️ Profile photo value:', data.profile_photo ? 'EXISTS (length: ' + data.profile_photo.length + ')' : 'NULL/EMPTY');
                 const bioElement = document.getElementById('profile-bio');
                 const detailsElement = document.getElementById('profile-details');
                 
-                // Display user's name - prioritize Supabase data, fallback to auth manager
+                // Build full name from first_name + last_name or use full_name
                 let displayName = '';
-                
-                if (data.full_name && data.full_name.trim()) {
+                if (data.first_name || data.last_name) {
+                    displayName = `${data.first_name || ''} ${data.last_name || ''}`.trim();
+                } else if (data.full_name) {
                     displayName = data.full_name;
-                    console.log('✅ Using full_name from Supabase:', displayName);
-                } else {
-                    // Fallback to auth manager name
-                    var auth = window.globalAuth || {};
-                    var authUser = auth.getCurrentUser ? auth.getCurrentUser() : {};
-                    displayName = authUser.name || authUser.full_name || authUser.firstName + ' ' + (authUser.lastName || '') || 'User';
-                    console.log('⚠️ Using name from auth manager:', displayName);
                 }
                 
-                profileNameDisplay.textContent = displayName;
+                if (displayName) {
+                    profileNameDisplay.textContent = displayName;
+                }
                 
-                // Display profile photo from Supabase data
+                // Display profile photo
                 if (data.profile_photo && data.profile_photo.trim()) {
-                    console.log('✅ Setting profile photo from Supabase');
                     profileAvatar.src = data.profile_photo;
                     profileAvatar.style.display = 'block';
-                    profileAvatar.onerror = function() {
-                        console.error('❌ Failed to load profile photo, using fallback');
-                        var auth = window.globalAuth || {};
-                        var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
-                        var userName = auth.getUserName ? auth.getUserName() : 'user';
-                        var seed = (user.email || userName || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
-                        profileAvatar.src = 'https://i.pravatar.cc/150?u=' + seed;
+                    profileAvatar.onerror = () => {
+                        const auth = window.globalAuth || {};
+                        const user = auth.getCurrentUser ? auth.getCurrentUser() : {};
+                        const seed = (user.email || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                        profileAvatar.src = `https://i.pravatar.cc/150?u=${seed}`;
                     };
                 } else {
-                    console.log('⚠️ No profile photo in Supabase, using default avatar');
-                    // Show default avatar if no profile photo from Supabase
-                    var auth = window.globalAuth || {};
-                    var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
-                    var userName = auth.getUserName ? auth.getUserName() : 'user';
-                    var seed = (user.email || userName || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
-                    profileAvatar.src = 'https://i.pravatar.cc/150?u=' + seed;
+                    const auth = window.globalAuth || {};
+                    const user = auth.getCurrentUser ? auth.getCurrentUser() : {};
+                    const seed = (user.email || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
+                    profileAvatar.src = `https://i.pravatar.cc/150?u=${seed}`;
                     profileAvatar.style.display = 'block';
                 }
                 
                 // Display bio
-                if (bioElement) {
-                    if (data.bio && data.bio.trim()) {
-                        bioElement.textContent = data.bio;
-                        bioElement.style.display = 'block';
-                    } else {
-                        bioElement.style.display = 'none';
-                    }
+                if (bioElement && data.bio && data.bio.trim()) {
+                    bioElement.textContent = data.bio;
+                    bioElement.style.display = 'block';
+                } else if (bioElement) {
+                    bioElement.style.display = 'none';
                 }
                 
                 // Display location and website
                 if (detailsElement) {
                     let html = '';
-                    
                     if (data.location && data.location.trim()) {
-                        html += `<div class="profile-detail-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>${data.location}</span>
-                        </div>`;
+                        html += `<div class="profile-detail-item"><i class="fas fa-map-marker-alt"></i><span>${data.location}</span></div>`;
                     }
-                    
                     if (data.website && data.website.trim()) {
                         const websiteUrl = data.website.startsWith('http') ? data.website : `https://${data.website}`;
-                        html += `<div class="profile-detail-item">
-                            <i class="fas fa-globe"></i>
-                            <a href="${websiteUrl}" target="_blank" rel="noopener noreferrer">${data.website}</a>
-                        </div>`;
+                        html += `<div class="profile-detail-item"><i class="fas fa-globe"></i><a href="${websiteUrl}" target="_blank">${data.website}</a></div>`;
                     }
-                    
-                    if (html) {
-                        detailsElement.innerHTML = html;
-                        detailsElement.style.display = 'flex';
-                    } else {
-                        detailsElement.style.display = 'none';
-                    }
+                    detailsElement.innerHTML = html || '';
+                    detailsElement.style.display = html ? 'flex' : 'none';
                 }
             }
             
