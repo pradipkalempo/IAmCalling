@@ -148,23 +148,17 @@
                 var user = window.globalAuth.getCurrentUser();
                 var name = window.globalAuth.getUserName();
                 
-                // Debug logging
-                console.log('User data:', user);
-                
-                // Try to get profile photo from user data first
-                var avatar = user.profile_photo || user.photo_url || user.avatar || null;
-                
-                // If not found, try to load from Supabase
-                if (!avatar && user.email) {
+                // Try to load real profile photo from Supabase
+                var avatar = null;
+                if (user.email) {
                     avatar = await this.loadProfilePhotoFromSupabase(user.email);
                 }
                 
-                // If still no avatar, use fallback
+                // Only use fallback if no real photo found
                 if (!avatar) {
                     avatar = getAvatarFallback(name, user.email);
                 }
                 
-                console.log('Final avatar URL:', avatar);
                 return { name: name, avatar: avatar, email: user.email, isLoggedIn: true };
             }
             return { name: 'Guest', avatar: null, email: null, isLoggedIn: false };
@@ -177,70 +171,45 @@
             // Check cache first
             try {
                 var cached = sessionStorage.getItem(cacheKey);
-                if (cached === 'null' || cached === '') return null;
-                if (cached) {
-                    console.log('Using cached profile photo for:', email);
+                if (cached && cached !== 'null' && cached !== '') {
                     return cached;
                 }
-            } catch (e) { 
-                console.warn('Cache read error:', e);
-                return null; 
-            }
+            } catch (e) {}
             
             try {
-                console.log('Fetching profile photo from Supabase for:', email);
                 var url = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
                 var key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                 
-                var r = await fetch(url + '/rest/v1/users?select=profile_photo,email&email=eq.' + encodeURIComponent(email), {
+                var r = await fetch(url + '/rest/v1/users?select=profile_photo&email=eq.' + encodeURIComponent(email), {
                     headers: { 
                         'apikey': key, 
-                        'Authorization': 'Bearer ' + key, 
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Authorization': 'Bearer ' + key
                     }
                 });
                 
-                console.log('Supabase response status:', r.status);
-                
                 if (!r.ok) { 
-                    console.warn('Supabase request failed:', r.status, r.statusText);
-                    if (r.status === 400 || r.status === 404) sessionStorage.setItem(cacheKey, 'null'); 
+                    sessionStorage.setItem(cacheKey, 'null'); 
                     return null; 
                 }
                 
                 var users = await r.json();
-                console.log('Users data:', users);
                 
                 if (!users || !users.length || !users[0].profile_photo) {
-                    console.log('No profile photo found for user');
                     sessionStorage.setItem(cacheKey, 'null');
                     return null;
                 }
                 
                 var photo = users[0].profile_photo;
-                console.log('Found profile photo:', photo);
                 
-                // Validate photo URL
-                var invalid = /\.svg|svg\+xml|ui-avatars/i.test(photo) || 
-                             (photo.length < 20 && !/^(https?:|\/\/|data:image\/)/.test(photo));
-                
-                if (invalid) {
-                    console.log('Invalid photo URL detected');
-                    sessionStorage.setItem(cacheKey, 'null');
-                    return null;
+                // Validate it's a real photo (not SVG or placeholder)
+                if (/^data:image\/(jpeg|jpg|png|gif|webp)/i.test(photo)) {
+                    sessionStorage.setItem(cacheKey, photo);
+                    return photo;
                 }
                 
-                // Cache the result
-                if (/^data:image\//.test(photo) && !/svg/.test(photo)) { 
-                    sessionStorage.setItem(cacheKey, photo); 
-                    return photo; 
-                }
-                
-                sessionStorage.setItem(cacheKey, photo);
-                return photo;
+                sessionStorage.setItem(cacheKey, 'null');
+                return null;
             } catch (err) {
-                console.error('Error loading profile photo from Supabase:', err);
                 try { sessionStorage.setItem(cacheKey, 'null'); } catch (e) {}
                 return null;
             }
