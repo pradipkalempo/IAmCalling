@@ -1,8 +1,13 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { createClient } from '@supabase/supabase-js';
 
 const router = express.Router();
+
+const supabaseUrl = process.env.SUPABASE_URL || 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Simple registration endpoint
 router.post('/register', async (req, res) => {
@@ -18,25 +23,45 @@ router.post('/register', async (req, res) => {
   }
   
   try {
-    // Import simple database
-    const { default: simpleDB } = await import('../../simple-db.js');
+    // Check if user exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
     
-    // Create user in database
-    const newUser = await simpleDB.createUser({
-      email,
-      password,
-      firstName,
-      lastName,
-      profilePhoto
-    });
+    if (existingUser) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Email already registered. Please login instead.'
+      });
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Insert user
+    const { data: newUser, error } = await supabase
+      .from('users')
+      .insert([{
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        password: hashedPassword,
+        profile_photo: profilePhoto
+      }])
+      .select()
+      .single();
+    
+    if (error) throw error;
 
     // Generate token
     const token = jwt.sign(
       { 
         userId: newUser.id, 
         email: newUser.email, 
-        firstName: newUser.firstName, 
-        lastName: newUser.lastName 
+        firstName: newUser.first_name, 
+        lastName: newUser.last_name 
       }, 
       process.env.JWT_SECRET || 'your_jwt_secret', 
       { expiresIn: '24h' }
@@ -51,22 +76,15 @@ router.post('/register', async (req, res) => {
       user: {
         id: newUser.id,
         email: newUser.email,
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        fullName: `${newUser.firstName} ${newUser.lastName}`,
-        profilePhoto: newUser.profilePhoto,
-        createdAt: newUser.createdAt
+        firstName: newUser.first_name,
+        lastName: newUser.last_name,
+        fullName: `${newUser.first_name} ${newUser.last_name}`,
+        profilePhoto: newUser.profile_photo,
+        createdAt: newUser.created_at
       }
     });
   } catch (error) {
     console.error('Registration error:', error);
-    
-    if (error.message === 'User already exists') {
-      return res.status(400).json({ 
-        success: false,
-        message: 'Email already registered. Please login instead.'
-      });
-    }
     
     res.status(500).json({ 
       success: false,
@@ -86,10 +104,13 @@ router.post('/login', async (req, res) => {
   const loginField = email || username;
   
   try {
-    const { default: simpleDB } = await import('../../simple-db.js');
-    const user = simpleDB.findUserByEmail(loginField);
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', loginField)
+      .single();
 
-    if (!user) {
+    if (error || !user) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
@@ -101,7 +122,7 @@ router.post('/login', async (req, res) => {
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '24h' });
     
-    res.json({ message: 'Login successful', token });
+    res.json({ message: 'Login successful', token, user });
   } catch (err) {
     res.status(500).json({ error: 'Login failed', details: err.message });
   }

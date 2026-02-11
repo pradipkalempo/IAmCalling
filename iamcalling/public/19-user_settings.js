@@ -232,35 +232,35 @@ class ProfileSettingsSync {
 
     async saveToSupabase(email, updateData) {
         try {
-            // Try to get Supabase client
-            if (!this.supabase) {
-                await this.waitForSupabase();
+            // Filter out base64 images before saving to Supabase
+            const cleanData = { ...updateData };
+            if (cleanData.profile_photo && cleanData.profile_photo.startsWith('data:image')) {
+                console.warn('Base64 image detected, skipping profile_photo save. Upload to Cloudinary first.');
+                delete cleanData.profile_photo;
             }
             
-            // If Supabase client is available, use it
+            if (!this.supabase) await this.waitForSupabase();
+            
             if (this.supabase) {
                 try {
                     const { data, error } = await this.supabase
                         .from('users')
-                        .update(updateData)
+                        .update(cleanData)
                         .eq('email', email)
                         .select()
                         .single();
                     
-                    if (error) {
-                        throw error;
-                    }
+                    if (error) throw error;
                     
-                    // Success with Supabase client
-                    this.updateLocalStorageAndNotify(updateData);
+                    this.updateLocalStorageAndNotify(cleanData);
+                    this.showNotification('Profile updated successfully!');
                     return;
                 } catch (supabaseError) {
                     console.warn('Supabase client error, trying REST API fallback:', supabaseError);
                 }
             }
             
-            // Fallback to REST API if client not available
-            await this.saveToSupabaseREST(email, updateData);
+            await this.saveToSupabaseREST(email, cleanData);
             
         } catch (error) {
             console.error('Error saving to Supabase:', error);
@@ -321,8 +321,8 @@ class ProfileSettingsSync {
             const data = await response.json();
             console.log('✅ Profile updated via REST API:', data);
             
-            // Update localStorage and notify
             this.updateLocalStorageAndNotify(updateData);
+            this.showNotification('Profile updated successfully!');
             
         } catch (error) {
             console.error('❌ Error saving via REST API:', error);
@@ -338,43 +338,23 @@ class ProfileSettingsSync {
     }
     
     updateLocalStorageAndNotify(updateData) {
-        // Update localStorage
-        const topbarUserData = localStorage.getItem('topbarUserData');
-        const currentUser = localStorage.getItem('currentUser');
-        
-        let userData = null;
-        if (topbarUserData) {
-            try {
-                userData = JSON.parse(topbarUserData);
-            } catch (e) {}
-        }
-        if (!userData && currentUser) {
-            try {
-                userData = JSON.parse(currentUser);
-            } catch (e) {}
-        }
-        
-        if (userData) {
-            const updatedUserData = {
-                ...userData,
-                ...updateData,
-                name: updateData.display_name || userData.name,
-                full_name: updateData.display_name || userData.full_name
-            };
+        try {
+            const currentData = JSON.parse(localStorage.getItem('topbarUserData') || '{}');
             
-            localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
-            localStorage.setItem('topbarUserData', JSON.stringify(updatedUserData));
+            // Don't store base64 images in localStorage to avoid quota issues
+            const { profile_photo, ...updatesWithoutPhoto } = updateData;
+            const updatedData = { ...currentData, ...updatesWithoutPhoto };
             
-            // Trigger global consistency update
-            if (window.globalUserConsistency) {
-                window.globalUserConsistency.enforceUserConsistency();
+            // Only store if profile_photo is a URL, not base64
+            if (profile_photo && !profile_photo.startsWith('data:image')) {
+                updatedData.profile_photo = profile_photo;
             }
             
-            // Trigger auth status change event
-            window.dispatchEvent(new CustomEvent('authStatusChanged'));
-            
-            this.showNotification('Profile updated successfully!');
-            console.log('✅ Profile updated:', updateData);
+            localStorage.setItem('topbarUserData', JSON.stringify(updatedData));
+            window.dispatchEvent(new CustomEvent('topbarUserDataUpdated', { detail: updatesWithoutPhoto }));
+        } catch (e) {
+            console.warn('LocalStorage update failed:', e.message);
+            // Continue without localStorage
         }
     }
 

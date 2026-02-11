@@ -1,0 +1,16 @@
+{
+  "name": "iamcalling-messenger-tests",
+  "version": "1.0.0",
+  "description": "Comprehensive E2E tests for IAMCALLING messenger module",
+  "scripts": {
+    "test:messenger": "cypress run --spec 'cypress/e2e/messenger-comprehensive.cy.js'",
+    "test:messenger:open": "cypress open --e2e --browser chrome",
+    "test:messenger:headed": "cypress run --spec 'cypress/e2e/messenger-comprehensive.cy.js' --headed --browser chrome",
+    "test:messenger:mobile": "cypress run --spec 'cypress/e2e/messenger-comprehensive.cy.js' --config viewportWidth=375,viewportHeight=667",
+    "test:messenger:desktop": "cypress run --spec 'cypress/e2e/messenger-comprehensive.cy.js' --config viewportWidth=1920,viewportHeight=1080",
+    "test:all": "cypress run"
+  },
+  "devDependencies": {
+    "cypress": "^13.6.0"
+  }
+}

@@ -28,7 +28,7 @@ function isSupabaseConfigured() {
     return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 }
 
-// Initialize Supabase client - optimized for speed
+// Initialize Supabase client - optimized for speed with singleton pattern
 async function initializeSupabase() {
     if (window.supabaseClient) return true; // Already initialized
     

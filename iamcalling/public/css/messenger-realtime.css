@@ -1,4 +1,15 @@
 /* Messenger Real-time Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
 .messenger-container {
     display: flex;
     height: 100vh;
@@ -12,12 +23,15 @@
     border-right: 1px solid #e9ecef;
     display: flex;
     flex-direction: column;
+    height: 100vh;
 }
 
 .conversations-header {
     padding: 20px;
     border-bottom: 1px solid #e9ecef;
     background: white;
+    flex-shrink: 0;
+    z-index: 10;
 }
 
 .conversations-header h3 {
@@ -140,6 +154,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: 0;
 }
 
 .chat-header .user-avatar img {
@@ -163,9 +178,6 @@
     overflow-y: auto;
     padding: 20px;
     background: #f8f9fa;
-    /* Calculate height: 100vh - header - input area */
-    height: calc(100vh - 140px);
-    max-height: calc(100vh - 140px);
 }
 
 .message {
@@ -218,9 +230,9 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    /* Fixed height to prevent layout shifts */
     min-height: 70px;
     max-height: 70px;
+    flex-shrink: 0;
 }
 
 .message-input {
@@ -276,10 +288,6 @@
     
     .chat-area {
         height: 60vh;
-    }
-    
-    .messages-container {
-        height: calc(60vh - 140px);
     }
 }
 

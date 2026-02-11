@@ -1,8 +1,14 @@
-const { defineConfig } = require('cypress')
+let defineConfig = (config) => config
+
+try {
+  ;({ defineConfig } = require('cypress'))
+} catch (error) {
+  // Cypress may be installed globally, so keep a safe fallback.
+}
 
 module.exports = defineConfig({
   e2e: {
-    baseUrl: 'http://localhost:1000',
+    baseUrl: process.env.CYPRESS_BASE_URL || 'http://localhost:1000',
     supportFile: false,
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     video: false,
