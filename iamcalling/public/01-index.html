@@ -399,82 +399,45 @@
     
     <!-- Load posts from server API -->
     <script>
-        // Load posts from server API (secure method)
         async function loadPosts() {
             const articlesContainer = document.getElementById('articlesContainer');
-            articlesContainer.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading posts...</div>';
+            articlesContainer.innerHTML = '<div style="text-align:center;padding:2rem;">Loading...</div>';
             
             try {
-                console.log('🔍 Loading posts from server API...');
+                const controller = new AbortController();
+                setTimeout(() => controller.abort(), 5000);
                 
-                // Fetch from server API (server handles Supabase connection)
-                const response = await fetch('/api/posts');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
+                const response = await fetch('/api/posts', { signal: controller.signal });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const posts = await response.json();
                 
-                console.log('📊 Posts loaded:', posts?.length || 0);
-                
-                if (!posts || posts.length === 0) {
-                    articlesContainer.innerHTML = `
-                        <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; margin: 1rem 0;">
-                            <h3 style="color: #666; margin-bottom: 1rem;">No posts available yet</h3>
-                            <p style="color: #888; margin-bottom: 2rem;">Be the first to create content on IAMCALLING!</p>
-                            <a href="22-write_article.html" style="background: #0a3d0a; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">Write First Article</a>
-                        </div>
-                    `;
+                if (!posts?.length) {
+                    articlesContainer.innerHTML = '<div style="text-align:center;padding:3rem;background:white;border-radius:8px;"><h3 style="color:#666;">No posts yet</h3><a href="22-write_article.html" style="background:#0a3d0a;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;">Write First Article</a></div>';
                     return;
                 }
                 
-                // Render posts (limit to 3 for homepage)
-                articlesContainer.innerHTML = posts.slice(0, 3).map(post => {
-                    const author = post.author_name || post.author || 'Admin';
-                    const viewsCount = post.views_count || 0;
-                    const thumbnailUrl = post.thumbnail_url || `https://picsum.photos/seed/post${post.id}/400/250`;
-                    
-                    return `
-                        <div id="post-${post.id}" class="article-card" data-post-id="${post.id}">
-                            <div class="article-thumbnail">
-                                <img src="${thumbnailUrl}" alt="${post.title}" class="thumbnail-image" loading="lazy" onerror="this.src='https://picsum.photos/seed/post${post.id}/400/250'; this.onerror=null;">
-                                <div class="article-category">Official</div>
+                articlesContainer.innerHTML = posts.slice(0, 3).map(post => `
+                    <div class="article-card">
+                        <div class="article-thumbnail">
+                            <img src="${post.thumbnail_url || `https://picsum.photos/seed/post${post.id}/400/250`}" alt="${post.title}" class="thumbnail-image" loading="lazy">
+                            <div class="article-category">Official</div>
+                        </div>
+                        <div class="article-content">
+                            <h2 class="article-title">${post.title}</h2>
+                            <div class="article-meta">
+                                <div class="author-info"><span>${post.author_name || 'Admin'}</span></div>
+                                <span>${new Date(post.created_at).toLocaleDateString()}</span>
                             </div>
-                            <div class="article-content">
-                                <h2 class="article-title">${post.title}</h2>
-                                <div class="article-meta">
-                                    <div class="author-info">
-                                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 50 50'><circle cx='25' cy='25' r='25' fill='%23d4af37'/><text x='25' y='30' font-family='Arial' font-size='20' fill='white' text-anchor='middle'>👤</text></svg>" alt="Author" class="author-avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                                        <span>${author}</span>
-                                    </div>
-                                    <span>${new Date(post.created_at).toLocaleDateString()}</span>
-                                </div>
-                                ${post.challenge_post_id ? `<div style="margin-bottom: 1rem;"><span style="background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; float: right; font-size: 0.6rem;">Challenge: ${post.challenge_post_id}</span><div style="clear: both;"></div></div>` : ''}
-                                <div style="margin-top: 1rem;">
-                                    <a href="07-readmore.html?id=${post.id}" class="read-more">Read More <i class="fas fa-arrow-right"></i></a>
-                                    <span style="color: #666; font-size: 0.6rem; margin-left: 1rem; display: inline-flex; align-items: center; gap: 0.3rem;" data-post-id="${post.id}" data-view-count>
-                                        <i class="fas fa-eye"></i> <span data-view-count>${viewsCount}</span> views
-                                    </span>
-                                </div>
+                            <div style="margin-top:1rem;">
+                                <a href="07-readmore.html?id=${post.id}" class="read-more">Read More →</a>
+                                <span style="color:#666;font-size:0.6rem;margin-left:1rem;">👁 ${post.views_count || 0} views</span>
                             </div>
                         </div>
-                    `;
-                }).join('');
-                
-                console.log('✅ Posts rendered successfully');
-                
-            } catch (error) {
-                console.error('Posts loading error:', error);
-                
-                articlesContainer.innerHTML = `
-                    <div style="text-align: center; padding: 3rem; background: white; border-radius: 8px; margin: 1rem 0; border-left: 4px solid #dc3545;">
-                        <h3 style="color: #dc3545; margin-bottom: 1rem;">⚠️ Unable to Load Posts</h3>
-                        <p style="color: #666; margin-bottom: 1rem;">Could not connect to server.</p>
-                        <p style="color: #888; margin-bottom: 2rem; font-size: 0.6rem;">Error: ${error.message}</p>
-                        <button onclick="loadPosts()" style="background: #0a3d0a; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">Retry Loading</button>
                     </div>
-                `;
+                `).join('');
+            } catch (error) {
+                articlesContainer.innerHTML = '<div style="text-align:center;padding:3rem;background:white;border-radius:8px;"><h3 style="color:#dc3545;">Unable to Load</h3><button onclick="loadPosts()" style="background:#0a3d0a;color:white;padding:12px 24px;border:none;border-radius:8px;cursor:pointer;">Retry</button></div>';
             }
         }
         

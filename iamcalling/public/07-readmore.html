@@ -6,7 +6,36 @@
     <title>Post Content - IAmCalling</title>
     <script src="js/universal-topbar-injector.js"></script>
     <style>
-        /* Basic icon styles using CSS */
+        .loading-cube {
+            width: 40px;
+            height: 40px;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 2s infinite linear;
+            margin: 0 auto;
+        }
+        
+        .cube-face {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #0a3d0a, #d4af37);
+            border: 2px solid #d4af37;
+            opacity: 0.9;
+        }
+        
+        .cube-face:nth-child(1) { transform: rotateY(0deg) translateZ(20px); }
+        .cube-face:nth-child(2) { transform: rotateY(90deg) translateZ(20px); }
+        .cube-face:nth-child(3) { transform: rotateY(180deg) translateZ(20px); }
+        .cube-face:nth-child(4) { transform: rotateY(-90deg) translateZ(20px); }
+        .cube-face:nth-child(5) { transform: rotateX(90deg) translateZ(20px); }
+        .cube-face:nth-child(6) { transform: rotateX(-90deg) translateZ(20px); }
+        
+        @keyframes rotateCube {
+            from { transform: rotateX(0deg) rotateY(0deg); }
+            to { transform: rotateX(360deg) rotateY(360deg); }
+        }
+        
         .fa-spinner::before { content: '↻'; }
         .fa-arrow-left::before { content: '←'; }
         .fa-home::before { content: '⌂'; }
@@ -16,15 +45,6 @@
             display: inline-block; 
             margin-right: 8px; 
             font-weight: bold;
-        }
-        
-        .fa-spin {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
     </style>
     <style>
@@ -225,8 +245,15 @@
         <div class="article-content">
             <div class="content-container" id="contentContainer">
                 <div class="loading-placeholder">
-                    <i class="fa fa-spinner fa-spin fa-2x"></i>
-                    <p>Loading content...</p>
+                    <div class="loading-cube">
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                        <div class="cube-face"></div>
+                    </div>
+                    <p style="margin-top: 20px;">Loading content...</p>
                 </div>
             </div>
         </div>
@@ -234,366 +261,115 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Supabase configuration with hardcoded fallbacks
         const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
-        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        // Get post ID from URL
         function getPostId() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('id');
+            return new URLSearchParams(window.location.search).get('id');
         }
         
-        // Fetch post data
         async function fetchPost(postId) {
+            const { data, error } = await supabaseClient
+                .from('posts')
+                .select('id,title,content,author_name,created_at,views_count,challenge_post_id')
+                .eq('id', postId)
+                .single();
+            
+            if (error) throw new Error(error.message);
+            return data;
+        }
+        
+        async function trackView(postId) {
             try {
-                if (!supabaseClient) {
-                    throw new Error('Supabase client not initialized');
-                }
-                
-                const { data, error } = await supabaseClient
+                const { data } = await supabaseClient
                     .from('posts')
-                    .select('*')
+                    .select('views_count')
                     .eq('id', postId)
                     .single();
                 
-                if (error) {
-                    throw new Error(error.message || 'Failed to fetch post');
-                }
+                const newCount = (data?.views_count || 0) + 1;
                 
-                return data;
-            } catch (error) {
-                throw error;
-            }
+                await supabaseClient
+                    .from('posts')
+                    .update({ views_count: newCount })
+                    .eq('id', postId);
+                
+                document.getElementById('viewCount').textContent = newCount;
+            } catch (e) {}
         }
         
-        // Track view using unified ViewTracker
-        async function trackView(postId) {
-            try {
-                // Initialize ViewTracker if not already present
-                if (!window.ViewTracker) {
-                    // Create a minimal ViewTracker instance for this page
-                    window.ViewTracker = {
-                        trackView: async function(contentId, contentType) {
-                            try {
-                                // Get current count first
-                                const { data: currentData } = await supabaseClient
-                                    .from(contentType === 'post' ? 'posts' : 'articles')
-                                    .select('views_count')
-                                    .eq('id', contentId)
-                                    .single();
-                                
-                                const currentCount = currentData?.views_count || 0;
-                                const newCount = currentCount + 1;
-                                
-                                // Update with new count
-                                await supabaseClient
-                                    .from(contentType === 'post' ? 'posts' : 'articles')
-                                    .update({ views_count: newCount })
-                                    .eq('id', contentId);
-                                
-                                return {
-                                    view_counts: {
-                                        total_views: newCount,
-                                        unique_views: newCount,
-                                        recently_viewed: true
-                                    }
-                                };
-                            } catch (error) {
-                                console.warn('Error tracking view:', error);
-                                return {
-                                    view_counts: {
-                                        total_views: 0,
-                                        unique_views: 0,
-                                        recently_viewed: false
-                                    },
-                                    error: error.message
-                                };
-                            }
-                        },
-                        
-                        updateViewDisplay: function(contentId, contentType, viewCounts) {
-                            // Update the view count display on this page
-                            const viewCountElement = document.getElementById('viewCount');
-                            if (viewCountElement) {
-                                viewCountElement.textContent = viewCounts.total_views;
-                                
-                                // Add visual feedback
-                                viewCountElement.style.transition = 'all 0.3s ease';
-                                viewCountElement.style.transform = 'scale(1.2)';
-                                viewCountElement.style.color = '#4CAF50';
-                                
-                                setTimeout(() => {
-                                    viewCountElement.style.transform = 'scale(1)';
-                                    viewCountElement.style.color = '';
-                                }, 300);
-                            }
-                        }
-                    };
-                }
-                
-                // Track the view using unified system
-                const result = await window.ViewTracker.trackView(postId, 'post');
-                
-                if (result.view_counts) {
-                    // Update display
-                    window.ViewTracker.updateViewDisplay(postId, 'post', result.view_counts);
-                    console.log('📊 View tracked and displayed:', result.view_counts);
-                }
-                
-                return result;
-                
-            } catch (error) {
-                console.warn('Error in view tracking:', error);
-            }
-        }
-        
-        // Universal content extraction that preserves all content
         function extractContent(content) {
             if (!content) return '';
+            const start = content.indexOf('<div class="admin-code-executable');
+            if (start === -1) return content;
             
-            console.log('🔍 Starting content extraction, total length:', content.length);
+            const tagEnd = content.indexOf('>', start);
+            let depth = 1, pos = tagEnd + 1;
             
-            // Look for admin-code-executable div
-            const startMarker = 'admin-code-executable';
-            if (content.includes(startMarker)) {
-                // Find the opening div tag
-                const startIndex = content.indexOf('<div class="admin-code-executable');
-                if (startIndex === -1) {
-                    console.log('❌ Could not find admin-code-executable opening tag');
-                    return content;
-                }
-                
-                // Find the end of the opening tag
-                const tagEndIndex = content.indexOf('>', startIndex);
-                if (tagEndIndex === -1) {
-                    console.log('❌ Could not find end of opening tag');
-                    return content;
-                }
-                
-                // Count div tags to find the matching closing tag
-                let depth = 1;
-                let pos = tagEndIndex + 1;
-                
-                while (pos < content.length && depth > 0) {
-                    if (content.substr(pos, 4) === '<div') {
-                        depth++;
-                        pos += 4;
-                    } else if (content.substr(pos, 6) === '</div>') {
-                        depth--;
-                        if (depth === 0) {
-                            // Found the closing tag
-                            const extracted = content.substring(tagEndIndex + 1, pos);
-                            
-                            // Clean up unnecessary wrapper elements but preserve all content
-                            let cleaned = extracted.replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
-                            cleaned = cleaned.replace(/^\s+|\s+$/g, ''); // Trim whitespace
-                            return cleaned.trim();
-                        }
-                        pos += 6;
-                    } else {
-                        pos++;
-                    }
-                }
-                
-                console.log('❌ Could not find matching closing tag, returning full content');
-                return content;
+            while (pos < content.length && depth > 0) {
+                if (content.substr(pos, 4) === '<div') depth++, pos += 4;
+                else if (content.substr(pos, 6) === '</div>') {
+                    depth--;
+                    if (depth === 0) return content.substring(tagEnd + 1, pos).trim();
+                    pos += 6;
+                } else pos++;
             }
-            
-            // If no admin-code-executable found, return cleaned content
-            console.log('❌ No admin-code-executable found, cleaning content');
-            let cleaned = content.replace(/<!--[\s\S]*?-->/g, ''); // Remove comments
-            cleaned = cleaned.replace(/^\s+|\s+$/g, ''); // Trim whitespace
-            cleaned = cleaned.trim();
-            return cleaned;
+            return content;
         }
         
-        // Universal content rendering that works for all types of content
-        function renderUniversalContent(content, container) {
-            console.log('🎨 Rendering universal content, length:', content.length);
-            
-            // Create a universal display container
-            const displayContainer = document.createElement('div');
-            displayContainer.className = 'universal-content-display';
-            displayContainer.id = 'universal-content-display';
-            
-            // Set the content directly (this preserves all elements)
-            displayContainer.innerHTML = content;
-            
-            // Clear the container and add the display
-            container.innerHTML = '';
-            container.appendChild(displayContainer);
-            
-            // Execute any scripts that were embedded in the content
-            executeScriptsInContainer(displayContainer);
-            
-            // Handle any visualization libraries that need initialization
-            initializeVisualizations(displayContainer);
-            
-            console.log('✅ Universal content rendered and displayed');
-        }
-        
-        // Execute scripts within the container
-        function executeScriptsInContainer(container) {
-            try {
-                // Find all script tags in the container
-                const scripts = container.querySelectorAll('script');
-                
-                // Create a DocumentFragment to hold new scripts
-                const fragment = document.createDocumentFragment();
-                
-                scripts.forEach(originalScript => {
-                    const newScript = document.createElement('script');
-                    
-                    // Copy all attributes
-                    for (let attr of originalScript.attributes) {
-                        newScript.setAttribute(attr.name, attr.value);
-                    }
-                    
-                    // Copy script content
-                    newScript.textContent = originalScript.textContent;
-                    
-                    // Add to fragment to execute in order
-                    fragment.appendChild(newScript);
-                    
-                    // Replace the old script with a placeholder to avoid duplicate execution
-                    originalScript.parentNode.replaceChild(document.createTextNode(''), originalScript);
-                });
-                
-                // Append the fragment to execute all scripts
-                if (fragment.children.length > 0) {
-                    container.appendChild(fragment);
-                    console.log('✅ Scripts executed in container');
-                }
-            } catch (error) {
-                console.error('❌ Error executing scripts:', error);
-            }
-        }
-        
-        // Initialize visualization libraries after content is loaded
-        function initializeVisualizations(container) {
-            // Wait a bit for DOM to be fully ready
-            setTimeout(() => {
-                console.log('🎨 Initializing visualizations...');
-                
-                // Handle Chart.js if present
-                if (typeof window.Chart !== 'undefined') {
-                    console.log('📊 Chart.js detected, looking for charts to initialize');
-                    
-                    // Reinitialize any chart canvases
-                    const chartCanvases = container.querySelectorAll('canvas[data-chart]');
-                    chartCanvases.forEach(canvas => {
-                        try {
-                            if (canvas.chart) {
-                                canvas.chart.destroy();
-                            }
-                            
-                            // Re-initialize with proper sizing
-                            setTimeout(() => {
-                                if (canvas.parentElement) {
-                                    canvas.width = canvas.parentElement.clientWidth;
-                                    canvas.height = Math.max(400, canvas.parentElement.clientHeight);
-                                }
-                                console.log('📊 Canvas resized and ready');
-                            }, 100);
-                        } catch (e) {
-                            console.log('📊 Chart reinitialization error:', e);
-                        }
-                    });
-                }
-                
-                // Handle other visualization libraries
-                const vizElements = container.querySelectorAll('[data-visualization], .visualization, .chart-container, .diagram-container');
-                console.log(`🎨 Found ${vizElements.length} visualization elements to initialize`);
-                
-                // Trigger resize events to ensure proper layout
-                window.dispatchEvent(new Event('resize'));
-                window.dispatchEvent(new Event('load'));
-                
-                console.log('✅ Visualization initialization completed');
-            }, 500);
-        }
-        
-        // Render post content with universal support
         function renderContent(post) {
-            const contentContainer = document.getElementById('contentContainer');
-            
+            const container = document.getElementById('contentContainer');
             if (!post.content) {
-                contentContainer.innerHTML = '<div class="error-message">No content available for this post.</div>';
+                container.innerHTML = '<div class="error-message">No content available.</div>';
                 return;
             }
             
-            console.log('🎨 Starting universal content rendering for post ID:', post.id);
-            console.log('🎨 Raw content length:', post.content.length);
+            const content = extractContent(post.content);
+            const display = document.createElement('div');
+            display.className = 'universal-content-display';
+            display.innerHTML = content;
             
-            // Extract the actual content
-            const extractedContent = extractContent(post.content);
-            console.log('🎨 Extracted content length:', extractedContent.length);
+            container.innerHTML = '';
+            container.appendChild(display);
             
-            // Render the content universally
-            renderUniversalContent(extractedContent, contentContainer);
+            display.querySelectorAll('script').forEach(s => {
+                const n = document.createElement('script');
+                Array.from(s.attributes).forEach(a => n.setAttribute(a.name, a.value));
+                n.textContent = s.textContent;
+                s.replaceWith(n);
+            });
+            
+            setTimeout(() => window.dispatchEvent(new Event('resize')), 500);
         }
         
-        // Initialize page
         async function init() {
             const postId = getPostId();
-            
             if (!postId) {
-                document.getElementById('contentContainer').innerHTML = `
-                    <div class="error-message">
-                        <h3>Invalid Post</h3>
-                        <p>No post ID specified in the URL.</p>
-                        <a href="01-index.html" class="back-button" style="margin-top: 20px;">
-                            ⌂ Go to Home
-                        </a>
-                    </div>
-                `;
+                document.getElementById('contentContainer').innerHTML = '<div class="error-message"><h3>Invalid Post</h3><a href="01-index.html" class="back-button">Go Home</a></div>';
                 return;
             }
             
             try {
-                // Fetch post data
                 const post = await fetchPost(postId);
                 
-                // Update header information
-                document.getElementById('articleTitle').textContent = post.title || 'Untitled Post';
-                document.getElementById('authorName').textContent = post.author_name || post.author || 'Anonymous';
-                document.getElementById('publishDate').textContent = new Date(post.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                document.getElementById('viewCount').textContent = post.views_count || post.views || 0;
+                document.getElementById('articleTitle').textContent = post.title || 'Untitled';
+                document.getElementById('authorName').textContent = post.author_name || 'Anonymous';
+                document.getElementById('publishDate').textContent = new Date(post.created_at).toLocaleDateString();
+                document.getElementById('viewCount').textContent = post.views_count || 0;
                 
-                // Show challenge info if available
-                if (post.challenge_post_id || post.challenge_id) {
-                    document.getElementById('challengeId').textContent = post.challenge_post_id || post.challenge_id;
+                if (post.challenge_post_id) {
+                    document.getElementById('challengeId').textContent = post.challenge_post_id;
                     document.getElementById('challengeInfo').style.display = 'block';
                 }
                 
-                // Track view
-                await trackView(postId);
-                
-                // Render content with universal support
+                trackView(postId);
                 renderContent(post);
-                
             } catch (error) {
-                document.getElementById('contentContainer').innerHTML = `
-                    <div class="error-message">
-                        <h3>Error Loading Post</h3>
-                        <p>Could not load the requested post. It may not exist or there was a connection error.</p>
-                        <p style="font-size: 0.9rem; margin-top: 15px;">Error: ${error.message}</p>
-                        <a href="01-index.html" class="back-button" style="margin-top: 20px;">
-                            ⌂ Go to Home
-                        </a>
-                    </div>
-                `;
+                document.getElementById('contentContainer').innerHTML = `<div class="error-message"><h3>Error</h3><p>${error.message}</p><a href="01-index.html" class="back-button">Go Home</a></div>`;
             }
         }
         
-        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>

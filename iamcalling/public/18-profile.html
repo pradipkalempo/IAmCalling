@@ -522,104 +522,72 @@
             
             async function loadProfileDetailsFromSupabase(email) {
                 try {
-                    const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
-                    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                    const SUPABASE_URL = window.APP_CONFIG?.supabaseUrl || 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                    const SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                     
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?select=first_name,last_name,full_name,bio,location,website,profile_photo&email=eq.${encodeURIComponent(email)}`, {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Accept': 'application/json'
-                        }
+                    const controller = new AbortController();
+                    setTimeout(() => controller.abort(), 5000);
+                    
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?select=first_name,last_name,bio,location,website,profile_photo&email=eq.${encodeURIComponent(email)}`, {
+                        signal: controller.signal,
+                        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
                     });
                     
                     if (response.ok) {
                         const users = await response.json();
-                        if (users && users.length > 0) {
-                            displayProfileDetails(users[0]);
-                        } else {
-                            showFallbackProfile();
-                        }
-                    } else {
-                        showFallbackProfile();
-                    }
+                        if (users?.length > 0) displayProfileDetails(users[0]);
+                        else showFallbackProfile();
+                    } else showFallbackProfile();
                 } catch (error) {
-                    console.error('❌ Error loading profile:', error);
                     showFallbackProfile();
                 }
             }
             
             function showFallbackProfile() {
-                console.log('🔄 Showing fallback profile from auth manager');
-                var auth = window.globalAuth || {};
-                var user = auth.getCurrentUser ? auth.getCurrentUser() : {};
-                var userName = auth.getUserName ? auth.getUserName() : 'User';
-                
-                // Build display name from available auth data
-                let displayName = user.name || user.full_name || user.firstName + ' ' + (user.lastName || '') || userName || 'User';
-                console.log('👤 Displaying fallback name:', displayName);
+                const auth = window.globalAuth || {};
+                const user = auth.getCurrentUser ? auth.getCurrentUser() : {};
+                const userName = auth.getUserName ? auth.getUserName() : 'User';
+                const displayName = user.name || user.full_name || `${user.firstName || ''} ${user.lastName || ''}`.trim() || userName || 'User';
                 
                 profileNameDisplay.textContent = displayName;
                 profileAvatar.style.display = 'block';
-                
-                // Set default avatar
-                var seed = (user.email || userName || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
-                profileAvatar.src = 'https://i.pravatar.cc/150?u=' + seed;
+                profileAvatar.src = 'https://i.pravatar.cc/150?u=' + (user.email || userName || 'user').toString().replace(/[^a-zA-Z0-9]/g, '');
             }
             
             function displayProfileDetails(data) {
-                const bioElement = document.getElementById('profile-bio');
-                const detailsElement = document.getElementById('profile-details');
+                const displayName = data.first_name || data.last_name ? `${data.first_name || ''} ${data.last_name || ''}`.trim() : data.full_name;
+                if (displayName) profileNameDisplay.textContent = displayName;
                 
-                // Build full name from first_name + last_name or use full_name
-                let displayName = '';
-                if (data.first_name || data.last_name) {
-                    displayName = `${data.first_name || ''} ${data.last_name || ''}`.trim();
-                } else if (data.full_name) {
-                    displayName = data.full_name;
-                }
-                
-                if (displayName) {
-                    profileNameDisplay.textContent = displayName;
-                }
-                
-                // Display profile photo
-                if (data.profile_photo && data.profile_photo.trim()) {
+                if (data.profile_photo?.trim()?.length > 50) {
                     profileAvatar.src = data.profile_photo;
                     profileAvatar.style.display = 'block';
                     profileAvatar.onerror = () => {
                         const auth = window.globalAuth || {};
                         const user = auth.getCurrentUser ? auth.getCurrentUser() : {};
-                        const seed = (user.email || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
-                        profileAvatar.src = `https://i.pravatar.cc/150?u=${seed}`;
+                        profileAvatar.src = `https://i.pravatar.cc/150?u=${(user.email || 'user').replace(/[^a-zA-Z0-9]/g, '')}`;
                     };
                 } else {
                     const auth = window.globalAuth || {};
                     const user = auth.getCurrentUser ? auth.getCurrentUser() : {};
-                    const seed = (user.email || 'user').toString().replace(/[^a-zA-Z0-9]/g, '') || 'user';
-                    profileAvatar.src = `https://i.pravatar.cc/150?u=${seed}`;
+                    profileAvatar.src = `https://i.pravatar.cc/150?u=${(user.email || 'user').replace(/[^a-zA-Z0-9]/g, '')}`;
                     profileAvatar.style.display = 'block';
                 }
                 
-                // Display bio
-                if (bioElement && data.bio && data.bio.trim()) {
-                    bioElement.textContent = data.bio;
-                    bioElement.style.display = 'block';
-                } else if (bioElement) {
-                    bioElement.style.display = 'none';
+                const bioElement = document.getElementById('profile-bio');
+                if (bioElement) {
+                    bioElement.textContent = data.bio?.trim() || '';
+                    bioElement.style.display = data.bio?.trim() ? 'block' : 'none';
                 }
                 
-                // Display location and website
+                const detailsElement = document.getElementById('profile-details');
                 if (detailsElement) {
                     let html = '';
-                    if (data.location && data.location.trim()) {
-                        html += `<div class="profile-detail-item"><i class="fas fa-map-marker-alt"></i><span>${data.location}</span></div>`;
+                    if (data.location?.trim()) html += `<div class="profile-detail-item"><i class="fas fa-map-marker-alt"></i><span>${data.location}</span></div>`;
+                    if (data.website?.trim()) {
+                        const url = data.website.startsWith('http') ? data.website : `https://${data.website}`;
+                        html += `<div class="profile-detail-item"><i class="fas fa-globe"></i><a href="${url}" target="_blank">${data.website}</a></div>`;
                     }
-                    if (data.website && data.website.trim()) {
-                        const websiteUrl = data.website.startsWith('http') ? data.website : `https://${data.website}`;
-                        html += `<div class="profile-detail-item"><i class="fas fa-globe"></i><a href="${websiteUrl}" target="_blank">${data.website}</a></div>`;
-                    }
-                    detailsElement.innerHTML = html || '';
+                    detailsElement.innerHTML = html;
                     detailsElement.style.display = html ? 'flex' : 'none';
                 }
             }

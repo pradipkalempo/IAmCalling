@@ -587,10 +587,12 @@
                         first_name: userData.first_name,
                         last_name: userData.last_name,
                         email: userData.email,
-                        profilePhoto: userData.profile_photo,
-                        profile_photo: userData.profile_photo,
+                        profilePhoto: supabaseData.profile_photo || userData.profile_photo,
+                        profile_photo: supabaseData.profile_photo || userData.profile_photo,
                         rememberMe: rememberMe
                     };
+                    
+                    console.log('✅ Saving to localStorage with photo:', userRecord.profile_photo ? 'YES (length: ' + userRecord.profile_photo.length + ')' : 'NO');
                     
                     // Set persistent login with timestamp
                     localStorage.setItem('persistentLogin', 'true');

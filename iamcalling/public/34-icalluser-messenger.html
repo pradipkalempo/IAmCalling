@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Messages - IAMCALLING</title>
     
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2" onerror="console.log('Supabase CDN failed, will retry')"></script>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onerror="this.remove()">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
@@ -322,7 +322,7 @@
         }
 
         .chat-messages {
-            flex: 1 1 auto !important;
+            flex: 1;
             padding: 20px;
             overflow-y: auto;
             overflow-x: hidden;
@@ -331,7 +331,6 @@
             gap: 8px;
             background: var(--background);
             -webkit-overflow-scrolling: touch;
-            height: calc(100vh - 70px - 80px) !important;
         }
 
         .message {
@@ -480,7 +479,7 @@
                 </div>
             </header>
             <div class="chat-list" id="conversationsList">
-                <div style="text-align:center;padding:1rem;color:#8696a0;">Loading users...</div>
+                <!-- Users load here -->
             </div>
         </div>
 
@@ -572,10 +571,50 @@
         let unreadCounts = {}; // Track unread messages
         let conversationOrder = []; // Track conversation order
         
-        // Real-time messaging setup
-        const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
-        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        // Real-time messaging setup - Load from server config
+        let SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+        let SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+        
+        // Load config from server (non-blocking)
+        fetch('/config.js')
+            .then(res => res.text())
+            .then(configScript => {
+                eval(configScript);
+                if (window.APP_CONFIG?.supabaseUrl) {
+                    SUPABASE_URL = window.APP_CONFIG.supabaseUrl;
+                    SUPABASE_ANON_KEY = window.APP_CONFIG.supabaseAnonKey;
+                    console.log('✅ Updated Supabase config from server');
+                }
+                initializeMessaging();
+            })
+            .catch(err => {
+                console.log('⚠️ Using default config');
+                initializeMessaging();
+            });
+        
+        // Safe storage access with fallback
+        function safeGetStorage(key, defaultValue = '{}') {
+            try {
+                return localStorage.getItem(key) || defaultValue;
+            } catch (e) {
+                console.log('⚠️ Storage access blocked, using session fallback');
+                return sessionStorage.getItem(key) || defaultValue;
+            }
+        }
+        
+        function safeSetStorage(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                try {
+                    sessionStorage.setItem(key, value);
+                } catch (e2) {
+                    console.log('⚠️ All storage blocked');
+                }
+            }
+        }
+        
+        const currentUser = JSON.parse(safeGetStorage('currentUser', '{}'));
         const currentUserId = currentUser.id || 157;
         
         let supabaseClient = null;
@@ -608,35 +647,107 @@
             }
         }
         
-        // Setup realtime subscription for new messages
+        // Setup realtime subscription with retry logic
+        let realtimeRetryCount = 0;
+        const MAX_RETRY = 3;
+        let realtimeRetryTimeout = null;
+        
         function setupRealtimeSubscription() {
-            if (!supabaseClient) return;
+            if (!supabaseClient) {
+                console.log('⚠️ Supabase client not ready, will retry');
+                return;
+            }
             
             console.log('🔔 Setting up realtime subscription for user:', currentUserId);
             
-            // Subscribe to messages where current user is the receiver
-            realtimeChannel = supabaseClient
-                .channel('messages')
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'messages',
-                        filter: `receiver_id=eq.${currentUserId}`
-                    },
-                    (payload) => {
-                        console.log('📨 New message received:', payload);
-                        handleIncomingMessage(payload.new);
-                    }
-                )
-                .subscribe((status) => {
-                    console.log('Realtime subscription status:', status);
-                });
+            try {
+                // Subscribe to messages where current user is the receiver
+                realtimeChannel = supabaseClient
+                    .channel('messages')
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'messages',
+                            filter: `receiver_id=eq.${currentUserId}`
+                        },
+                        (payload) => {
+                            console.log('📨 New message received:', payload);
+                            handleIncomingMessage(payload.new);
+                        }
+                    )
+                    .subscribe((status) => {
+                        console.log('Realtime subscription status:', status);
+                        
+                        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+                            if (realtimeRetryCount < MAX_RETRY) {
+                                realtimeRetryCount++;
+                                console.log(`⚠️ Realtime failed, retry ${realtimeRetryCount}/${MAX_RETRY} in 5s`);
+                                
+                                clearTimeout(realtimeRetryTimeout);
+                                realtimeRetryTimeout = setTimeout(() => {
+                                    if (realtimeChannel) {
+                                        realtimeChannel.unsubscribe();
+                                    }
+                                    setupRealtimeSubscription();
+                                }, 5000);
+                            } else {
+                                console.log('❌ Realtime failed after max retries, using polling fallback');
+                                startPollingFallback();
+                            }
+                        } else if (status === 'SUBSCRIBED') {
+                            console.log('✅ Realtime connected successfully');
+                            realtimeRetryCount = 0;
+                            stopPollingFallback();
+                        }
+                    });
+            } catch (error) {
+                console.log('❌ Realtime setup error:', error);
+                startPollingFallback();
+            }
         }
         
-        // Initialize messaging on page load
-        initializeMessaging();
+        // Polling fallback when WebSocket fails
+        let pollingInterval = null;
+        let lastPollTime = Date.now();
+        
+        function startPollingFallback() {
+            if (pollingInterval) return;
+            console.log('🔄 Starting polling fallback (every 5s)');
+            
+            pollingInterval = setInterval(async () => {
+                if (!currentChatUser) return;
+                
+                try {
+                    const response = await fetch(`${SUPABASE_URL}/rest/v1/messages?receiver_id=eq.${currentUserId}&sender_id=eq.${currentChatUser.id}&created_at=gt.${new Date(lastPollTime).toISOString()}&order=created_at.asc`, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const newMessages = await response.json();
+                        newMessages.forEach(msg => handleIncomingMessage(msg));
+                        lastPollTime = Date.now();
+                    }
+                } catch (error) {
+                    console.log('⚠️ Polling error:', error);
+                }
+            }, 5000);
+        }
+        
+        function stopPollingFallback() {
+            if (pollingInterval) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+                console.log('✅ Stopped polling fallback');
+            }
+        }
+        
+        // Config will be loaded and initializeMessaging() will be called automatically
         
         // Display current user profile
         (function displayCurrentUser() {
@@ -740,22 +851,22 @@
         
         // Check if message is read
         function isMessageRead(messageId) {
-            const readMessages = JSON.parse(localStorage.getItem('readMessages') || '[]');
+            const readMessages = JSON.parse(safeGetStorage('readMessages', '[]'));
             return readMessages.includes(messageId);
         }
         
         // Mark single message as read
         function markMessageAsRead(messageId) {
-            const readMessages = JSON.parse(localStorage.getItem('readMessages') || '[]');
+            const readMessages = JSON.parse(safeGetStorage('readMessages', '[]'));
             if (!readMessages.includes(messageId)) {
                 readMessages.push(messageId);
-                localStorage.setItem('readMessages', JSON.stringify(readMessages));
+                safeSetStorage('readMessages', JSON.stringify(readMessages));
             }
         }
         
         // Mark messages as read
         function markMessagesAsRead(senderId, messages) {
-            const readMessages = JSON.parse(localStorage.getItem('readMessages') || '[]');
+            const readMessages = JSON.parse(safeGetStorage('readMessages', '[]'));
             const receivedMessages = messages.filter(msg => msg.sender_id === senderId && msg.receiver_id === currentUserId);
             
             receivedMessages.forEach(msg => {
@@ -764,11 +875,11 @@
                 }
             });
             
-            localStorage.setItem('readMessages', JSON.stringify(readMessages));
+            safeSetStorage('readMessages', JSON.stringify(readMessages));
             
             // Update unread count to 0 since we just read all messages
             unreadCounts[senderId] = 0;
-            localStorage.setItem(`unreadCount_${senderId}`, '0');
+            safeSetStorage(`unreadCount_${senderId}`, '0');
             updateConversationBadge(senderId, 0);
         }
         
@@ -889,8 +1000,8 @@
                 if (!unreadCounts[senderId]) unreadCounts[senderId] = 0;
                 unreadCounts[senderId]++;
                 
-                // Store in localStorage for profile page sync
-                localStorage.setItem(`unreadCount_${senderId}`, unreadCounts[senderId].toString());
+                // Store in storage for profile page sync
+                safeSetStorage(`unreadCount_${senderId}`, unreadCounts[senderId].toString());
                 
                 console.log(`🔔 Unread count for ${senderId}: ${unreadCounts[senderId]}`);
                 
@@ -985,8 +1096,14 @@
         function clearUnreadCount(userId) {
             unreadCounts[userId] = 0;
             
-            // Clear from localStorage for profile page sync
-            localStorage.removeItem(`unreadCount_${userId}`);
+            // Clear from storage for profile page sync
+            try {
+                localStorage.removeItem(`unreadCount_${userId}`);
+            } catch (e) {
+                try {
+                    sessionStorage.removeItem(`unreadCount_${userId}`);
+                } catch (e2) {}
+            }
             
             updateConversationBadge(userId, 0);
             
@@ -999,7 +1116,7 @@
             try {
                 // Store per-user last read timestamp
                 const lastReadKey = `lastRead_${userId}`;
-                localStorage.setItem(lastReadKey, Date.now().toString());
+                safeSetStorage(lastReadKey, Date.now().toString());
                 console.log(`✅ Updated last read time for user ${userId}`);
             } catch (error) {
                 console.log('Error updating last check for user:', error);
@@ -1026,217 +1143,217 @@
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // Search functionality - always searches database
+        // Search functionality
         let searchTimeout;
-        document.getElementById('searchBox').addEventListener('input', async function(e) {
+        let allUsersCache = []; // Cache all users for instant search clear
+        
+        // Make displayUsers function available globally for search
+        function displayUsers(users) {
+            const container = document.getElementById('conversationsList');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            users.forEach(user => {
+                const firstName = user.first_name || '';
+                const lastName = user.last_name || '';
+                const name = `${firstName} ${lastName}`.trim() || `User ${user.id}`;
+                const avatar = user.profile_photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50`;
+                
+                const userDiv = document.createElement('div');
+                userDiv.className = 'conversation-item';
+                userDiv.dataset.userId = user.id;
+                userDiv.onclick = () => window.selectUser(user.id, name, avatar);
+                
+                userDiv.innerHTML = `
+                    <div class="user-avatar">
+                        <img src="${avatar}" alt="${name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50'">
+                        <div class="user-status online"></div>
+                    </div>
+                    <div class="conversation-info">
+                        <div class="conversation-header">
+                            <div class="user-name">${name}</div>
+                            <div class="meta-column">
+                                <div class="message-time">${user.lastMessageTimeStr || 'online'}</div>
+                                ${user.unreadCount > 0 ? `<div class="unread-badge">${user.unreadCount > 99 ? '99+' : user.unreadCount}</div>` : ''}
+                            </div>
+                        </div>
+                        <div class="last-message">${user.lastMessageText || 'Click to start chatting'}</div>
+                    </div>
+                `;
+                
+                if (user.unreadCount > 0) {
+                    userDiv.classList.add('has-unread');
+                }
+                
+                container.appendChild(userDiv);
+            });
+        }
+        
+        document.getElementById('searchBox').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase().trim();
             const container = document.getElementById('conversationsList');
             
             clearTimeout(searchTimeout);
             
             if (!searchTerm) {
-                // Reload all users
-                location.reload();
+                // Restore cached users instantly
+                if (allUsersCache.length > 0) {
+                    displayUsers(allUsersCache);
+                }
                 return;
             }
             
-            searchTimeout = setTimeout(async () => {
-                try {
-                    const response = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,email,profile_photo&id=neq.${currentUserId}&or=(first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%)&limit=50`, {
-                        headers: {
-                            'apikey': SUPABASE_ANON_KEY,
-                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const searchResults = await response.json();
-                        container.innerHTML = '';
-                        
-                        if (searchResults.length === 0) {
-                            container.innerHTML = '<div style="text-align:center;padding:2rem;color:#8696a0;">No users found</div>';
-                            return;
-                        }
-                        
-                        searchResults.forEach(user => {
-                            const firstName = user.first_name || '';
-                            const lastName = user.last_name || '';
-                            const name = `${firstName} ${lastName}`.trim() || `User ${user.id}`;
-                            const avatar = user.profile_photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50`;
-                            
-                            const userDiv = document.createElement('div');
-                            userDiv.className = 'conversation-item';
-                            userDiv.dataset.userId = user.id;
-                            userDiv.onclick = () => window.selectUser(user.id, name, avatar);
-                            userDiv.innerHTML = `
-                                <div class="user-avatar">
-                                    <img src="${avatar}" alt="${name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50'">
-                                    <div class="user-status online"></div>
-                                </div>
-                                <div class="conversation-info">
-                                    <div class="conversation-header">
-                                        <div class="user-name">${name}</div>
-                                        <div class="message-time">online</div>
-                                    </div>
-                                    <div class="last-message">Click to start chatting</div>
-                                </div>
-                            `;
-                            container.appendChild(userDiv);
-                        });
-                    }
-                } catch (error) {
-                    console.log('Search error:', error);
-                }
-            }, 300);
-        });
-        
-        // Load users sorted by last message activity
-        (async function loadUsers() {
-            const container = document.getElementById('conversationsList');
-            if (!container) return;
-            
-            const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-            const currentUserId = currentUser.id || 157;
-            
-            try {
-                // STEP 1: Load users immediately (fast)
-                const usersResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,email,profile_photo&id=neq.${currentUserId}&limit=100`, {
+            searchTimeout = setTimeout(() => {
+                console.log('🔍 Searching for:', searchTerm);
+                fetch(`${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,email,profile_photo&id=neq.${currentUserId}&or=(first_name.ilike.*${searchTerm}*,last_name.ilike.*${searchTerm}*,email.ilike.*${searchTerm}*)&limit=50`, {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
                         'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                         'Accept': 'application/json'
                     }
-                });
+                })
+                .then(res => res.json())
+                .then(searchResults => {
+                    if (searchResults.length === 0) {
+                        container.innerHTML = '<div style="text-align:center;padding:2rem;color:#8696a0;">No users found</div>';
+                        return;
+                    }
+                    
+                    // Format search results with default values
+                    const formattedResults = searchResults.map(user => ({
+                        ...user,
+                        lastMessageText: 'Click to start chatting',
+                        lastMessageTimeStr: 'online',
+                        unreadCount: 0
+                    }));
+                    
+                    displayUsers(formattedResults);
+                })
+                .catch(error => console.log('Search error:', error));
+            }, 300);
+        });
+        
+        // Load users IMMEDIATELY - FASTEST APPROACH
+        (function loadUsers() {
+            const container = document.getElementById('conversationsList');
+            if (!container) return;
+            
+            const currentUser = JSON.parse(safeGetStorage('currentUser', '{}'));
+            const currentUserId = currentUser.id || 157;
+            
+            container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#8696a0;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+            
+            console.log('🚀 Starting user load...');
+            const startTime = Date.now();
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                console.log('⏱️ Request timeout after 8s');
+                controller.abort();
+            }, 8000);
+            
+            const url = `${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,profile_photo&id=neq.${currentUserId}&limit=50`;
+            console.log('📡 Fetching:', url);
+            
+            fetch(url, {
+                signal: controller.signal,
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            })
+            .then(res => {
+                clearTimeout(timeoutId);
+                const loadTime = Date.now() - startTime;
+                console.log(`✅ Response received in ${loadTime}ms, status: ${res.status}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
+            .then(users => {
+                const totalTime = Date.now() - startTime;
+                console.log(`✅ Users loaded: ${users.length} in ${totalTime}ms`);
                 
-                console.log('Users response status:', usersResponse.status);
-                
-                if (!usersResponse.ok) {
-                    const errorText = await usersResponse.text();
-                    console.error('Users fetch error:', errorText);
-                    throw new Error('Users fetch failed: ' + usersResponse.status);
+                if (users.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#8696a0;">No users found</div>';
+                    return;
                 }
                 
-                const users = await usersResponse.json();
-                console.log('✅ Fetched users from Supabase:', users.length, users);
-                
-                // Display users immediately with placeholder data
                 const quickUsers = users.map(user => ({
                     ...user,
-                    lastMessageTime: 0,
                     lastMessageText: 'Click to start chatting',
                     lastMessageTimeStr: 'online',
                     unreadCount: 0
                 }));
                 
                 displayUsers(quickUsers);
-                console.log('✅ Users displayed instantly:', users.length);
+                allUsersCache = quickUsers;
+                console.log('✅ Users displayed on screen');
                 
-                // STEP 2: Fetch all messages in ONE query (background)
-                setTimeout(async () => {
-                    try {
-                        const userIds = users.map(u => u.id).join(',');
-                        const messagesResponse = await fetch(`${SUPABASE_URL}/rest/v1/messages?or=(sender_id.in.(${userIds}),receiver_id.in.(${userIds}))&order=created_at.desc&limit=100`, {
-                            headers: {
-                                'apikey': SUPABASE_ANON_KEY,
-                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                                'Accept': 'application/json'
-                            }
-                        });
-                        
-                        if (messagesResponse.ok) {
-                            const allMessages = await messagesResponse.json();
-                            const readMessages = JSON.parse(localStorage.getItem('readMessages') || '[]');
-                            
-                            // Process messages for each user
-                            const updatedUsers = users.map(user => {
-                                const userMessages = allMessages.filter(m => 
-                                    (m.sender_id === user.id && m.receiver_id === currentUserId) ||
-                                    (m.sender_id === currentUserId && m.receiver_id === user.id)
-                                );
-                                
-                                const lastMessage = userMessages[0];
-                                const unreadCount = userMessages.filter(m => 
-                                    m.sender_id === user.id && m.receiver_id === currentUserId && !readMessages.includes(m.id)
-                                ).length;
-                                
-                                unreadCounts[user.id] = unreadCount;
-                                if (unreadCount > 0) {
-                                    localStorage.setItem(`unreadCount_${user.id}`, unreadCount.toString());
-                                }
-                                
-                                return {
-                                    ...user,
-                                    lastMessageTime: lastMessage ? new Date(lastMessage.created_at).getTime() : 0,
-                                    lastMessageText: lastMessage ? lastMessage.content : 'Click to start chatting',
-                                    lastMessageTimeStr: lastMessage ? new Date(lastMessage.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'online',
-                                    unreadCount: unreadCount
-                                };
-                            });
-                            
-                            // Sort and update display
-                            const sortedUsers = updatedUsers.sort((a, b) => b.lastMessageTime - a.lastMessageTime);
-                            displayUsers(sortedUsers);
-                            console.log('✅ Messages loaded and sorted');
-                        }
-                    } catch (error) {
-                        console.log('⚠️ Background message fetch failed:', error);
-                    }
-                }, 100);
-                
-            } catch (error) {
-                console.log('⚠️ Using fallback users:', error.message);
-                const fallbackUsers = [
-                    { id: 95, full_name: 'John Doe', email: 'john@example.com', profile_photo: null, lastMessageText: 'Click to start chatting', lastMessageTimeStr: 'online' },
-                    { id: 96, full_name: 'Jane Smith', email: 'jane@example.com', profile_photo: null, lastMessageText: 'Click to start chatting', lastMessageTimeStr: 'online' }
-                ];
-                displayUsers(fallbackUsers);
-            }
+                setTimeout(() => loadMessagesInBackground(users, currentUserId), 100);
+            })
+            .catch(error => {
+                clearTimeout(timeoutId);
+                const totalTime = Date.now() - startTime;
+                console.error(`❌ Load failed after ${totalTime}ms:`, error.message);
+                container.innerHTML = `<div style="text-align:center;padding:1.5rem;color:#e94560;">Failed to load users<br><small>${error.message}</small><br><a href="javascript:location.reload()" style="color:#00a884;cursor:pointer;">Refresh</a></div>`;
+            });
+        })();
+        
+        // Background message loading
+        function loadMessagesInBackground(users, currentUserId) {
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+            const userIds = users.map(u => u.id).join(',');
             
-            function displayUsers(users) {
-                container.innerHTML = '';
+            fetch(`${SUPABASE_URL}/rest/v1/messages?or=(and(sender_id.in.(${userIds}),receiver_id.eq.${currentUserId}),and(sender_id.eq.${currentUserId},receiver_id.in.(${userIds})))&created_at=gte.${sevenDaysAgo}&order=created_at.desc&limit=100`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            })
+            .then(res => res.json())
+            .then(allMessages => {
+                if (allMessages.length === 0) return;
                 
-                users.forEach(user => {
-                    // Use first_name and last_name from Supabase
-                    const firstName = user.first_name || '';
-                    const lastName = user.last_name || '';
-                    const name = `${firstName} ${lastName}`.trim() || `User ${user.id}`;
-                    
-                    const avatar = user.profile_photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50`;
-                    
-                    const userDiv = document.createElement('div');
-                    userDiv.className = 'conversation-item';
-                    userDiv.dataset.userId = user.id;
-                    userDiv.onclick = () => window.selectUser(user.id, name, avatar);
-                    
-                    userDiv.innerHTML = `
-                        <div class="user-avatar">
-                            <img src="${avatar}" alt="${name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50'">
-                            <div class="user-status online"></div>
-                        </div>
-                        <div class="conversation-info">
-                            <div class="conversation-header">
-                                <div class="user-name">${name}</div>
-                                <div class="meta-column">
-                                    <div class="message-time">${user.lastMessageTimeStr}</div>
-                                    ${user.unreadCount > 0 ? `<div class="unread-badge">${user.unreadCount > 99 ? '99+' : user.unreadCount}</div>` : ''}
-                                </div>
-                            </div>
-                            <div class="last-message">${user.lastMessageText}</div>
-                        </div>
-                    `;
-                    
-                    // Add unread class if there are unread messages
-                    if (user.unreadCount > 0) {
-                        userDiv.classList.add('has-unread');
-                    }
-                    
-                    container.appendChild(userDiv);
+                const readMessages = JSON.parse(safeGetStorage('readMessages', '[]'));
+                const messagesByUser = new Map();
+                
+                allMessages.forEach(msg => {
+                    const otherUserId = msg.sender_id === currentUserId ? msg.receiver_id : msg.sender_id;
+                    if (!messagesByUser.has(otherUserId)) messagesByUser.set(otherUserId, []);
+                    messagesByUser.get(otherUserId).push(msg);
                 });
                 
-                console.log('✅ Displayed users sorted by last activity:', users.length);
-            }
-        })();
+                const updatedUsers = users.map(user => {
+                    const userMessages = messagesByUser.get(user.id) || [];
+                    if (userMessages.length === 0) return { ...user, lastMessageTime: 0, lastMessageText: 'Click to start chatting', lastMessageTimeStr: 'online', unreadCount: 0 };
+                    
+                    const lastMessage = userMessages[0];
+                    const unreadCount = userMessages.filter(m => m.sender_id === user.id && !readMessages.includes(m.id)).length;
+                    
+                    if (unreadCount > 0) {
+                        unreadCounts[user.id] = unreadCount;
+                        safeSetStorage(`unreadCount_${user.id}`, unreadCount.toString());
+                    }
+                    
+                    return {
+                        ...user,
+                        lastMessageTime: new Date(lastMessage.created_at).getTime(),
+                        lastMessageText: lastMessage.content.substring(0, 40) + (lastMessage.content.length > 40 ? '...' : ''),
+                        lastMessageTimeStr: new Date(lastMessage.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                        unreadCount: unreadCount
+                    };
+                });
+                
+                const sortedUsers = updatedUsers.sort((a, b) => {
+                    if (a.unreadCount !== b.unreadCount) return b.unreadCount - a.unreadCount;
+                    return b.lastMessageTime - a.lastMessageTime;
+                });
+                
+                allUsersCache = sortedUsers;
+                displayUsers(sortedUsers);
+            })
+            .catch(() => {});
+        }
     </script>
 </body>
 </html>
