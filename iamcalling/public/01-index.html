@@ -381,11 +381,28 @@
     <script>
         async function loadPosts() {
             const articlesContainer = document.getElementById('articlesContainer');
-            articlesContainer.innerHTML = '<div style="text-align:center;padding:2rem;">Loading...</div>';
+            articlesContainer.innerHTML = `
+                <div style="text-align:center;padding:2rem 1rem;">
+                    <div class="loading-cube" style="width:50px;height:50px;position:relative;transform-style:preserve-3d;animation:rotateCube 2s infinite linear;margin:0 auto 1.5rem;">
+                        <div style="position:absolute;width:50px;height:50px;background:linear-gradient(135deg,#0a3d0a,#d4af37);border:2px solid #d4af37;opacity:0.9;transform:rotateY(0deg) translateZ(25px);"></div>
+                        <div style="position:absolute;width:50px;height:50px;background:linear-gradient(135deg,#0a3d0a,#d4af37);border:2px solid #d4af37;opacity:0.9;transform:rotateY(90deg) translateZ(25px);"></div>
+                        <div style="position:absolute;width:50px;height:50px;background:linear-gradient(135deg,#0a3d0a,#d4af37);border:2px solid #d4af37;opacity:0.9;transform:rotateY(180deg) translateZ(25px);"></div>
+                        <div style="position:absolute;width:50px;height:50px;background:linear-gradient(135deg,#0a3d0a,#d4af37);border:2px solid #d4af37;opacity:0.9;transform:rotateY(-90deg) translateZ(25px);"></div>
+                        <div style="position:absolute;width:50px;height:50px;background:linear-gradient(135deg,#0a3d0a,#d4af37);border:2px solid #d4af37;opacity:0.9;transform:rotateX(90deg) translateZ(25px);"></div>
+                        <div style="position:absolute;width:50px;height:50px;background:linear-gradient(135deg,#0a3d0a,#d4af37);border:2px solid #d4af37;opacity:0.9;transform:rotateX(-90deg) translateZ(25px);"></div>
+                    </div>
+                    <h2 style="color:#0a3d0a;font-size:1.2rem;margin-bottom:0.8rem;font-weight:700;line-height:1.4;animation:fadeIn 1s ease-in;background:linear-gradient(135deg,#0a3d0a,#d4af37);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Welcome to<br>Factual Data Analysis Platform</h2>
+                    <p style="color:#666;font-size:0.85rem;animation:pulse 2s infinite;">Loading latest insights...</p>
+                </div>
+            `;
+            
+            const style = document.createElement('style');
+            style.textContent = '@keyframes rotateCube{from{transform:rotateX(0deg) rotateY(0deg)}to{transform:rotateX(360deg) rotateY(360deg)}}@keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}';
+            document.head.appendChild(style);
             
             try {
                 const controller = new AbortController();
-                setTimeout(() => controller.abort(), 5000);
+                setTimeout(() => controller.abort(), 15000);
                 
                 const response = await fetch('/api/posts', { signal: controller.signal });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
