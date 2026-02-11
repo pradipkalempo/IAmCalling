@@ -12,59 +12,39 @@
     
     <!-- Enhanced Storage Fallback System -->
     <script>
-        // Enhanced storage detection and fallback
         (function() {
             const storageFallback = {
                 data: {},
-                
                 setItem: function(key, value) {
                     try {
-                        if (typeof localStorage !== 'undefined') {
-                            localStorage.setItem(key, value);
-                        } else {
-                            this.data[key] = value;
-                        }
+                        localStorage.setItem(key, value);
                     } catch (e) {
                         this.data[key] = value;
                     }
                 },
-                
                 getItem: function(key) {
                     try {
-                        if (typeof localStorage !== 'undefined') {
-                            return localStorage.getItem(key);
-                        } else {
-                            return this.data[key] || null;
-                        }
+                        return localStorage.getItem(key);
                     } catch (e) {
                         return this.data[key] || null;
                     }
                 },
-                
                 removeItem: function(key) {
                     try {
-                        if (typeof localStorage !== 'undefined') {
-                            localStorage.removeItem(key);
-                        } else {
-                            delete this.data[key];
-                        }
+                        localStorage.removeItem(key);
                     } catch (e) {
                         delete this.data[key];
                     }
                 }
             };
             
-            // Override window.localStorage if blocked
-            if (typeof localStorage === 'undefined' || !localStorage) {
+            try {
+                localStorage.setItem('test', '1');
+                localStorage.removeItem('test');
+            } catch (e) {
                 window.localStorage = storageFallback;
-            }
-            
-            // Override window.sessionStorage if blocked
-            if (typeof sessionStorage === 'undefined' || !sessionStorage) {
                 window.sessionStorage = storageFallback;
             }
-            
-            console.log('✅ Enhanced storage system initialized');
         })();
     </script>
     
