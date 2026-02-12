@@ -16,6 +16,7 @@ const viewsRoutes = require('./routes/views.cjs');
 const adminRoutes = require('./routes/admin.cjs');
 import SimpleSupabaseClient from './services/simpleSupabaseClient.js';
 import healthCheckRoute from './routes/health.js';
+import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
@@ -27,6 +28,8 @@ const PORT = process.env.PORT || 10000;
 
 app.set('trust proxy', 1);
 app.disable('x-powered-by');
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
 
 app.use(cors({
     origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
@@ -70,13 +73,35 @@ app.use('/api/views', viewsRoutes);
 app.use('/api/admin', adminRoutes);
 
 // Basic routes
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/01-index.html'));
+app.get('/', async (req, res) => {
+    try {
+        const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+        const { data } = await supabase
+            .from('posts')
+            .select('id, title, author_name, thumbnail_url, views_count, created_at')
+            .order('created_at', { ascending: false })
+            .limit(10);
+        res.set('Cache-Control', 'public, max-age=30');
+        res.render('index', { posts: data || [] });
+    } catch (error) {
+        res.render('index', { posts: [] });
+    }
 });
 
 // Serve common HTML files
-app.get('/01-index.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/01-index.html'));
+app.get('/01-index.html', async (req, res) => {
+    try {
+        const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+        const { data } = await supabase
+            .from('posts')
+            .select('id, title, author_name, thumbnail_url, views_count, created_at')
+            .order('created_at', { ascending: false })
+            .limit(10);
+        res.set('Cache-Control', 'public, max-age=30');
+        res.render('index', { posts: data || [] });
+    } catch (error) {
+        res.render('index', { posts: [] });
+    }
 });
 
 app.get('/15-login.html', (req, res) => {

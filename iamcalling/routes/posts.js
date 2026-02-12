@@ -17,24 +17,31 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 );
 
-// Get all posts
+// Get all posts with pagination and caching
 router.get('/', async (req, res) => {
   try {
     if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
       return res.status(500).json({ error: 'Database configuration missing' });
     }
 
-    const { data, error } = await supabase
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const offset = (page - 1) * limit;
+
+    const { data, error, count } = await supabase
       .from('posts')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('id, title, content, author_name, thumbnail_url, views_count, created_at', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error('Supabase error:', error);
       return res.status(500).json({ error: error.message || 'Failed to fetch posts' });
     }
     
-    res.json(data || []);
+    // Add cache headers for better performance
+    res.set('Cache-Control', 'public, max-age=60');
+    res.json({ posts: data || [], total: count, page, limit });
   } catch (error) {
     console.error('Error fetching posts:', error);
     res.status(500).json({ error: error.message || 'Failed to fetch posts' });
@@ -44,15 +51,15 @@ router.get('/', async (req, res) => {
 // Create a new post
 router.post('/', async (req, res) => {
   try {
-    const { title, content, user_id } = req.body;
+    const { title, content, author_name, category, challenge_post_id } = req.body;
 
-    if (!title || !content || !user_id) {
-      return res.status(400).json({ error: 'Title, content, and user_id are required' });
+    if (!title || !content) {
+      return res.status(400).json({ error: 'Title and content are required' });
     }
 
     const { data, error } = await supabase
       .from('posts')
-      .insert([{ title, content, user_id }])
+      .insert([{ title, content, author_name, category, challenge_post_id, published: true }])
       .select()
       .single();
 
@@ -64,17 +71,20 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get post by ID
+// Get post by ID with specific columns
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { data, error } = await supabase
       .from('posts')
-      .select('*')
+      .select('id, title, content, author_name, thumbnail_url, views_count, created_at')
       .eq('id', id)
       .single();
 
     if (error) throw error;
+    
+    // Cache individual posts for longer
+    res.set('Cache-Control', 'public, max-age=300');
     res.json(data);
   } catch (error) {
     console.error('Error fetching post:', error);

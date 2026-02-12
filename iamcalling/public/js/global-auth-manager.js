@@ -118,7 +118,7 @@ class GlobalAuthManager {
             }
         });
         
-        // Real-time auth state monitoring every 1 second
+        // Real-time auth state monitoring every 5 seconds (reduced from 1 second)
         setInterval(() => {
             const persistentLogin = localStorage.getItem('persistentLogin');
             const userAuth = localStorage.getItem('userAuth');
@@ -137,7 +137,7 @@ class GlobalAuthManager {
                 console.log('🔄 Clearing invalid auth state');
                 this.clearUserState();
             }
-        }, 1000);
+        }, 5000);
     }
 
     // Broadcast auth state changes

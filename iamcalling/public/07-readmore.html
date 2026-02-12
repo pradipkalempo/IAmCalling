@@ -165,12 +165,16 @@
         /* Universal content display container */
         .universal-content-display {
             width: 100%;
+            max-width: 100%;
             min-height: 600px;
             padding: 20px;
             background: white;
             border-radius: 8px;
-            overflow: auto;
+            overflow-x: hidden;
+            overflow-y: auto;
             position: relative;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         
         /* Ensure all visual elements render properly */
@@ -179,12 +183,19 @@
             height: auto !important;
         }
         
+        .universal-content-display * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        
         .visualization-container {
             width: 100%;
+            max-width: 100%;
             min-height: 500px;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
         }
         
         @media (max-width: 768px) {

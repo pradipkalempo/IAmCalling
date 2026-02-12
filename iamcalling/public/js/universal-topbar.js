@@ -48,7 +48,7 @@
             this.createTopBar();
             this.updateUserDisplay();
             this.setupEventListeners();
-            this._interval = setInterval(() => this.updateUserDisplay(), 2000);
+            this._interval = setInterval(() => this.updateUserDisplay(), 10000);
         }
 
         createTopBar() {
@@ -82,7 +82,7 @@
             topbar.innerHTML =
                 '<div class="topbar-container">' +
                 '<div class="topbar-left">' +
-                '<a href="' + home + '" class="topbar-logo"><i class="fas fa-phone"></i><span>IAMCALLING</span></a>' +
+                '<a href="/" class="topbar-logo"><i class="fas fa-phone"></i><span>IAMCALLING</span></a>' +
                 '</div>' +
                 '<div class="topbar-center">' +
                 '<nav class="topbar-nav" id="topbar-nav">' +
