@@ -156,6 +156,8 @@
             background: white !important;
             padding: 0 !important;
             outline: none !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
         }
         
         @media (max-width: 768px) {
@@ -454,7 +456,9 @@
                         // Move to next input if character entered
                         if (value && index < inputs.length - 1) {
                             const nextInput = document.getElementById(inputs[index + 1]);
-                            if (nextInput) nextInput.focus();
+                            if (nextInput) {
+                                setTimeout(() => nextInput.focus(), 10);
+                            }
                         }
                     });
                     
