@@ -474,7 +474,7 @@
                     <input type="text" class="search-box" placeholder="Search conversations..." id="searchBox">
                 </div>
                 <div class="current-user-profile" id="currentUserProfile">
-                    <img src="" alt="You" class="current-user-avatar" id="currentUserAvatar">
+                    <img src="https://ui-avatars.com/api/?name=You&background=00a884&color=fff&size=50" alt="You" class="current-user-avatar" id="currentUserAvatar">
                     <span class="current-user-name" id="currentUserName">You</span>
                 </div>
             </header>
@@ -769,9 +769,21 @@
             const firstName = currentUser.first_name || '';
             const lastName = currentUser.last_name || '';
             const userName = `${firstName} ${lastName}`.trim() || 'You';
-            const userAvatar = currentUser.profile_photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=00a884&color=fff&size=50`;
             
-            if (avatar) avatar.src = userAvatar;
+            // Check if profile_photo exists and is not empty
+            let userAvatar;
+            if (currentUser.profile_photo && currentUser.profile_photo.trim() !== '') {
+                userAvatar = currentUser.profile_photo;
+            } else {
+                userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=00a884&color=fff&size=50`;
+            }
+            
+            if (avatar) {
+                avatar.src = userAvatar;
+                avatar.onerror = function() {
+                    this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=00a884&color=fff&size=50`;
+                };
+            }
             if (name) name.textContent = userName;
             if (profile) profile.onclick = () => window.location.href = '18-profile.html';
         })();
