@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Article Content - IAmCalling</title>
+    <script src="js/universal-topbar-injector.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #0a3d0a 0%, #1a1a1a 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+        
+        .article-header {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid #d4af37;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .article-title {
+            font-size: 2rem;
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            font-weight: 700;
+        }
+        
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+        }
+        
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .author-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #d4af37;
+        }
+        
+        .article-content {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .content-container {
+            min-height: 400px;
+            position: relative;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+        
+        .content-container p {
+            margin-bottom: 1em;
+        }
+        
+        .content-container h2, .content-container h3 {
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+            color: #2c3e50;
+        }
+        
+        .loading-placeholder {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ffcdd2;
+            margin: 20px 0;
+        }
+        
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #0a3d0a, #1a1a1a);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(10, 61, 10, 0.4);
+            font-size: 0.9rem;
+        }
+        
+        .back-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(10, 61, 10, 0.6);
+        }
+        
+        .view-count {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #f8f9fa;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .article-title {
+                font-size: 1.5rem;
+            }
+            
+            .article-header, .article-content {
+                padding: 15px;
+                border-radius: 8px;
+            }
+            
+            .article-meta {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="article-header">
+            <div class="back-navigation">
+                <a href="01-index.html" class="back-button">
+                    ← Back to Home
+                </a>
+            </div>
+            
+            <h1 class="article-title" id="articleTitle">Loading...</h1>
+            
+            <div class="article-meta">
+                <div class="author-info">
+                    <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1769572696/WhatsApp_Image_2026-01-14_at_7.58.42_PM_gqv8ln.jpg" 
+                         alt="Author" class="author-avatar" id="authorAvatar">
+                    <div>
+                        <div style="font-weight: bold; font-size: 0.9rem;" id="authorName">Loading...</div>
+                        <div style="color: #666; font-size: 0.8rem;" id="publishDate">Loading...</div>
+                    </div>
+                </div>
+                
+                <div class="view-count">
+                    <span>👁</span>
+                    <span id="viewCount">0</span> views
+                </div>
+            </div>
+        </div>
+        
+        <div class="article-content">
+            <div class="content-container" id="contentContainer">
+                <div class="loading-placeholder">
+                    Loading article...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function getArticleId() {
+            return new URLSearchParams(window.location.search).get('id');
+        }
+        
+        async function fetchArticle(articleId) {
+            const { data, error } = await supabaseClient
+                .from('articles')
+                .select('*')
+                .eq('id', articleId)
+                .single();
+            
+            if (error) throw new Error(error.message);
+            return data;
+        }
+        
+        async function trackView(articleId) {
+            try {
+                const { data } = await supabaseClient
+                    .from('articles')
+                    .select('views_count')
+                    .eq('id', articleId)
+                    .single();
+                
+                const newCount = (data?.views_count || 0) + 1;
+                
+                await supabaseClient
+                    .from('articles')
+                    .update({ views_count: newCount })
+                    .eq('id', articleId);
+                
+                document.getElementById('viewCount').textContent = newCount;
+            } catch (e) {}
+        }
+        
+        function renderContent(article) {
+            const container = document.getElementById('contentContainer');
+            if (!article.content) {
+                container.innerHTML = '<div class="error-message">No content available.</div>';
+                return;
+            }
+            
+            container.innerHTML = article.content;
+        }
+        
+        async function init() {
+            const articleId = getArticleId();
+            if (!articleId) {
+                document.getElementById('contentContainer').innerHTML = '<div class="error-message"><h3>Invalid Article</h3><a href="01-index.html" class="back-button">Go Home</a></div>';
+                return;
+            }
+            
+            try {
+                const article = await fetchArticle(articleId);
+                
+                document.getElementById('articleTitle').textContent = article.title || 'Untitled';
+                document.getElementById('authorName').textContent = article.author_name || 'Anonymous';
+                document.getElementById('publishDate').textContent = new Date(article.created_at).toLocaleDateString();
+                document.getElementById('viewCount').textContent = article.views_count || 0;
+                
+                trackView(articleId);
+                renderContent(article);
+            } catch (error) {
+                document.getElementById('contentContainer').innerHTML = `<div class="error-message"><h3>Error</h3><p>${error.message}</p><a href="01-index.html" class="back-button">Go Home</a></div>`;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

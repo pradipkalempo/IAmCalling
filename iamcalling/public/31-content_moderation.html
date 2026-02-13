@@ -412,7 +412,15 @@
         }
 
         function viewContent(id, type) {
-            window.open(`03-post-detail.html?id=${id}`, '_blank');
+            console.log('View clicked - ID:', id, 'Type:', type);
+            // Redirect to appropriate page based on content type
+            if (type === 'article') {
+                console.log('Opening article detail page');
+                window.open(`08-article-detail.html?id=${id}`, '_blank');
+            } else {
+                console.log('Opening post readmore page');
+                window.open(`07-readmore.html?id=${id}`, '_blank');
+            }
         }
 
         async function toggleVisibility(id, type, currentlyPublished) {
