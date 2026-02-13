@@ -310,11 +310,6 @@
                     <label for="isOfficial">Official Post</label>
                 </div>
 
-                <div class="checkbox-group">
-                    <input type="checkbox" id="allowComments" checked>
-                    <label for="allowComments">Allow Comments</label>
-                </div>
-
                 <div class="btn-group">
                     <button type="button" class="btn btn-secondary" onclick="saveDraft()">
                         <i class="fas fa-save"></i> Save Draft
@@ -414,20 +409,17 @@
                     category: document.getElementById('category').value,
                     challenge_post_id: document.getElementById('challengeId').value.trim() || null,
                     thumbnail_url: thumbnailData,
-                    is_official: document.getElementById('isOfficial').checked,
-                    allow_comments: document.getElementById('allowComments').checked,
                     author_name: 'Admin',
                     author_role: 'admin',
+                    author_verified: true,
+                    is_official: document.getElementById('isOfficial').checked,
+                    post_type: 'admin',
                     published: true,
                     is_draft: false,
                     visibility: 'public',
-                    post_type: 'admin',
-                    priority: '0',
-                    is_pinned: false,
-                    likes_count: 0,
-                    comments_count: 0,
-                    views_count: 0,
-                    created_at: new Date().toISOString()
+                    allow_comments: true,
+                    challenge_enabled: false,
+                    is_pinned: false
                 };
 
                 if (!formData.title) {
