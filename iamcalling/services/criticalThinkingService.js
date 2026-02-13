@@ -31,7 +31,7 @@ class CriticalThinkingService {
                 {
                     title: 'Confirmation Bias',
                     description: 'Identify the cognitive bias present in this scenario.',
-                    prompt: 'Sarah only reads news sources that align with her political views and dismisses contradictory information.',
+                    prompt: 'Sarah only reads news sources that align with her ideological views and dismisses contradictory information.',
                     correctAnswer: 'Confirmation bias',
                     explanation: 'Sarah is exhibiting confirmation bias by seeking information that confirms her existing beliefs.'
                 }

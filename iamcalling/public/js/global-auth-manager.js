@@ -11,23 +11,22 @@ class GlobalAuthManager {
         this.setupStorageListener();
     }
 
-    // Load user state from localStorage
+    // Load user state from localStorage (optimized)
     loadUserState() {
         try {
             const userData = localStorage.getItem('currentUser');
             const userAuth = localStorage.getItem('userAuth');
-            const loginTimestamp = localStorage.getItem('loginTimestamp');
             
-            if (userData && userAuth === 'true' && loginTimestamp) {
+            if (userData && userAuth === 'true') {
                 this.currentUser = JSON.parse(userData);
                 this.isAuthenticated = true;
-                console.log('✅ User session restored:', this.currentUser.name || this.currentUser.email);
             } else {
-                this.clearUserState();
+                this.currentUser = null;
+                this.isAuthenticated = false;
             }
         } catch (error) {
-            console.error('Error loading user state:', error);
-            this.clearUserState();
+            this.currentUser = null;
+            this.isAuthenticated = false;
         }
     }
 
@@ -118,7 +117,7 @@ class GlobalAuthManager {
             }
         });
         
-        // Real-time auth state monitoring every 5 seconds (reduced from 1 second)
+        // Real-time auth state monitoring every 30 seconds (optimized)
         setInterval(() => {
             const persistentLogin = localStorage.getItem('persistentLogin');
             const userAuth = localStorage.getItem('userAuth');
@@ -126,7 +125,6 @@ class GlobalAuthManager {
             
             // If should be logged in but isn't
             if (persistentLogin === 'true' && userAuth === 'true' && currentUserData && !this.isAuthenticated) {
-                console.log('🔄 Restoring lost auth state');
                 this.loadUserState();
                 this.broadcastAuthChange();
                 this.updateAuthUI();
@@ -134,10 +132,9 @@ class GlobalAuthManager {
             
             // If should be logged out but isn't
             if ((persistentLogin !== 'true' || userAuth !== 'true' || !currentUserData) && this.isAuthenticated) {
-                console.log('🔄 Clearing invalid auth state');
                 this.clearUserState();
             }
-        }, 5000);
+        }, 30000);
     }
 
     // Broadcast auth state changes

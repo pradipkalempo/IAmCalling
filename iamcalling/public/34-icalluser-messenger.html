@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onerror="this.remove()">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
         :root {
             --background: #0b141a;
             --primary: #00a884;
@@ -31,7 +29,7 @@
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background-color: var(--background);
             color: var(--text-dark);
             height: 100vh;
@@ -761,7 +759,7 @@
         // Config will be loaded and initializeMessaging() will be called automatically
         
         // Display current user profile
-        (function displayCurrentUser() {
+        (async function displayCurrentUser() {
             const avatar = document.getElementById('currentUserAvatar');
             const name = document.getElementById('currentUserName');
             const profile = document.getElementById('currentUserProfile');
@@ -769,19 +767,26 @@
             const firstName = currentUser.first_name || '';
             const lastName = currentUser.last_name || '';
             const userName = `${firstName} ${lastName}`.trim() || 'You';
+            const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=00a884&color=fff&size=50`;
             
-            // Check if profile_photo exists and is not empty
-            let userAvatar;
-            if (currentUser.profile_photo && currentUser.profile_photo.trim() !== '') {
-                userAvatar = currentUser.profile_photo;
-            } else {
-                userAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=00a884&color=fff&size=50`;
+            // Fetch real photo from database
+            let userAvatar = fallbackAvatar;
+            if (currentUser.email) {
+                try {
+                    const res = await fetch('/api/user-photo/' + encodeURIComponent(currentUser.email), { cache: 'no-cache' });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.photo && data.photo.length > 10) {
+                            userAvatar = data.photo;
+                        }
+                    }
+                } catch (e) {}
             }
             
             if (avatar) {
                 avatar.src = userAvatar;
                 avatar.onerror = function() {
-                    this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=00a884&color=fff&size=50`;
+                    this.src = fallbackAvatar;
                 };
             }
             if (name) name.textContent = userName;

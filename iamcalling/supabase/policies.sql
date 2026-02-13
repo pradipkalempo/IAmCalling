@@ -28,14 +28,14 @@ create policy if not exists comments_update_delete_own on public.comments
 create policy if not exists comments_delete_own on public.comments
   for delete using (user_id = auth.uid());
 
-alter table if exists public.political_test_answers enable row level security;
-create policy if not exists pta_select_own on public.political_test_answers
+alter table if exists public.ideological_test_answers enable row level security;
+create policy if not exists pta_select_own on public.ideological_test_answers
   for select using (user_id = auth.uid());
-create policy if not exists pta_insert_own on public.political_test_answers
+create policy if not exists pta_insert_own on public.ideological_test_answers
   for insert with check (user_id = auth.uid());
-create policy if not exists pta_update_delete_own on public.political_test_answers
+create policy if not exists pta_update_delete_own on public.ideological_test_answers
   for update using (user_id = auth.uid()) with check (user_id = auth.uid());
-create policy if not exists pta_delete_own on public.political_test_answers
+create policy if not exists pta_delete_own on public.ideological_test_answers
   for delete using (user_id = auth.uid());
 
 alter table if exists public.call_logs enable row level security;

@@ -364,7 +364,7 @@
     <div class="container">
         <div class="header">
             <h1>📊 Battle Analytics</h1>
-            <p>Your Political Battle Results</p>
+            <p>Your Ideological Battle Results</p>
         </div>
 
         <div class="battle-results">
@@ -375,17 +375,17 @@
                 <div id="analysisResult" style="margin-top: 20px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 10px;"></div>
                 <div style="text-align: center; margin-top: 20px;">
                     <button onclick="clearBattleResults()" class="btn btn-danger">Clear Results</button>
-                    <button onclick="window.location.href='10-political-battle.html'" class="btn">Take Battle Again</button>
+                    <button onclick="window.location.href='10-ideological-battle.html'" class="btn">Take Battle Again</button>
                 </div>
             </div>
             <div id="noBattleResults" class="no-results">
                 <i class="fas fa-chart-bar"></i>
-                <p>No battle results found. Take the <a href="10-political-battle.html" style="color: #007bff;">Political Battle</a> first!</p>
+                <p>No battle results found. Take the <a href="10-ideological-battle.html" style="color: #007bff;">Ideological Battle</a> first!</p>
             </div>
         </div>
 
         <div class="battle-results">
-            <h3 style="text-align: center; margin-bottom: 20px; color: #007bff;">🏛️ Political Spectrum Classification</h3>
+            <h3 style="text-align: center; margin-bottom: 20px; color: #007bff;">🏛️ Ideological Spectrum Classification</h3>
             <div class="buckets-container" id="bucketsContainer">
                 <div class="buckets-overlay" id="bucketsOverlay">
                     <button class="eye-button" id="eyeButton" onclick="revealBuckets()">👁️</button>
@@ -407,8 +407,8 @@
     </div>
 
     <script>
-        // Real political classification of leaders
-        const politicalClassification = {
+        // Real ideological classification of leaders
+        const ideologicalClassification = {
             'Dr. B.R. Ambedkar': 'left',
             'Bhagat Singh': 'left',
             'Veer Savarkar': 'right',
@@ -435,8 +435,8 @@
             'Vinayak Savarkar': 'right'
         };
 
-        // Load political spectrum classification
-        function loadPoliticalSpectrum() {
+        // Load Ideological Spectrum Classification
+        function loadIdeologicalSpectrum() {
             const leftBucket = document.getElementById('leftBucket');
             const neutralBucket = document.getElementById('neutralBucket');
             const rightBucket = document.getElementById('rightBucket');
@@ -445,7 +445,7 @@
             neutralBucket.innerHTML = '';
             rightBucket.innerHTML = '';
             
-            Object.entries(politicalClassification).forEach(([leader, ideology]) => {
+            Object.entries(ideologicalClassification).forEach(([leader, ideology]) => {
                 const leaderDiv = document.createElement('div');
                 leaderDiv.className = 'leader-item';
                 leaderDiv.textContent = leader;
@@ -490,7 +490,7 @@
             let neutralSelections = 0;
             
             battleResults.selections.forEach(selection => {
-                const selectedIdeology = politicalClassification[selection.selected];
+                const selectedIdeology = ideologicalClassification[selection.selected];
                 
                 // Count selections by ideology (completely ignore neutral selections)
                 if (selectedIdeology === 'left') {
@@ -520,7 +520,7 @@
                 }
             }
             
-            // Determine user's political leaning based on selections (ignoring neutral)
+            // Determine user's ideological leaning based on selections (ignoring neutral)
             let userIdeology;
             let idolHtml = '';
             
@@ -529,7 +529,7 @@
                 userIdeology = 'LEFT/PROGRESSIVE';
                 idolHtml = `
                     <div style="text-align: center; margin: 20px 0; padding: 20px; background: rgba(40, 167, 69, 0.1); border-radius: 10px; border: 2px solid #28a745;">
-                        <h4 style="color: #28a745; margin-bottom: 15px;">🏆 Your Political Idol</h4>
+                        <h4 style="color: #28a745; margin-bottom: 15px;">🏆 Your Ideological Idol</h4>
                         <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848318/Person_attlee2_knqa9y.jpg" alt="Clement Attlee" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #28a745; margin-bottom: 10px;">
                         <h5 style="color: #28a745; margin: 10px 0;">Clement Attlee</h5>
                         <p style="font-size: 0.9rem; color: #666; line-height: 1.4;">Clement Attlee was the British Prime Minister who granted India its independence in 1947, ending centuries of colonial rule and fulfilling the promise of freedom for the Indian subcontinent.</p>
@@ -539,7 +539,7 @@
                 userIdeology = 'RIGHT/CONSERVATIVE';
                 idolHtml = `
                     <div style="text-align: center; margin: 20px 0; padding: 20px; background: rgba(0, 123, 255, 0.1); border-radius: 10px; border: 2px solid #007bff;">
-                        <h4 style="color: #007bff; margin-bottom: 15px;">🏆 Your Political Idol</h4>
+                        <h4 style="color: #007bff; margin-bottom: 15px;">🏆 Your Ideological Idol</h4>
                         <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768848335/250px-Sir_Winston_Churchill_-_19086236948__28restored_29_nqtd0y.jpg" alt="Winston Churchill" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #007bff; margin-bottom: 10px;">
                         <h5 style="color: #007bff; margin: 10px 0;">Winston Churchill</h5>
                         <p style="font-size: 0.9rem; color: #666; line-height: 1.4;">Winston Churchill was the British Prime Minister who maintained colonial control over India, famously stating his opposition to Indian independence and defending the British Empire's rule over the subcontinent.</p>
@@ -550,10 +550,10 @@
                 userIdeology = 'BALANCED PERSPECTIVE';
                 idolHtml = `
                     <div style="text-align: center; margin: 20px 0; padding: 20px; background: rgba(108, 117, 125, 0.1); border-radius: 10px; border: 2px solid #6c757d;">
-                        <h4 style="color: #6c757d; margin-bottom: 15px;">🏆 Your Political Approach</h4>
+                        <h4 style="color: #6c757d; margin-bottom: 15px;">🏆 Your Ideological Approach</h4>
                         <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847489/250px-Mahatma-Gandhi_2C_studio_2C_1931_xlt5v0.jpg" alt="Balanced Perspective" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #6c757d; margin-bottom: 10px;">
-                        <h5 style="color: #6c757d; margin: 10px 0;">Balanced Political View</h5>
-                        <p style="font-size: 0.9rem; color: #666; line-height: 1.4;">Your selections show equal consideration for different political perspectives, demonstrating a balanced approach to understanding various ideological positions.</p>
+                        <h5 style="color: #6c757d; margin: 10px 0;">Balanced Ideological View</h5>
+                        <p style="font-size: 0.9rem; color: #666; line-height: 1.4;">Your selections show equal consideration for different ideological perspectives, demonstrating a balanced approach to understanding various ideological positions.</p>
                     </div>
                 `;
             } else {
@@ -561,16 +561,16 @@
                 userIdeology = 'EXPLORING OPTIONS';
                 idolHtml = `
                     <div style="text-align: center; margin: 20px 0; padding: 20px; background: rgba(255, 193, 7, 0.1); border-radius: 10px; border: 2px solid #ffc107;">
-                        <h4 style="color: #ffc107; margin-bottom: 15px;">🔍 Your Political Journey</h4>
-                        <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847489/250px-Mahatma-Gandhi_2C_studio_2C_1931_xlt5v0.jpg" alt="Political Exploration" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #ffc107; margin-bottom: 10px;">
-                        <h5 style="color: #ffc107; margin: 10px 0;">Political Explorer</h5>
-                        <p style="font-size: 0.9rem; color: #666; line-height: 1.4;">You're taking time to explore different political perspectives. Continue engaging with diverse viewpoints to develop your understanding of political ideologies.</p>
+                        <h4 style="color: #ffc107; margin-bottom: 15px;">🔍 Your Ideological Journey</h4>
+                        <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1768847489/250px-Mahatma-Gandhi_2C_studio_2C_1931_xlt5v0.jpg" alt="Ideological Exploration" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid #ffc107; margin-bottom: 10px;">
+                        <h5 style="color: #ffc107; margin: 10px 0;">Ideological Explorer</h5>
+                        <p style="font-size: 0.9rem; color: #666; line-height: 1.4;">You're taking time to explore different ideological perspectives. Continue engaging with diverse viewpoints to develop your understanding of ideological positions.</p>
                     </div>
                 `;
             }
             
             document.getElementById('finalResult').innerHTML = `
-                <strong>Your Political Leaning: ${userIdeology}</strong><br>
+                <strong>Your Ideological Leaning: ${userIdeology}</strong><br>
                 <span style="font-size: 1rem; color: #ccc;">(${leftSelections} Left, ${rightSelections} Right, ${neutralSelections} Neutral selections)</span>
             `;
             
@@ -580,21 +580,21 @@
             // Generate understanding statement based on ideology score
             let understandingStatement;
             if (ideologyScore >= 90) {
-                understandingStatement = 'Exceptional ideological focus! Your selections show remarkable consistency and deep understanding of political positioning.';
+                understandingStatement = 'Exceptional ideological focus! Your selections show remarkable consistency and deep understanding of ideological positioning.';
             } else if (ideologyScore >= 70) {
-                understandingStatement = 'Strong ideological awareness with clear preferences. You demonstrate good understanding of political alignments.';
+                understandingStatement = 'Strong ideological awareness with clear preferences. You demonstrate good understanding of ideological alignments.';
             } else if (ideologyScore >= 50) {
-                understandingStatement = 'Moderate ideological understanding with some balanced perspective. Your selections show reasonable awareness of political positions.';
+                understandingStatement = 'Moderate ideological understanding with some balanced perspective. Your selections show reasonable awareness of ideological positions.';
             } else if (ideologyScore >= 30) {
-                understandingStatement = 'Developing political awareness with mixed selections. Continued study of political history would enhance your understanding.';
+                understandingStatement = 'Developing ideological awareness with mixed selections. Continued study of ideological history would enhance your understanding.';
             } else {
-                understandingStatement = 'Broad exploratory approach with diverse selections. Further study of specific ideological positions would strengthen your political knowledge.';
+                understandingStatement = 'Broad exploratory approach with diverse selections. Further study of specific ideological positions would strengthen your ideological knowledge.';
             }
             
             document.getElementById('analysisResult').innerHTML = `
                 <h4 style="color: #17a2b8; margin-bottom: 15px;">📊 Ideology Understanding Score: ${ideologyScore}%</h4>
                 <p style="margin-top: 15px; line-height: 1.6;">${understandingStatement}</p>
-                <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">Based on diversity of your political selections (${neutralSelections} neutral selections were not counted)</p>
+                <p style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">Based on diversity of your ideological selections (${neutralSelections} neutral selections were not counted)</p>
             `;
         }
         
@@ -612,7 +612,7 @@
         
         // Load battle results on page load
         document.addEventListener('DOMContentLoaded', function() {
-            loadPoliticalSpectrum();
+            loadIdeologicalSpectrum();
             loadBattleResults();
             updateAuthLinks();
         });

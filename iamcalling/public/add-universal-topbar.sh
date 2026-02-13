@@ -9,7 +9,7 @@ pages=(
     \"05-search.html\"
     \"09-ideology-analyzer.html\"
     \"10-critical-thinking-challenge.html\"
-    \"10-political-battle.html\"
+    \"10-ideological-battle.html\"
     \"14-subscription.html\"
     \"15-login.html\"
     \"16-register.html\"

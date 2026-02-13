@@ -9,7 +9,7 @@
     const PROJECT_LINKS = {
         home: { href: '01-index.html', label: 'Home' },
         articles: { href: '01-response-index.html', label: 'Articles' },
-        battle: { href: '10-political-battle.html', label: 'Battle' },
+        battle: { href: '10-ideological-battle.html', label: 'Battle' },
         ideologyAnalyzer: { href: '09-ideology-analyzer.html', label: 'Test Ideology' },
         about: { href: '02-about.html', label: 'About' },
         categories: { href: '04-categories.html', label: 'Categories' },

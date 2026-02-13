@@ -10,6 +10,7 @@ import criticalThinkingRoutes from './routes/criticalThinking.js';
 import configRoutes from './routes/config.js';
 import postsRoutes from './routes/posts.js';
 import authRoutes from './routes/auth.js';
+import userPhotoRoutes from './routes/userPhoto.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const viewsRoutes = require('./routes/views.cjs');
@@ -71,37 +72,18 @@ app.use('/api/profile', userProfileRoutes);
 app.use('/api/critical-thinking', criticalThinkingRoutes);
 app.use('/api/views', viewsRoutes);
 app.use('/api/admin', adminRoutes);
+userPhotoRoutes(app);
 
 // Basic routes
-app.get('/', async (req, res) => {
-    try {
-        const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-        const { data } = await supabase
-            .from('posts')
-            .select('id, title, author_name, thumbnail_url, views_count, created_at')
-            .order('created_at', { ascending: false })
-            .limit(10);
-        res.set('Cache-Control', 'public, max-age=30');
-        res.render('index', { posts: data || [] });
-    } catch (error) {
-        res.render('index', { posts: [] });
-    }
+app.get('/', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=300');
+    res.render('index', { posts: [] });
 });
 
 // Serve common HTML files
-app.get('/01-index.html', async (req, res) => {
-    try {
-        const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-        const { data } = await supabase
-            .from('posts')
-            .select('id, title, author_name, thumbnail_url, views_count, created_at')
-            .order('created_at', { ascending: false })
-            .limit(10);
-        res.set('Cache-Control', 'public, max-age=30');
-        res.render('index', { posts: data || [] });
-    } catch (error) {
-        res.render('index', { posts: [] });
-    }
+app.get('/01-index.html', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=300');
+    res.render('index', { posts: [] });
 });
 
 app.get('/15-login.html', (req, res) => {

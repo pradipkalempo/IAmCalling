@@ -37,6 +37,18 @@ coverage/
 # Cypress
 cypress/videos/
 cypress/screenshots/
+cypress/downloads/
+
+# Test Reports
+test-reports/
+*.log
+
+# Temporary Files
+tmp_*.js
+*-temp.*
+
+# Archive
+docs/archive/
 
 # Build
 dist/

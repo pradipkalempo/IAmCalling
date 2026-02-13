@@ -7,6 +7,11 @@
     "start": "npm --prefix iamcalling start",
     "dev": "npm --prefix iamcalling run dev",
     "test": "npm --prefix iamcalling test",
+    "test:quick": "cd iamcalling && node quick-e2e-test.js",
+    "test:e2e": "cd iamcalling && node run-e2e-tests.js",
+    "test:cypress": "cd iamcalling && npx cypress run --spec tests/e2e/comprehensive-platform-test.cy.js",
+    "test:cypress:open": "cd iamcalling && npx cypress open",
+    "test:all": "npm run test:quick && npm run test:e2e",
     "build": "echo 'Build completed'"
   },
   "author": {

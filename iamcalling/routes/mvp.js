@@ -9,8 +9,8 @@ import {
     getUserArticles,
     createComment,
     getUserComments,
-    savePoliticalTestAnswers,
-    getUserPoliticalTestAnswers,
+    saveIdeologicalTestAnswers,
+    getUserIdeologicalTestAnswers,
     findSimilarUsers,
     createCallLog,
     getUserCallLogs,
@@ -190,50 +190,50 @@ router.get('/comments/user/:userId', async (req, res) => {
 });
 
 // ================================
-// POLITICAL TEST ROUTES
+// IDEOLOGICAL TEST ROUTES
 // ================================
 
 /**
- * POST /api/mvp/political-tests
- * Save political test answers
+ * POST /api/mvp/ideological-tests
+ * Save ideological test answers
  */
-router.post('/political-tests', async (req, res) => {
+router.post('/ideological-tests', async (req, res) => {
     try {
         const testData = req.body;
-        const savedTest = await savePoliticalTestAnswers(testData);
+        const savedTest = await saveIdeologicalTestAnswers(testData);
         res.status(201).json({ success: true, data: savedTest });
     } catch (error) {
-        console.error('Error in POST /api/mvp/political-tests:', error);
+        console.error('Error in POST /api/mvp/ideological-tests:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 /**
- * GET /api/mvp/political-tests/user/:userId
- * Get political test answers by user ID
+ * GET /api/mvp/ideological-tests/user/:userId
+ * Get ideological test answers by user ID
  */
-router.get('/political-tests/user/:userId', async (req, res) => {
+router.get('/ideological-tests/user/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
-        const testAnswers = await getUserPoliticalTestAnswers(userId);
+        const testAnswers = await getUserIdeologicalTestAnswers(userId);
         res.json({ success: true, data: testAnswers });
     } catch (error) {
-        console.error('Error in GET /api/mvp/political-tests/user/:userId:', error);
+        console.error('Error in GET /api/mvp/ideological-tests/user/:userId:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 /**
- * POST /api/mvp/political-tests/similar-users
- * Find similar users based on political ideology
+ * POST /api/mvp/ideological-tests/similar-users
+ * Find similar users based on ideological alignment
  */
-router.post('/political-tests/similar-users', async (req, res) => {
+router.post('/ideological-tests/similar-users', async (req, res) => {
     try {
         const { embedding, limit } = req.body;
         const similarUsers = await findSimilarUsers(embedding, limit);
         res.json({ success: true, data: similarUsers });
     } catch (error) {
-        console.error('Error in POST /api/mvp/political-tests/similar-users:', error);
+        console.error('Error in POST /api/mvp/ideological-tests/similar-users:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });

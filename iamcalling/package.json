@@ -1,7 +1,7 @@
 {
   "name": "iamcalling-app",
   "version": "1.0.0",
-  "description": "IAmCalling Application with political analysis and messaging",
+  "description": "IAmCalling Application with ideological analysis and messaging",
   "main": "server.js",
   "type": "module",
   "scripts": {
@@ -9,6 +9,11 @@
     "dev": "nodemon server.js",
     "test": "node module-test-runner.js",
     "test:messenger": "mocha \"tests/unit/messenger/**/*.test.js\"",
+    "test:e2e": "node run-e2e-tests.js",
+    "test:quick": "node quick-e2e-test.js",
+    "test:cypress": "cypress run --spec tests/e2e/comprehensive-platform-test.cy.js",
+    "test:cypress:open": "cypress open",
+    "test:all": "npm run test:quick && npm run test:e2e",
     "build": "echo 'No build step required'",
     "postinstall": "echo 'Installation complete'"
   },

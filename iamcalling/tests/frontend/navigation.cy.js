@@ -11,7 +11,7 @@ describe('End-to-End Navigation Tests', () => {
     cy.contains('Categories').should('exist');
     
     cy.visit('/09-ideology-analyzer.html', { timeout: 10000 });
-    cy.contains('Political Ideology Analyzer').should('exist');
+    cy.contains('Ideological Analyzer').should('exist');
     
     cy.visit('/15-login.html', { timeout: 10000 });
     cy.contains('Welcome Back').should('exist');

@@ -1,159 +1,57 @@
-// Enhanced Storage Fallback System
+// Storage Fallback Utility - Handles localStorage quota errors gracefully
 (function() {
     'use strict';
     
-    // Memory storage for when all storage is blocked
-    const memoryStore = new Map();
-    
-    // Test storage availability
-    function testStorage(type) {
-        try {
-            const storage = window[type];
-            const testKey = '__storage_test__';
-            storage.setItem(testKey, 'test');
-            storage.removeItem(testKey);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-    
-    const localStorageAvailable = testStorage('localStorage');
-    const sessionStorageAvailable = testStorage('sessionStorage');
-    
-    // Enhanced secure storage with multiple fallbacks
-    window.secureStorage = {
+    // Safe localStorage wrapper
+    const SafeStorage = {
         setItem: function(key, value) {
             try {
-                // Try localStorage first
-                if (localStorageAvailable) {
-                    localStorage.setItem(key, value);
-                    return;
-                }
-                
-                // Try sessionStorage
-                if (sessionStorageAvailable) {
-                    sessionStorage.setItem(key, value);
-                    return;
-                }
-                
-                // Fallback to memory
-                memoryStore.set(key, value);
-                
-                // Try IndexedDB as last resort
-                this.setIndexedDB(key, value);
-                
+                localStorage.setItem(key, value);
+                return true;
             } catch (e) {
-                memoryStore.set(key, value);
+                if (e.name === 'QuotaExceededError') {
+                    console.warn('⚠️ Storage quota exceeded, clearing old cache');
+                    this.clearOldCache();
+                    try {
+                        localStorage.setItem(key, value);
+                        return true;
+                    } catch (e2) {
+                        console.warn('⚠️ Still quota exceeded, using memory storage');
+                        return false;
+                    }
+                }
+                return false;
             }
         },
         
         getItem: function(key) {
             try {
-                // Try localStorage first
-                if (localStorageAvailable) {
-                    return localStorage.getItem(key);
-                }
-                
-                // Try sessionStorage
-                if (sessionStorageAvailable) {
-                    return sessionStorage.getItem(key);
-                }
-                
-                // Fallback to memory
-                return memoryStore.get(key) || null;
-                
+                return localStorage.getItem(key);
             } catch (e) {
-                return memoryStore.get(key) || null;
+                return null;
             }
         },
         
-        removeItem: function(key) {
+        clearOldCache: function() {
             try {
-                if (localStorageAvailable) {
-                    localStorage.removeItem(key);
-                }
-                if (sessionStorageAvailable) {
-                    sessionStorage.removeItem(key);
-                }
-                memoryStore.delete(key);
-            } catch (e) {
-                memoryStore.delete(key);
-            }
-        },
-        
-        clear: function() {
-            try {
-                if (localStorageAvailable) {
-                    localStorage.clear();
-                }
-                if (sessionStorageAvailable) {
-                    sessionStorage.clear();
-                }
-                memoryStore.clear();
-            } catch (e) {
-                memoryStore.clear();
-            }
-        },
-        
-        // IndexedDB fallback for persistent storage
-        setIndexedDB: function(key, value) {
-            try {
-                if (!window.indexedDB) return;
-                
-                const request = indexedDB.open('SecureStorage', 1);
-                request.onupgradeneeded = function(e) {
-                    const db = e.target.result;
-                    if (!db.objectStoreNames.contains('data')) {
-                        db.createObjectStore('data');
+                // Clear old cache items
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && (key.includes('cache') || key.includes('temp'))) {
+                        keysToRemove.push(key);
                     }
-                };
-                
-                request.onsuccess = function(e) {
-                    const db = e.target.result;
-                    const transaction = db.transaction(['data'], 'readwrite');
-                    const store = transaction.objectStore('data');
-                    store.put(value, key);
-                };
+                }
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                console.log('✅ Cleared', keysToRemove.length, 'cache items');
             } catch (e) {
-                // IndexedDB failed, already in memory
+                console.warn('⚠️ Could not clear cache');
             }
         }
     };
     
-    // Override native storage if blocked
-    if (!localStorageAvailable) {
-        Object.defineProperty(window, 'localStorage', {
-            value: window.secureStorage,
-            writable: false,
-            configurable: false
-        });
-    }
+    // Export to window
+    window.SafeStorage = SafeStorage;
     
-    if (!sessionStorageAvailable) {
-        Object.defineProperty(window, 'sessionStorage', {
-            value: window.secureStorage,
-            writable: false,
-            configurable: false
-        });
-    }
-    
-    // Suppress tracking prevention messages
-    const originalConsoleWarn = console.warn;
-    console.warn = function(...args) {
-        const message = args.join(' ');
-        if (message.includes('Tracking Prevention blocked access to storage')) {
-            return; // Suppress this specific warning
-        }
-        originalConsoleWarn.apply(console, args);
-    };
-    
-    console.log('🔒 Enhanced storage fallback system initialized');
-    console.log('📊 Storage availability:', {
-        localStorage: localStorageAvailable,
-        sessionStorage: sessionStorageAvailable,
-        memoryFallback: true,
-        indexedDB: !!window.indexedDB
-    });
-    
+    console.log('✅ Storage fallback utility loaded');
 })();

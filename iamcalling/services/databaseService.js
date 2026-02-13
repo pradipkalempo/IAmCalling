@@ -187,17 +187,17 @@ async function getUserComments(userId) {
 }
 
 /**
- * Political Test Functions
+ * Ideological Test Functions
  */
 
 /**
- * Save political test answers
+ * Save ideological test answers
  * @param {Object} testData - Test data
  */
-async function savePoliticalTestAnswers(testData) {
+async function saveIdeologicalTestAnswers(testData) {
     try {
         const { data, error } = await supabase
-            .from('political_test_answers')
+            .from('ideological_test_answers')
             .insert([testData])
             .select()
             .single();
@@ -215,32 +215,32 @@ async function savePoliticalTestAnswers(testData) {
         
         return data;
     } catch (error) {
-        console.error('Error saving political test answers:', error);
+        console.error('Error saving ideological test answers:', error);
         throw error;
     }
 }
 
 /**
- * Get political test answers by user ID
+ * Get ideological test answers by user ID
  * @param {string} userId - User ID
  */
-async function getUserPoliticalTestAnswers(userId) {
+async function getUserIdeologicalTestAnswers(userId) {
     try {
         const { data, error } = await supabase
-            .from('political_test_answers')
+            .from('ideological_test_answers')
             .select('*')
             .eq('user_id', userId);
 
         if (error) throw error;
         return data;
     } catch (error) {
-        console.error('Error fetching user political test answers:', error);
+        console.error('Error fetching user ideological test answers:', error);
         throw error;
     }
 }
 
 /**
- * Find similar users based on political ideology
+ * Find similar users based on ideological alignment
  * @param {Array<number>} embedding - User's ideology embedding
  * @param {number} limit - Number of similar users to find
  */
@@ -360,9 +360,9 @@ export {
     // Comment functions
     createComment,
     getUserComments,
-    // Political test functions
-    savePoliticalTestAnswers,
-    getUserPoliticalTestAnswers,
+    // Ideological Test Functions
+    saveIdeologicalTestAnswers,
+    getUserIdeologicalTestAnswers,
     findSimilarUsers,
     // Call log functions
     createCallLog,

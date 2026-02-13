@@ -15,7 +15,7 @@
         return [
             { href: '01-index.html', label: 'Home' },
             { href: '01-response-index.html', label: 'Articles' },
-            { href: '10-political-battle.html', label: 'Battle' },
+            { href: '10-ideological-battle.html', label: 'Battle' },
             { href: '09-ideology-analyzer.html', label: 'Test Ideology' },
             { href: '02-about.html', label: 'About' },
             { href: '04-categories.html', label: 'Categories' }
@@ -48,7 +48,7 @@
             this.createTopBar();
             this.updateUserDisplay();
             this.setupEventListeners();
-            this._interval = setInterval(() => this.updateUserDisplay(), 10000);
+            this._interval = setInterval(() => this.updateUserDisplay(), 60000);
         }
 
         createTopBar() {
@@ -69,7 +69,7 @@
             // Force navigation HTML if empty
             const forceNavHtml = `
                 <a href="01-index.html" class="nav-link">Home</a>
-                <a href="10-political-battle.html" class="nav-link">Battle</a>
+                <a href="10-ideological-battle.html" class="nav-link">Battle</a>
                 <a href="09-ideology-analyzer.html" class="nav-link">Test</a>
                 <a href="02-about.html" class="nav-link">About</a>
                 <a href="04-categories.html" class="nav-link">Categories</a>
@@ -87,7 +87,7 @@
                 '<div class="topbar-center">' +
                 '<nav class="topbar-nav" id="topbar-nav">' +
                 '<a href="01-index.html" class="nav-link">Home</a>' +
-                '<a href="10-political-battle.html" class="nav-link">Battle</a>' +
+                '<a href="10-ideological-battle.html" class="nav-link">Battle</a>' +
                 '<a href="09-ideology-analyzer.html" class="nav-link">Test</a>' +
                 '<a href="02-about.html" class="nav-link">About</a>' +
                 '<a href="04-categories.html" class="nav-link">Categories</a>' +
@@ -148,15 +148,13 @@
                 var user = window.globalAuth.getCurrentUser();
                 var name = window.globalAuth.getUserName();
                 
-                // Try to load real profile photo from Supabase
-                var avatar = null;
+                // Always fetch fresh photo from database
+                var avatar = getAvatarFallback(name, user.email);
                 if (user.email) {
-                    avatar = await this.loadProfilePhotoFromSupabase(user.email);
-                }
-                
-                // Only use fallback if no real photo found
-                if (!avatar) {
-                    avatar = getAvatarFallback(name, user.email);
+                    var photo = await this.loadProfilePhotoFromSupabase(user.email);
+                    if (photo) {
+                        avatar = photo;
+                    }
                 }
                 
                 return { name: name, avatar: avatar, email: user.email, isLoggedIn: true };
@@ -166,51 +164,22 @@
 
         async loadProfilePhotoFromSupabase(email) {
             if (!email) return null;
-            var cacheKey = 'profile_photo_cache_' + email;
-            
-            // Check cache first
-            try {
-                var cached = sessionStorage.getItem(cacheKey);
-                if (cached && cached !== 'null' && cached !== '') {
-                    return cached;
-                }
-            } catch (e) {}
             
             try {
-                var url = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
-                var key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
-                
-                var r = await fetch(url + '/rest/v1/users?select=profile_photo&email=eq.' + encodeURIComponent(email), {
-                    headers: { 
-                        'apikey': key, 
-                        'Authorization': 'Bearer ' + key
-                    }
+                var r = await fetch('/api/user-photo/' + encodeURIComponent(email), {
+                    cache: 'no-cache'
                 });
                 
-                if (!r.ok) { 
-                    sessionStorage.setItem(cacheKey, 'null'); 
-                    return null; 
+                if (!r.ok) return null;
+                
+                var result = await r.json();
+                
+                if (result && result.photo && result.photo.length > 10) {
+                    return result.photo;
                 }
                 
-                var users = await r.json();
-                
-                if (!users || !users.length || !users[0].profile_photo) {
-                    sessionStorage.setItem(cacheKey, 'null');
-                    return null;
-                }
-                
-                var photo = users[0].profile_photo;
-                
-                // Validate it's a real photo (not SVG or placeholder)
-                if (/^data:image\/(jpeg|jpg|png|gif|webp)/i.test(photo)) {
-                    sessionStorage.setItem(cacheKey, photo);
-                    return photo;
-                }
-                
-                sessionStorage.setItem(cacheKey, 'null');
                 return null;
             } catch (err) {
-                try { sessionStorage.setItem(cacheKey, 'null'); } catch (e) {}
                 return null;
             }
         }

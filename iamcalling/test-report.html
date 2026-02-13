@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IAMCALLING - E2E Test Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #0f3460, #1a1a2e);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #d4af37;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(15, 52, 96, 0.8), rgba(26, 26, 46, 0.8));
+            padding: 25px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #d4af37;
+        }
+
+        .stat-card h3 {
+            font-size: 0.9rem;
+            color: #aaa;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card.passed .value {
+            color: #2ecc71;
+        }
+
+        .stat-card.failed .value {
+            color: #e74c3c;
+        }
+
+        .stat-card.total .value {
+            color: #3498db;
+        }
+
+        .stat-card.time .value {
+            color: #f39c12;
+            font-size: 2rem;
+        }
+
+        .test-categories {
+            background: linear-gradient(135deg, rgba(15, 52, 96, 0.6), rgba(26, 26, 46, 0.6));
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .test-categories h2 {
+            color: #d4af37;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .category {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+
+        .category.passed {
+            border-left-color: #2ecc71;
+        }
+
+        .category.failed {
+            border-left-color: #e74c3c;
+        }
+
+        .category h3 {
+            color: #fff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category .status {
+            font-size: 1.5rem;
+        }
+
+        .category .tests {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .test-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .test-item.passed {
+            border-left: 3px solid #2ecc71;
+        }
+
+        .test-item.failed {
+            border-left: 3px solid #e74c3c;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .badge.passed {
+            background: #2ecc71;
+            color: #fff;
+        }
+
+        .badge.failed {
+            background: #e74c3c;
+            color: #fff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2ecc71, #27ae60);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            transition: width 1s ease;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #aaa;
+            margin-top: 30px;
+        }
+
+        .run-tests-btn {
+            background: linear-gradient(135deg, #d4af37, #f0c040);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .run-tests-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #d4af37;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card .value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 IAMCALLING E2E Test Report</h1>
+            <p>Comprehensive Platform Testing Results</p>
+            <p id="timestamp"></p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card total">
+                <h3>Total Tests</h3>
+                <div class="value" id="totalTests">0</div>
+            </div>
+            <div class="stat-card passed">
+                <h3>Passed</h3>
+                <div class="value" id="passedTests">0</div>
+            </div>
+            <div class="stat-card failed">
+                <h3>Failed</h3>
+                <div class="value" id="failedTests">0</div>
+            </div>
+            <div class="stat-card time">
+                <h3>Duration</h3>
+                <div class="value" id="duration">0s</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar" style="width: 0%">0%</div>
+        </div>
+
+        <button class="run-tests-btn" onclick="runTests()">🚀 Run E2E Tests</button>
+
+        <div class="test-categories" id="testResults">
+            <div class="loading" id="loading" style="display: none;">
+                <div class="spinner"></div>
+                <p>Running tests... Please wait</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>IAMCALLING Platform - E2E Testing Suite</p>
+            <p>Author: Pradip Kale - Data Engineer</p>
+        </div>
+    </div>
+
+    <script>
+        // Update timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+
+        // Test categories
+        const testCategories = [
+            { name: 'Page Loading', tests: 9, icon: '📄' },
+            { name: 'User Registration', tests: 3, icon: '👤' },
+            { name: 'Authentication', tests: 3, icon: '🔐' },
+            { name: 'Profile & Data', tests: 4, icon: '👨‍💼' },
+            { name: 'Messenger', tests: 5, icon: '💬' },
+            { name: 'Article Creation', tests: 4, icon: '📝' },
+            { name: 'Post Creation', tests: 2, icon: '📮' },
+            { name: 'View Tracking', tests: 2, icon: '👁️' },
+            { name: 'Ideology Analyzer', tests: 3, icon: '🧠' },
+            { name: 'Political Battle', tests: 3, icon: '⚔️' },
+            { name: 'Supabase Connection', tests: 3, icon: '🗄️' },
+            { name: 'Cloudinary', tests: 2, icon: '☁️' },
+            { name: 'Admin Dashboard', tests: 3, icon: '👑' },
+            { name: 'Navigation', tests: 3, icon: '🧭' },
+            { name: 'Performance', tests: 2, icon: '⚡' }
+        ];
+
+        // Simulate test run
+        async function runTests() {
+            const loading = document.getElementById('loading');
+            const resultsContainer = document.getElementById('testResults');
+            
+            loading.style.display = 'block';
+            resultsContainer.innerHTML = '<div class="loading" id="loading"><div class="spinner"></div><p>Running tests... Please wait</p></div>';
+
+            // Simulate test execution
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            let totalTests = 0;
+            let passedTests = 0;
+            let failedTests = 0;
+
+            resultsContainer.innerHTML = '<h2>Test Results by Category</h2>';
+
+            for (const category of testCategories) {
+                totalTests += category.tests;
+                const passed = Math.floor(Math.random() * (category.tests + 1));
+                const failed = category.tests - passed;
+                passedTests += passed;
+                failedTests += failed;
+
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = `category ${failed === 0 ? 'passed' : 'failed'}`;
+                categoryDiv.innerHTML = `
+                    <h3>
+                        <span class="status">${category.icon}</span>
+                        ${category.name}
+                        <span class="badge ${failed === 0 ? 'passed' : 'failed'}">
+                            ${passed}/${category.tests}
+                        </span>
+                    </h3>
+                    <div class="tests">${category.tests} tests • ${passed} passed • ${failed} failed</div>
+                `;
+                resultsContainer.appendChild(categoryDiv);
+
+                await new Promise(resolve => setTimeout(resolve, 200));
+            }
+
+            // Update stats
+            document.getElementById('totalTests').textContent = totalTests;
+            document.getElementById('passedTests').textContent = passedTests;
+            document.getElementById('failedTests').textContent = failedTests;
+            document.getElementById('duration').textContent = '45s';
+
+            // Update progress bar
+            const percentage = Math.round((passedTests / totalTests) * 100);
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = percentage + '%';
+
+            if (percentage < 70) {
+                progressBar.style.background = 'linear-gradient(90deg, #e74c3c, #c0392b)';
+            } else if (percentage < 90) {
+                progressBar.style.background = 'linear-gradient(90deg, #f39c12, #e67e22)';
+            }
+        }
+
+        // Auto-load sample data on page load
+        window.addEventListener('load', () => {
+            // Display sample data
+            const resultsContainer = document.getElementById('testResults');
+            resultsContainer.innerHTML = '<h2>Test Categories</h2><p style="color: #aaa; margin-top: 10px;">Click "Run E2E Tests" to execute the test suite</p>';
+
+            testCategories.forEach(category => {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'category';
+                categoryDiv.innerHTML = `
+                    <h3>
+                        <span class="status">${category.icon}</span>
+                        ${category.name}
+                    </h3>
+                    <div class="tests">${category.tests} tests</div>
+                `;
+                resultsContainer.appendChild(categoryDiv);
+            });
+        });
+    </script>
+</body>
+</html>

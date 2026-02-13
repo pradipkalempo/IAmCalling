@@ -12,10 +12,10 @@ describe('Index Page and Navigation Tests', () => {
     cy.get('.ideology-test-container').should('exist');
     
     // Check that the title is correct
-    cy.get('.ideology-test-title').should('contain.text', 'Discover Your Political Ideology');
+    cy.get('.ideology-test-title').should('contain.text', 'Discover Your Ideological Alignment');
     
     // Check that the description is present
-    cy.get('.ideology-test-container').should('contain.text', 'Take our quick test to find out where you stand on the political spectrum');
+    cy.get('.ideology-test-container').should('contain.text', 'Take our quick test to find out where you stand on the ideological spectrum');
   });
 
   it('should have a working "Start Test" button that navigates to the ideology analyzer', () => {

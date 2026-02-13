@@ -104,7 +104,7 @@ class UniversalAuth {
                     <a href="02-about.html">About</a>
                     <a href="04-categories.html">Categories</a>
                     <a href="09-ideology-analyzer.html">Analyzer</a>
-                    <a href="10-political-battle.html">Battle</a>
+                    <a href="10-ideological-battle.html">Battle</a>
                     <a href="22-write_article.html">Write</a>
                     <a href="29-analytics_dashboard.html">Analytics</a>
                     <a href="34-icalluser-messenger.html">Messenger</a>
