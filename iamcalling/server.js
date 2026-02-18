@@ -12,6 +12,9 @@ import configRoutes from './routes/config.js';
 import postsRoutes from './routes/posts.js';
 import authRoutes from './routes/auth.js';
 import userPhotoRoutes from './routes/userPhoto.js';
+import pushNotificationRoutes from './routes/push-notifications.js';
+import profileRoutes from './routes/profile.js';
+import testUploadRoutes from './routes/test-upload.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const viewsRoutes = require('./routes/views.cjs');
@@ -51,14 +54,43 @@ const apiRateLimiter = rateLimit({
 
 app.use(compression());
 app.use('/api', apiRateLimiter);
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Body parsers - Skip for file upload routes
+app.use((req, res, next) => {
+    const skipPaths = ['/api/auth/register', '/api/profile/update', '/api/test/test-upload'];
+    if (skipPaths.some(path => req.url.includes(path))) {
+        return next();
+    }
+    express.json({ limit: '50mb' })(req, res, next);
+});
+
+app.use((req, res, next) => {
+    const skipPaths = ['/api/auth/register', '/api/profile/update', '/api/test/test-upload'];
+    if (skipPaths.some(path => req.url.includes(path))) {
+        return next();
+    }
+    express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
+});
+
+// API routes - IMPORTANT: File upload routes MUST come before express.json()
+app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/test', testUploadRoutes);
 
 // Add Supabase client to requests
 app.use((req, res, next) => {
     req.supabase = new SimpleSupabaseClient();
     next();
 });
+
+app.use('/api', configRoutes);
+app.use('/api/posts', postsRoutes);
+app.use('/api/user-profile', userProfileRoutes);
+app.use('/api/critical-thinking', criticalThinkingRoutes);
+app.use('/api/views', viewsRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api', pushNotificationRoutes);
+userPhotoRoutes(app);
 
 // Serve static files with caching
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -69,16 +101,6 @@ app.use(express.static(path.join(__dirname, 'public'), {
 
 // Health check routes
 healthCheckRoute(app);
-
-// API routes
-app.use('/api', configRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/posts', postsRoutes);
-app.use('/api/profile', userProfileRoutes);
-app.use('/api/critical-thinking', criticalThinkingRoutes);
-app.use('/api/views', viewsRoutes);
-app.use('/api/admin', adminRoutes);
-userPhotoRoutes(app);
 
 // Basic routes
 app.get('/', (req, res) => {

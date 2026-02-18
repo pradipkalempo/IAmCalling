@@ -10,6 +10,18 @@
     
     const userUnreadCounts = new Map();
     
+    // Reset counts on page load for clean state
+    function resetAllCounts() {
+        userUnreadCounts.clear();
+        document.querySelectorAll('.unread-badge').forEach(badge => {
+            badge.style.display = 'none';
+            badge.textContent = '0';
+        });
+    }
+    
+    // Reset on load
+    resetAllCounts();
+    
     function addUnreadCount(userId) {
         const currentCount = userUnreadCounts.get(userId) || 0;
         userUnreadCounts.set(userId, currentCount + 1);
@@ -52,8 +64,16 @@
         return originalFetch.apply(this, args).then(response => {
             if (response.url && response.url.includes('/messages?') && response.ok) {
                 response.clone().json().then(messages => {
+                    const currentUserId = window.messenger?.currentUser?.id || 
+                                        JSON.parse(localStorage.getItem('currentUser') || '{}').id;
+                    
+                    if (!currentUserId) return;
+                    
+                    // Only count messages that are: 1) from others, 2) not read by current user
                     messages.forEach(msg => {
-                        if (msg.sender_id && msg.sender_id != window.messenger?.currentUser?.id) {
+                        if (msg.sender_id && 
+                            msg.sender_id != currentUserId && 
+                            msg.is_read === false) {
                             addUnreadCount(msg.sender_id);
                         }
                     });

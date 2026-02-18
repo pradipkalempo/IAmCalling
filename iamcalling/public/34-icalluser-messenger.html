@@ -860,7 +860,7 @@
                         `).join('');
                         
                         // Mark all received messages as read when opening chat
-                        markMessagesAsRead(userId, dbMessages);
+                        await markMessagesAsRead(userId, dbMessages);
                         
                     } else {
                         // No messages, show welcome
@@ -913,22 +913,47 @@
         }
         
         // Mark messages as read
-        function markMessagesAsRead(senderId, messages) {
+        async function markMessagesAsRead(senderId, messages) {
             const readMessages = JSON.parse(safeGetStorage('readMessages', '[]'));
             const receivedMessages = messages.filter(msg => msg.sender_id === senderId && msg.receiver_id === currentUserId);
             
+            const messageIds = [];
             receivedMessages.forEach(msg => {
                 if (!readMessages.includes(msg.id)) {
                     readMessages.push(msg.id);
+                    messageIds.push(msg.id);
                 }
             });
             
             safeSetStorage('readMessages', JSON.stringify(readMessages));
             
+            // Update database: mark messages as read
+            if (messageIds.length > 0) {
+                try {
+                    for (const msgId of messageIds) {
+                        await fetch(`${SUPABASE_URL}/rest/v1/messages?id=eq.${msgId}`, {
+                            method: 'PATCH',
+                            headers: {
+                                'apikey': SUPABASE_ANON_KEY,
+                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ read: true })
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error updating read status:', error);
+                }
+            }
+            
             // Update unread count to 0 since we just read all messages
             unreadCounts[senderId] = 0;
             safeSetStorage(`unreadCount_${senderId}`, '0');
             updateConversationBadge(senderId, 0);
+            
+            // Check if there are any other unread messages from other users
+            const hasOtherUnread = Object.values(unreadCounts).some(count => count > 0);
+            localStorage.setItem('hasUnreadMessages', hasOtherUnread ? '1' : '0');
         }
         
         // Send message function
@@ -1050,6 +1075,7 @@
                 
                 // Store in storage for profile page sync
                 safeSetStorage(`unreadCount_${senderId}`, unreadCounts[senderId].toString());
+                localStorage.setItem('hasUnreadMessages', '1');
                 
                 console.log(`🔔 Unread count for ${senderId}: ${unreadCounts[senderId]}`);
                 

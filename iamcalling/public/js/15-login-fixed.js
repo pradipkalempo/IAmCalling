@@ -1,7 +1,7 @@
 console.log('🔥 LOGIN SCRIPT LOADED!');
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🔥 DOM CONTENT LOADED!');
-    const loginForm = document.getElementById('loginForm');
+    const loginForm = document.getElementById('emailLoginForm');
     const notification = document.getElementById('notification');
 
     // Mobile menu toggle
@@ -19,17 +19,30 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             console.log('🚀 Login form submitted!');
 
-            const email = document.getElementById('email').value.trim();
+            const emailInput = document.getElementById('email');
+            const phoneInput = document.getElementById('phone');
             const pass1 = document.getElementById('pass1').value;
             const pass2 = document.getElementById('pass2').value;
             const pass3 = document.getElementById('pass3').value;
             const pass4 = document.getElementById('pass4').value;
             const password = pass1 + pass2 + pass3 + pass4;
+            
+            // Determine login mode based on which field exists
+            const mode = emailInput ? 'email' : 'phone';
+            const email = emailInput ? emailInput.value.trim() : '';
+            const phone = phoneInput ? phoneInput.value.trim() : '';
 
             // Validation
-            if (!email || !isValidEmail(email)) {
-                showNotification('❌ Please enter a valid email', true);
-                return;
+            if (mode === 'email') {
+                if (!email || !isValidEmail(email)) {
+                    showNotification('❌ Please enter a valid email', true);
+                    return;
+                }
+            } else {
+                if (!phone || !isValidPhone(phone)) {
+                    showNotification('❌ Please enter a valid phone number', true);
+                    return;
+                }
             }
 
             if (password.length !== 4) {
@@ -37,59 +50,64 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Proceed with Supabase login
+            // Proceed with backend API login
             try {
-                console.log('🔍 Attempting Supabase login with:', { email, password: '****' });
+                console.log('🔍 Attempting login via backend API with:', mode === 'email' ? { email, password: '****' } : { phone, password: '****' });
                 
-                // Initialize Supabase with fallback config
-                let SUPABASE_URL = window.APP_CONFIG?.supabaseUrl;
-                let SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey;
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: mode === 'email' ? email : undefined,
+                        phone: mode === 'phone' ? phone : undefined,
+                        password: password
+                    })
+                });
                 
-                if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-                    // Fallback configuration
-                    SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
-                    SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
-                }
+                const result = await response.json();
                 
-                if (typeof window.supabase === 'undefined') {
-                    throw new Error('Supabase library not loaded');
-                }
+                console.log('📦 Login response:', { status: response.status, result });
                 
-                const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                
-                // Query user from Supabase
-                const { data: user, error } = await supabaseClient
-                    .from('users')
-                    .select('*')
-                    .eq('email', email)
-                    .eq('password', password)
-                    .single();
-                
-                console.log('📦 Supabase response:', { user, error });
-                
-                if (error || !user) {
-                    console.log('❌ Login failed - invalid credentials');
+                if (!response.ok || !result.user) {
+                    console.log('❌ Login failed:', result.error || result.message);
                     showNotification('❌ Invalid email or password', true);
                     return;
                 }
                 
-                console.log('🖼️ Profile photo from Supabase:', user.profile_photo ? 'EXISTS (length: ' + user.profile_photo.length + ')' : 'NULL/EMPTY');
+                const user = result.user;
+                console.log('🖼️ Profile photo from API:', user.profile_photo ? 'EXISTS' : 'NULL/EMPTY');
                 
-                // Login successful - use global auth manager
-                if (window.globalAuth) {
-                    const userData = {
-                        id: user.id,
-                        email: user.email,
-                        name: user.first_name + ' ' + (user.last_name || ''),
-                        first_name: user.first_name,
-                        last_name: user.last_name,
-                        full_name: user.first_name + ' ' + (user.last_name || ''),
-                        profile_photo: user.profile_photo,
-                        profilePhoto: user.profile_photo,
-                        photo: user.profile_photo
-                    };
-                    console.log('💾 Saving user data to globalAuth:', { ...userData, profile_photo: userData.profile_photo ? 'EXISTS' : 'NULL' });
-                    window.globalAuth.setUser(userData);
+                // Login successful - use global auth manager with storage fallback
+                const userData = {
+                    id: user.id,
+                    email: user.email,
+                    phone: user.phone,
+                    name: user.first_name + ' ' + (user.last_name || ''),
+                    first_name: user.first_name,
+                    last_name: user.last_name,
+                    full_name: user.first_name + ' ' + (user.last_name || ''),
+                    profile_photo: user.profile_photo,
+                    profilePhoto: user.profile_photo,
+                    photo: user.profile_photo
+                };
+                console.log('💾 Saving user data:', { ...userData, profile_photo: userData.profile_photo ? 'EXISTS' : 'NULL' });
+                
+                // Try to use global auth manager, fallback to session storage
+                try {
+                    if (window.globalAuth) {
+                        window.globalAuth.setUser(userData);
+                    } else {
+                        // Fallback: use sessionStorage if localStorage is blocked
+                        sessionStorage.setItem('currentUser', JSON.stringify(userData));
+                        sessionStorage.setItem('userAuth', 'true');
+                    }
+                } catch (storageError) {
+                    console.warn('Storage access blocked, using memory storage:', storageError);
+                    // Fallback: store in window object for this session
+                    window.currentUser = userData;
+                    window.userAuth = true;
                 }
                 
                 // Show success notification (GREEN)
@@ -111,6 +129,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function isValidEmail(email) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return emailRegex.test(email);
+    }
+    
+    function isValidPhone(phone) {
+        // Basic phone validation - starts with + and has 10-15 digits
+        const phoneRegex = /^\+?[1-9]\d{9,14}$/;
+        return phoneRegex.test(phone.replace(/[\s-]/g, ''));
     }
 
     function showNotification(message, isError = false) {

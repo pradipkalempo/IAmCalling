@@ -390,6 +390,43 @@
         .checkbox-group label:hover::before {
             border-color: #1a3a1a;
         }
+        
+        .auth-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #2d5a2d;
+            background: white;
+            color: #2d5a2d;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .toggle-btn.active {
+            background: #2d5a2d;
+            color: white;
+        }
+        
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .toggle-btn {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -402,7 +439,8 @@
                 <p>Join IAMCALLING to access exclusive content</p>
             </div>
             
-            <form id="registerForm">
+            <!-- EMAIL REGISTRATION FORM -->
+            <form id="emailRegisterForm">
                 <div class="form-group">
                     <label for="firstName">First Name</label>
                     <input type="text" id="firstName" name="firstName" required>
@@ -419,7 +457,7 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="pin1">4-Character PIN (Letters & Numbers)</label>
+                    <label for="pin1">4-Character PIN</label>
                     <div class="pin-container">
                         <input type="text" class="pin-input" id="pin1" maxlength="1" required>
                         <input type="text" class="pin-input" id="pin2" maxlength="1" required>
@@ -538,7 +576,7 @@
                 }
             });
             
-            document.getElementById('registerForm').addEventListener('submit', function(e) {
+            document.getElementById('emailRegisterForm').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
                 const submitBtn = document.getElementById('submitBtn');
@@ -574,32 +612,20 @@
                 const firstName = document.getElementById('firstName').value;
                 const lastName = document.getElementById('lastName').value;
                 const email = document.getElementById('email').value;
+                // Remove phone reference
                 const rememberMe = document.getElementById('rememberMe').checked;
-                const photoFile = document.getElementById('profilePhoto').files[0];
                 
-                let profilePhoto = null;
-                if (photoFile) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        profilePhoto = e.target.result;
-                        saveUserData();
-                    };
-                    reader.readAsDataURL(photoFile);
-                } else {
-                    saveUserData();
-                }
+                saveUserData();
                 
                 function saveUserData() {
                     const fullName = `${firstName} ${lastName}`;
                     
-                    // Save to Supabase first
                     saveToSupabase({
                         first_name: firstName,
                         last_name: lastName,
                         full_name: fullName,
                         email: email,
-                        password: pin,
-                        profile_photo: profilePhoto
+                        password: pin
                     });
                 }
                 
@@ -607,19 +633,27 @@
                     try {
                         console.log('🚀 Registering user via API:', userData.email);
                         
-                        // Call backend registration API
+                        // Create FormData for file upload
+                        const formData = new FormData();
+                        formData.append('firstName', userData.first_name);
+                        formData.append('lastName', userData.last_name);
+                        formData.append('email', userData.email);
+                        formData.append('password', userData.password);
+                        
+                        // Add file directly (not base64!)
+                        const photoFile = document.getElementById('profilePhoto').files[0];
+                        console.log('📸 Photo file selected:', photoFile ? photoFile.name : 'NONE');
+                        if (photoFile) {
+                            formData.append('profilePhoto', photoFile);
+                            console.log('📸 Uploading photo to Cloudinary:', photoFile.name, photoFile.size, 'bytes');
+                        } else {
+                            console.log('⚠️ No photo file selected');
+                        }
+                        
+                        // Send as multipart/form-data
                         const response = await fetch('/api/auth/register', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                firstName: userData.first_name,
-                                lastName: userData.last_name,
-                                email: userData.email,
-                                password: userData.password,
-                                profilePhoto: userData.profile_photo
-                            })
+                            body: formData
                         });
                         
                         const result = await response.json();

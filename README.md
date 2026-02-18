@@ -10,7 +10,8 @@ A web platform for critical thinking development, news analysis, and interactive
 - Interactive content with code execution
 - User profiles and messaging
 - Reward system
-- real time communication on messenger
+- Real time communication on messenger
+- **Phone OTP Authentication** - Register and login with phone number via SMS OTP (no password needed)
 
 ## Tech Stack
 

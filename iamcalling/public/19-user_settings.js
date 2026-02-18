@@ -142,8 +142,6 @@ class ProfileSettingsSync {
     }
 
     async saveProfile() {
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
         const displayName = document.getElementById('displayName').value;
         const bio = document.getElementById('bio').value;
         const location = document.getElementById('location').value;
@@ -177,57 +175,48 @@ class ProfileSettingsSync {
             return;
         }
         
-        // Prepare update data - only include fields that exist in the database
-        // Note: updated_at is managed by database trigger, don't include it
-        const updateData = {};
+        // Create FormData
+        const formData = new FormData();
+        formData.append('email', userData.email);
         
-        // Only add fields that have values
-        if (displayName && displayName.trim()) {
-            updateData.display_name = displayName.trim();
-        }
+        if (displayName) formData.append('displayName', displayName);
+        if (bio !== undefined) formData.append('bio', bio);
+        if (location !== undefined) formData.append('location', location);
+        if (website !== undefined) formData.append('website', website);
         
-        if (bio && bio.trim()) {
-            updateData.bio = bio.trim();
-        } else if (bio === '') {
-            updateData.bio = null; // Allow clearing bio
-        }
-        
-        if (location && location.trim()) {
-            updateData.location = location.trim();
-        } else if (location === '') {
-            updateData.location = null; // Allow clearing location
-        }
-        
-        if (website && website.trim()) {
-            updateData.website = website.trim();
-        } else if (website === '') {
-            updateData.website = null; // Allow clearing website
-        }
-        
-        // Check if there's anything to update
-        if (Object.keys(updateData).length === 0) {
-            this.showNotification('No changes to save.', true);
-            return;
-        }
-        
-        // Handle profile picture upload if provided
+        // Add file if selected
         if (profilePicture) {
-            try {
-                // Convert to base64 for now (in production, upload to Cloudinary)
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    updateData.profile_photo = e.target.result;
-                    await this.saveToSupabase(userData.email, updateData);
-                };
-                reader.readAsDataURL(profilePicture);
-                return; // Will continue in reader.onload
-            } catch (error) {
-                console.error('Error processing profile picture:', error);
-            }
+            formData.append('profilePhoto', profilePicture);
+            console.log('📸 Uploading new profile photo');
         }
         
-        // Save to Supabase
-        await this.saveToSupabase(userData.email, updateData);
+        try {
+            const response = await fetch('/api/profile/update', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (!response.ok || !result.success) {
+                throw new Error(result.error || 'Update failed');
+            }
+            
+            console.log('✅ Profile updated:', result.user);
+            
+            // Update localStorage
+            const updatedData = { ...userData, ...result.user };
+            localStorage.setItem('topbarUserData', JSON.stringify(updatedData));
+            
+            this.showNotification('Profile updated successfully!');
+            
+            // Reload page to show new photo
+            setTimeout(() => window.location.reload(), 1500);
+            
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            this.showNotification('Error: ' + error.message, true);
+        }
     }
 
     async saveToSupabase(email, updateData) {

@@ -25,8 +25,29 @@ class GlobalAuthManager {
                 this.isAuthenticated = false;
             }
         } catch (error) {
-            this.currentUser = null;
-            this.isAuthenticated = false;
+            console.warn('localStorage access blocked, trying sessionStorage:', error);
+            try {
+                const userData = sessionStorage.getItem('currentUser');
+                const userAuth = sessionStorage.getItem('userAuth');
+                
+                if (userData && userAuth === 'true') {
+                    this.currentUser = JSON.parse(userData);
+                    this.isAuthenticated = true;
+                } else {
+                    this.currentUser = null;
+                    this.isAuthenticated = false;
+                }
+            } catch (sessionError) {
+                console.warn('All storage access blocked, using memory storage:', sessionError);
+                // Fallback to window object
+                if (window.currentUser && window.userAuth) {
+                    this.currentUser = window.currentUser;
+                    this.isAuthenticated = true;
+                } else {
+                    this.currentUser = null;
+                    this.isAuthenticated = false;
+                }
+            }
         }
     }
 
@@ -35,11 +56,28 @@ class GlobalAuthManager {
         this.currentUser = userData;
         this.isAuthenticated = true;
         
-        // Store with persistent flags
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        localStorage.setItem('userAuth', 'true');
-        localStorage.setItem('loginTimestamp', Date.now().toString());
-        localStorage.setItem('persistentLogin', 'true');
+        // Store with persistent flags - try multiple storage methods
+        try {
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            localStorage.setItem('userAuth', 'true');
+            localStorage.setItem('loginTimestamp', Date.now().toString());
+            localStorage.setItem('persistentLogin', 'true');
+        } catch (localError) {
+            console.warn('localStorage blocked, trying sessionStorage:', localError);
+            try {
+                sessionStorage.setItem('currentUser', JSON.stringify(userData));
+                sessionStorage.setItem('userAuth', 'true');
+                sessionStorage.setItem('loginTimestamp', Date.now().toString());
+                sessionStorage.setItem('persistentLogin', 'true');
+            } catch (sessionError) {
+                console.warn('All storage blocked, using memory storage:', sessionError);
+                // Fallback to window object
+                window.currentUser = userData;
+                window.userAuth = true;
+                window.loginTimestamp = Date.now();
+                window.persistentLogin = true;
+            }
+        }
         
         console.log('✅ User logged in persistently:', userData.name || userData.email);
         this.broadcastAuthChange();
@@ -59,15 +97,31 @@ class GlobalAuthManager {
         this.currentUser = null;
         this.isAuthenticated = false;
         
-        // Clear all possible auth keys
+        // Clear all possible auth keys from all storage types
         const authKeys = [
             'currentUser', 'userAuth', 'userData', 'user_data', 
             'authToken', 'userToken', 'auth_token', 'loginTimestamp',
             'iamcalling_current_user', 'topbarUserData', 'persistentLogin'
         ];
         
-        authKeys.forEach(key => localStorage.removeItem(key));
-        sessionStorage.clear();
+        try {
+            authKeys.forEach(key => localStorage.removeItem(key));
+        } catch (localError) {
+            console.warn('localStorage access blocked during logout:', localError);
+        }
+        
+        try {
+            authKeys.forEach(key => sessionStorage.removeItem(key));
+        } catch (sessionError) {
+            console.warn('sessionStorage access blocked during logout:', sessionError);
+        }
+        
+        // Clear window object fallbacks
+        authKeys.forEach(key => {
+            if (window[key]) {
+                delete window[key];
+            }
+        });
         
         console.log('🚪 User logged out - all sessions cleared');
         this.broadcastAuthChange();

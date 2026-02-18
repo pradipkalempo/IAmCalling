@@ -169,25 +169,28 @@
         
         .message-badge {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #ef4444;
-            color: white;
+            top: -6px;
+            right: -6px;
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: transparent;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.6rem;
-            font-weight: bold;
-            min-width: 20px;
-            padding: 0 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            width: 10px;
+            height: 10px;
+            display: none;
+            box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.3), 0 2px 8px rgba(255, 68, 68, 0.5);
+            animation: pulse-glow 2s ease-in-out infinite;
+            z-index: 10;
         }
         
-        .message-badge:empty {
-            display: none;
+        @keyframes pulse-glow {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 0 3px rgba(255, 68, 68, 0.3), 0 2px 8px rgba(255, 68, 68, 0.5);
+            }
+            50% { 
+                transform: scale(1.2);
+                box-shadow: 0 0 0 5px rgba(255, 68, 68, 0.2), 0 2px 12px rgba(255, 68, 68, 0.7);
+            }
         }
         
         .user-articles-section {
@@ -433,6 +436,13 @@
     </style>
     <script src="js/universal-topbar-injector-optimized.js" async></script>
     <script src="/config.js" async></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // Initialize Supabase client for real-time
+        const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    </script>
 </head>
 <body>
 
@@ -456,7 +466,7 @@
                 <button class="sync-btn" id="refreshProfileBtn">🔄 Sync Profile</button>
                 <a href="22-write_article.html" class="sync-btn" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); text-decoration: none; display: inline-flex;">📝 Write Article</a>
                 <a href="19-user_settings.html" class="sync-btn" style="text-decoration: none; display: inline-flex;">⚙️ Settings</a>
-                <a href="34-icalluser-messenger.html" class="sync-btn" id="messengerLink" style="text-decoration: none; display: inline-flex; position: relative;">📨 Messenger <span id="messengerBadge" class="message-badge" style="display: none;">0</span></a>
+                <a href="34-icalluser-messenger.html" class="sync-btn" id="messengerLink" style="text-decoration: none; display: inline-flex; position: relative;">📨 Messenger <span id="messengerBadge" class="message-badge"></span></a>
                 <a href="35-reward-claim.html" class="sync-btn" style="background: #28a745; text-decoration: none; display: inline-flex;">₹ Rewards</a>
             </div>
         </div>
@@ -556,18 +566,25 @@
             }
             
             function displayProfileDetails(data) {
+                console.log('📸 Profile photo from Supabase:', data.profile_photo);
+                console.log('📸 Photo length:', data.profile_photo?.length);
+                
                 const displayName = data.first_name || data.last_name ? `${data.first_name || ''} ${data.last_name || ''}`.trim() : data.full_name;
                 if (displayName) profileNameDisplay.textContent = displayName;
                 
-                if (data.profile_photo?.trim()?.length > 50) {
+                // Check if profile_photo exists and is a valid URL or base64
+                if (data.profile_photo && data.profile_photo.trim().length > 10) {
+                    console.log('✅ Setting profile photo:', data.profile_photo.substring(0, 100));
                     profileAvatar.src = data.profile_photo;
                     profileAvatar.style.display = 'block';
                     profileAvatar.onerror = () => {
+                        console.log('❌ Profile photo failed to load, using fallback');
                         const auth = window.globalAuth || {};
                         const user = auth.getCurrentUser ? auth.getCurrentUser() : {};
                         profileAvatar.src = `https://i.pravatar.cc/150?u=${(user.email || 'user').replace(/[^a-zA-Z0-9]/g, '')}`;
                     };
                 } else {
+                    console.log('⚠️ No profile photo found, using fallback');
                     const auth = window.globalAuth || {};
                     const user = auth.getCurrentUser ? auth.getCurrentUser() : {};
                     profileAvatar.src = `https://i.pravatar.cc/150?u=${(user.email || 'user').replace(/[^a-zA-Z0-9]/g, '')}`;
@@ -803,54 +820,114 @@
         // Make deleteArticle globally available
         window.deleteArticle = deleteArticle;
         
-        // Load unread message count
+        // Load unread message indicator with real-time updates
+        let unreadCheckInterval;
         async function loadUnreadMessageCount() {
             try {
+                console.log('🔍 Checking for unread messages...');
+                
                 if (!window.globalAuth || !window.globalAuth.isLoggedIn()) {
+                    console.log('❌ User not logged in');
                     return;
                 }
                 
                 const currentUser = window.globalAuth.getCurrentUser();
-                if (!currentUser || !currentUser.id) {
+                if (!currentUser || !currentUser.email) {
+                    console.log('❌ No user email found');
                     return;
                 }
+                
+                console.log('👤 Current user email:', currentUser.email);
                 
                 const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
                 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                 
-                // Use same logic as messenger - sum up local unread counts
-                let totalUnread = 0;
+                // Get user's Supabase ID from email
+                const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id&email=eq.${encodeURIComponent(currentUser.email)}`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                });
                 
-                // Get unread counts from localStorage (same as messenger uses)
-                const allKeys = Object.keys(localStorage);
-                const unreadKeys = allKeys.filter(key => key.startsWith('unreadCount_'));
-                
-                for (const key of unreadKeys) {
-                    const count = parseInt(localStorage.getItem(key) || '0');
-                    totalUnread += count;
+                if (!userResponse.ok) {
+                    console.log('❌ Failed to get user from Supabase:', userResponse.status);
+                    document.getElementById('messengerBadge').style.display = 'none';
+                    return;
                 }
                 
-                const badge = document.getElementById('messengerBadge');
+                const userData = await userResponse.json();
+                console.log('📊 User data from Supabase:', userData);
                 
-                if (badge) {
-                    if (totalUnread > 0) {
-                        badge.textContent = totalUnread > 99 ? '99+' : totalUnread.toString();
-                        badge.style.display = 'flex';
+                if (!userData || userData.length === 0) {
+                    console.log('❌ User not found in Supabase');
+                    document.getElementById('messengerBadge').style.display = 'none';
+                    return;
+                }
+                
+                const userId = userData[0].id;
+                console.log('✅ User Supabase ID:', userId);
+                window.currentUserSupabaseId = userId;
+                
+                // Check for unread messages
+                const checkUnread = async () => {
+                    // Query all messages for this user
+                    const queryUrl = `${SUPABASE_URL}/rest/v1/messages?select=id&receiver_id=eq.${userId}`;
+                    console.log('🔎 Querying messages:', queryUrl);
+                    
+                    const response = await fetch(queryUrl, {
+                        headers: {
+                            'apikey': SUPABASE_ANON_KEY,
+                            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                        }
+                    });
+                    
+                    const badge = document.getElementById('messengerBadge');
+                    
+                    if (response.ok) {
+                        const allMessages = await response.json();
+                        console.log('📨 Total messages:', allMessages.length);
+                        
+                        // Check which messages are unread using localStorage
+                        const readMessages = JSON.parse(localStorage.getItem('readMessages') || '[]');
+                        const unreadMessages = allMessages.filter(msg => !readMessages.includes(msg.id));
+                        
+                        console.log('📬 Unread messages:', unreadMessages.length);
+                        
+                        const hasUnread = unreadMessages.length > 0;
+                        badge.style.display = hasUnread ? 'flex' : 'none';
+                        localStorage.setItem('hasUnreadMessages', hasUnread ? '1' : '0');
+                        
+                        console.log(hasUnread ? '🔴 Showing unread indicator' : '⚪ Hiding indicator (no unread)');
                     } else {
+                        const errorText = await response.text();
+                        console.log('❌ Failed to fetch messages:', response.status, errorText);
                         badge.style.display = 'none';
                     }
-                }
+                };
+                
+                await checkUnread();
+                
+                // Poll every 3 seconds for real-time feel
+                if (unreadCheckInterval) clearInterval(unreadCheckInterval);
+                unreadCheckInterval = setInterval(checkUnread, 3000);
+                
+                // Also listen to localStorage changes from messenger
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'hasUnreadMessages') {
+                        console.log('📡 Storage event received:', e.newValue);
+                        const badge = document.getElementById('messengerBadge');
+                        badge.style.display = e.newValue === '1' ? 'flex' : 'none';
+                    }
+                });
+                
             } catch (error) {
-                console.error('Error loading unread message count:', error);
-                const badge = document.getElementById('messengerBadge');
-                if (badge) {
-                    badge.style.display = 'none';
-                }
+                console.error('❌ Error loading unread message indicator:', error);
+                document.getElementById('messengerBadge').style.display = 'none';
             }
         }
         
-        // Refresh unread count every 30 seconds
-        setInterval(loadUnreadMessageCount, 30000);
+
     </script>
 </body>
 </html>

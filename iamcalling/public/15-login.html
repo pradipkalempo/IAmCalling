@@ -392,6 +392,43 @@
         .notification.error {
             background: var(--accent-red);
         }
+        .auth-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .toggle-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--accent-green);
+            background: white;
+            color: var(--accent-green);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .toggle-btn.active {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .toggle-btn {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+        
         footer {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
             color: var(--text-light);
@@ -686,11 +723,11 @@
                 <p>Login to your account to continue</p>
             </div>
             
-            <form id="loginForm">
+            <!-- EMAIL LOGIN FORM -->
+            <form id="emailLoginForm">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="Enter your email" required>
-                    <div id="emailError" class="input-error" style="color: var(--accent-red); font-size: 0.85rem; margin-top: 5px; display: none;"></div>
                 </div>
                 <div class="form-group">
                     <label for="password">Password (4 Characters)</label>
@@ -700,7 +737,6 @@
                         <input type="text" class="password-box" id="pass3" maxlength="1" required>
                         <input type="text" class="password-box" id="pass4" maxlength="1" required>
                     </div>
-                    <div id="passwordError" class="input-error" style="color: var(--accent-red); font-size: 0.85rem; margin-top: 5px; display: none;">Password is required</div>
                 </div>
                 <div class="form-options">
                     <div class="remember-me">
@@ -712,8 +748,9 @@
                     </div>
                     <a href="20-password_reset.html" class="forgot-password">Forgot Password?</a>
                 </div>
-                <button type="submit" class="login-submit-btn" id="loginSubmitBtn">LOGIN</button>
+                <button type="submit" class="login-submit-btn">LOGIN</button>
             </form>
+            
             <div class="signup-link">
                 Don't have an account? <a href="16-register.html">Sign Up</a>
             </div>
@@ -724,7 +761,6 @@
     </section>
     <script src="js/universal-topbar-injector.js"></script>
     <script src="js/login-guard.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="js/15-login-fixed.js"></script>
+    <script src="js/15-login-fixed.js?v=4"></script>
 </body>
 </html>

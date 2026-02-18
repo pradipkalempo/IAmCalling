@@ -93,31 +93,7 @@ r(p);
 loadPosts();
 document.getElementById('cf').addEventListener('change',e=>loadPosts(e.target.value));
 </script>
-<script>
-// Notification system
-const SUPABASE_URL='https://gkckyyyaoqsaouemjnxl.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
-let popupInterval;
-function startNotificationCycle(){
-console.log('=== NOTIFICATION CHECK ===');
-console.log('notificationAllowed:',localStorage.getItem('notificationAllowed'));
-console.log('notificationDenied:',localStorage.getItem('notificationDenied'));
-console.log('Notification.permission:',Notification.permission);
-if(localStorage.getItem('notificationAllowed')==='true'||localStorage.getItem('notificationDenied')==='true'||Notification.permission==='granted'||Notification.permission==='denied'){console.log('Skipping popup - already decided');return}
-const overlay=document.getElementById('notif-overlay');
-if(!overlay){console.error('Overlay element not found!');return}
-console.log('Starting popup cycle...');
-let showing=false;
-popupInterval=setInterval(()=>{console.log('Toggling popup, showing:',!showing);if(showing){overlay.style.display='none';showing=false}else{overlay.style.display='flex';showing=true}},7000);
-setTimeout(()=>{console.log('Showing first popup');overlay.style.display='flex';showing=true},7000)}
-setTimeout(()=>{
-const btn=document.getElementById('allow-notif');
-const overlay=document.getElementById('notif-overlay');
-const msg=document.getElementById('notif-message');
-if(btn){btn.onclick=function(){btn.disabled=true;btn.textContent='Requesting...';if('Notification' in window){Notification.requestPermission().then(perm=>{if(perm==='granted'){msg.textContent='✅ Notifications enabled!';btn.textContent='✅ Enabled';setTimeout(()=>{localStorage.setItem('notificationAllowed','true');clearInterval(popupInterval);overlay.style.display='none';subscribeToNotifications()},1500)}else if(perm==='denied'){localStorage.setItem('notificationDenied','true');clearInterval(popupInterval);overlay.style.display='none'}else{btn.textContent='Allow Notifications';btn.disabled=false}})}else{localStorage.setItem('notificationDenied','true');clearInterval(popupInterval);overlay.style.display='none'}}}},100);
-function subscribeToNotifications(){if(typeof supabase==='undefined'){const script=document.createElement('script');script.src='https://unpkg.com/@supabase/supabase-js@2';script.onload=()=>{const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);client.channel('notifications').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},(payload)=>{const n=payload.new;new Notification(n.title,{body:n.message,icon:n.icon||'🔔',badge:'/favicon.ico'})}).subscribe()};document.head.appendChild(script)}else{const client=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);client.channel('notifications').on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},(payload)=>{const n=payload.new;new Notification(n.title,{body:n.message,icon:n.icon||'🔔',badge:'/favicon.ico'})}).subscribe()}}
-if(localStorage.getItem('notificationAllowed')==='true'){subscribeToNotifications()}else{console.log('Calling startNotificationCycle');startNotificationCycle()}
-</script>
 <script src="js/universal-topbar-injector.js" async></script>
+<script src="js/push-notifications.js"></script>
 </body>
 </html>

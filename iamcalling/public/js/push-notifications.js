@@ -1,7 +1,7 @@
 // Web Push Notifications System
 class PushNotificationManager {
     constructor() {
-        this.vapidPublicKey = 'BAYg1UdXx8MxkveYPGtoHJh1vaLm-r4b_w0y3eT7KfUQgTOITJREY4e__slCCW-y1_pMftiPHEahqW5J1OpIVa4';
+        this.vapidPublicKey = null; // Will be fetched from server
         this.isSupported = 'serviceWorker' in navigator && 'PushManager' in window;
         this.subscription = null;
     }
@@ -13,9 +13,22 @@ class PushNotificationManager {
         }
 
         try {
+            // Fetch VAPID public key from server
+            const response = await fetch('/api/vapid-public-key');
+            const data = await response.json();
+            this.vapidPublicKey = data.publicKey;
+
             // Register service worker
-            const registration = await navigator.serviceWorker.register('/scripts/sw.js');
+            const registration = await navigator.serviceWorker.register('/sw.js');
             console.log('Service Worker registered');
+
+            // Check if already subscribed
+            const existingSubscription = await registration.pushManager.getSubscription();
+            if (existingSubscription) {
+                this.subscription = existingSubscription;
+                console.log('Already subscribed to push notifications');
+                return true;
+            }
 
             // Request permission
             const permission = await this.requestPermission();
@@ -42,10 +55,17 @@ class PushNotificationManager {
                 applicationServerKey: this.urlBase64ToUint8Array(this.vapidPublicKey)
             });
 
-            console.log('Push subscription:', this.subscription);
+            console.log('Push subscription created:', this.subscription);
             
-            // Save subscription to localStorage for now
-            localStorage.setItem('pushSubscription', JSON.stringify(this.subscription));
+            // Save subscription to server
+            await fetch('/api/push-subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    subscription: this.subscription,
+                    userAgent: navigator.userAgent
+                })
+            });
             
             return this.subscription;
         } catch (error) {
@@ -63,71 +83,26 @@ class PushNotificationManager {
         }
         return outputArray;
     }
-
-    // Send local notification (for testing)
-    showLocalNotification(title, body, icon = '/assets/logo.png') {
-        if (Notification.permission === 'granted') {
-            new Notification(title, { body, icon });
-        }
-    }
 }
 
 // Initialize push notifications
 const pushManager = new PushNotificationManager();
 
-// Auto-initialize on page load
+// Auto-initialize on page load (ask for permission after 3 seconds)
 document.addEventListener('DOMContentLoaded', () => {
-    // Ask for permission after user interaction
     setTimeout(() => {
         if (localStorage.getItem('pushPermissionAsked') !== 'true') {
             pushManager.init().then(success => {
                 if (success) {
-                    pushManager.showLocalNotification(
-                        'Welcome to ICallUser!', 
-                        'You will now receive notifications for messages and calls.'
-                    );
+                    console.log('✅ Push notifications enabled!');
                 }
                 localStorage.setItem('pushPermissionAsked', 'true');
             });
+        } else {
+            // Already asked, just register service worker
+            pushManager.init();
         }
-    }, 3000); // Wait 3 seconds after page load
-});
-
-// Listen for new article notifications
-window.addEventListener('newArticlePublished', (event) => {
-    const notification = event.detail;
-    
-    // Show push notification to all users except the author
-    const currentUserName = document.getElementById('currentUserName')?.textContent || 'Demo User';
-    
-    if (notification.author !== currentUserName) {
-        pushManager.showLocalNotification(
-            notification.title,
-            notification.message
-        );
-        console.log('📢 Received new article notification:', notification.articleTitle);
-    }
-});
-
-// Check for stored notifications on page load
-document.addEventListener('DOMContentLoaded', () => {
-    // Show notification badge if there are unread notifications
-    setTimeout(() => {
-        const notifications = JSON.parse(localStorage.getItem('global_notifications') || '[]');
-        const unreadCount = notifications.filter(n => !n.read).length;
-        
-        if (unreadCount > 0) {
-            console.log(`📬 You have ${unreadCount} unread notifications`);
-            
-            // Show summary notification
-            if (pushManager.isSupported && Notification.permission === 'granted') {
-                pushManager.showLocalNotification(
-                    '📬 Unread Notifications',
-                    `You have ${unreadCount} unread notification${unreadCount > 1 ? 's' : ''}`
-                );
-            }
-        }
-    }, 2000);
+    }, 3000);
 });
 
 // Export for global use
