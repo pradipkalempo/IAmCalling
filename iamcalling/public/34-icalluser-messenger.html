@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages - IAMCALLING</title>
-    
-    <script src="https://unpkg.com/@supabase/supabase-js@2" onerror="console.log('Supabase CDN failed, will retry')"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" onerror="this.remove()">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages - IAMCALLING</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://ui-avatars.com">
+<script src="https://unpkg.com/@supabase/supabase-js@2" async></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     
     <style>
         :root {
@@ -513,10 +514,10 @@
         });
 
         // Update selectUser to show chat window
-        window.selectUser = function(userId, userName, avatar) {
+        window.selectUser = function(userId, userName, avatar, lastSeen) {
             console.log('🎯 selectUser called:', userId, userName);
             
-            currentChatUser = { id: userId, name: userName, avatar: avatar };
+            currentChatUser = { id: userId, name: userName, avatar: avatar, last_seen: lastSeen };
             
             // Update active state
             document.querySelectorAll('.conversation-item').forEach(item => {
@@ -543,7 +544,7 @@
                 nameEl.style.display = 'block';
             }
             if (statusEl) {
-                statusEl.textContent = 'Online';
+                statusEl.textContent = getLastSeenText(lastSeen);
                 statusEl.style.display = 'flex';
             }
             
@@ -569,26 +570,12 @@
         let unreadCounts = {}; // Track unread messages
         let conversationOrder = []; // Track conversation order
         
-        // Real-time messaging setup - Load from server config
-        let SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
-        let SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+        // Real-time messaging setup - Hardcoded config for instant load
+        const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
         
-        // Load config from server (non-blocking)
-        fetch('/config.js')
-            .then(res => res.text())
-            .then(configScript => {
-                eval(configScript);
-                if (window.APP_CONFIG?.supabaseUrl) {
-                    SUPABASE_URL = window.APP_CONFIG.supabaseUrl;
-                    SUPABASE_ANON_KEY = window.APP_CONFIG.supabaseAnonKey;
-                    console.log('✅ Updated Supabase config from server');
-                }
-                initializeMessaging();
-            })
-            .catch(err => {
-                console.log('⚠️ Using default config');
-                initializeMessaging();
-            });
+        // Initialize immediately
+        initializeMessaging();
         
         // Safe storage access with fallback
         let memoryStorage = {};
@@ -621,10 +608,43 @@
         try {
             currentUser = JSON.parse(safeGetStorage('currentUser', '{}'));
         } catch (e) {
-            console.log('⚠️ Storage access blocked, using defaults');
             currentUser = {};
         }
         const currentUserId = currentUser.id || 157;
+        
+        // Update last_seen heartbeat every 30 seconds
+        function updateLastSeen() {
+            if (!currentUserId) return;
+            fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${currentUserId}`, {
+                method: 'PATCH',
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ last_seen: new Date().toISOString() })
+            }).catch(() => {});
+        }
+        updateLastSeen();
+        setInterval(updateLastSeen, 30000);
+        
+        // Calculate online status
+        function isUserOnline(lastSeen) {
+            if (!lastSeen) return false;
+            const diff = Date.now() - new Date(lastSeen).getTime();
+            return diff < 120000; // 2 minutes
+        }
+        
+        function getLastSeenText(lastSeen) {
+            if (!lastSeen) return 'offline';
+            const diff = Date.now() - new Date(lastSeen).getTime();
+            if (diff < 120000) return 'online';
+            const mins = Math.floor(diff / 60000);
+            if (mins < 60) return `${mins}m ago`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `${hours}h ago`;
+            return `${Math.floor(hours / 24)}d ago`;
+        }
         
         let supabaseClient = null;
         let realtimeChannel = null;
@@ -1190,18 +1210,18 @@
                 const userDiv = document.createElement('div');
                 userDiv.className = 'conversation-item';
                 userDiv.dataset.userId = user.id;
-                userDiv.onclick = () => window.selectUser(user.id, name, avatar);
+                userDiv.onclick = () => window.selectUser(user.id, name, avatar, user.last_seen);
                 
                 userDiv.innerHTML = `
                     <div class="user-avatar">
                         <img src="${avatar}" alt="${name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50'">
-                        <div class="user-status online"></div>
+                        <div class="user-status ${isUserOnline(user.last_seen) ? 'online' : ''}"></div>
                     </div>
                     <div class="conversation-info">
                         <div class="conversation-header">
                             <div class="user-name">${name}</div>
                             <div class="meta-column">
-                                <div class="message-time">${user.lastMessageTimeStr || 'online'}</div>
+                                <div class="message-time">${user.lastMessageTimeStr || getLastSeenText(user.last_seen)}</div>
                                 ${user.unreadCount > 0 ? `<div class="unread-badge">${user.unreadCount > 99 ? '99+' : user.unreadCount}</div>` : ''}
                             </div>
                         </div>
@@ -1261,10 +1281,21 @@
             }, 300);
         });
         
-        // Load users IMMEDIATELY - FASTEST APPROACH
+        // Load users IMMEDIATELY - PRIORITY LOADING STRATEGY
         (function loadUsers() {
             const container = document.getElementById('conversationsList');
             if (!container) return;
+            
+            // Show skeleton immediately
+            container.innerHTML = `
+                <div class="conversation-item" style="pointer-events:none;">
+                    <div class="user-avatar" style="background:#2a3942;animation:pulse 1.5s infinite;"></div>
+                    <div class="conversation-info" style="flex:1;">
+                        <div style="height:16px;background:#2a3942;border-radius:4px;width:60%;margin-bottom:8px;animation:pulse 1.5s infinite;"></div>
+                        <div style="height:14px;background:#2a3942;border-radius:4px;width:80%;animation:pulse 1.5s infinite;"></div>
+                    </div>
+                </div>
+                `.repeat(3) + '<style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}</style>';
             
             let currentUser = {};
             try {
@@ -1274,72 +1305,178 @@
             }
             const currentUserId = currentUser.id || 157;
             
-            // Try to load from cache first
+            // Try cache first for instant load
             const cachedUsers = safeGetStorage('cachedUsers', null);
             if (cachedUsers) {
                 try {
                     const users = JSON.parse(cachedUsers);
                     displayUsers(users);
                     allUsersCache = users;
-                    console.log('⚡ Loaded from cache instantly');
-                    // Still fetch fresh data in background
-                    setTimeout(() => fetchUsers(container, currentUserId), 100);
+                    console.log('⚡ Loaded from cache');
+                    setTimeout(() => fetchPriorityUsers(container, currentUserId), 100);
                     return;
                 } catch (e) {}
             }
             
-            // Show skeleton
-            container.innerHTML = `
-                <div class="conversation-item" style="pointer-events:none;">
-                    <div class="user-avatar" style="background:#2a3942;animation:pulse 1.5s infinite;"></div>
-                    <div class="conversation-info" style="flex:1;">
-                        <div style="height:16px;background:#2a3942;border-radius:4px;width:60%;margin-bottom:8px;animation:pulse 1.5s infinite;"></div>
-                        <div style="height:14px;background:#2a3942;border-radius:4px;width:80%;animation:pulse 1.5s infinite;"></div>
-                    </div>
-                </div>
-                `.repeat(5) + '<style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}</style>';
-            
-            fetchUsers(container, currentUserId);
+            // PRIORITY: Load users with recent messages FIRST
+            fetchPriorityUsers(container, currentUserId);
         })();
         
-        function fetchUsers(container, currentUserId) {
-            console.log('🚀 Starting user load...');
+        // STEP 1: Fetch priority users (with recent messages)
+        function fetchPriorityUsers(container, currentUserId) {
+            console.log('🚀 Loading PRIORITY users (with messages)...');
             const startTime = Date.now();
             
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            // Get users who have messages with current user (last 7 days)
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
             
-            const url = `${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,profile_photo&order=id.asc&limit=15`;
-            console.log('📡 Fetching:', url);
-            
-            fetch(url, {
-                signal: controller.signal,
+            fetch(`${SUPABASE_URL}/rest/v1/messages?or=(sender_id.eq.${currentUserId},receiver_id.eq.${currentUserId})&created_at=gte.${sevenDaysAgo}&order=created_at.desc&limit=50`, {
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                 }
             })
-            .then(res => {
-                clearTimeout(timeoutId);
-                const loadTime = Date.now() - startTime;
-                console.log(`✅ Response received in ${loadTime}ms, status: ${res.status}`);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            })
-            .then(users => {
-                const totalTime = Date.now() - startTime;
-                console.log(`✅ JSON parsed, users count: ${users?.length || 0}`);
-                console.log(`✅ Users loaded: ${users.length} in ${totalTime}ms`);
+            .then(res => res.json())
+            .then(messages => {
+                // Extract unique user IDs from messages
+                const userIds = new Set();
+                messages.forEach(msg => {
+                    if (msg.sender_id !== currentUserId) userIds.add(msg.sender_id);
+                    if (msg.receiver_id !== currentUserId) userIds.add(msg.receiver_id);
+                });
                 
-                // Filter out current user client-side
-                const filteredUsers = users.filter(u => u.id !== currentUserId);
+                const priorityUserIds = Array.from(userIds).slice(0, 10);
+                console.log(`✅ Found ${priorityUserIds.length} priority users`);
                 
-                if (filteredUsers.length === 0) {
-                    container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#8696a0;">No users found</div>';
+                if (priorityUserIds.length === 0) {
+                    // No priority users, load all users
+                    fetchAllUsers(container, currentUserId);
                     return;
                 }
                 
-                const quickUsers = filteredUsers.map(user => ({
+                // Fetch priority user details
+                const idsQuery = priorityUserIds.join(',');
+                fetch(`${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,profile_photo,last_seen&id=in.(${idsQuery})`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                })
+                .then(res => res.json())
+                .then(priorityUsers => {
+                    const loadTime = Date.now() - startTime;
+                    console.log(`⚡ Priority users loaded in ${loadTime}ms`);
+                    
+                    // Display priority users immediately
+                    const quickUsers = priorityUsers.map(user => ({
+                        ...user,
+                        lastMessageText: 'Click to start chatting',
+                        lastMessageTimeStr: 'online',
+                        unreadCount: 0,
+                        isPriority: true
+                    }));
+                    
+                    displayUsers(quickUsers);
+                    allUsersCache = quickUsers;
+                    
+                    // Load message details for priority users
+                    loadMessagesInBackground(quickUsers, currentUserId);
+                    
+                    // STEP 2: Load remaining users in background (silently)
+                    setTimeout(() => fetchRemainingUsers(container, currentUserId, priorityUserIds), 500);
+                })
+                .catch(err => {
+                    console.log('⚠️ Priority load failed, loading all users');
+                    fetchAllUsers(container, currentUserId);
+                });
+            })
+            .catch(err => {
+                console.log('⚠️ Message fetch failed, loading all users');
+                fetchAllUsers(container, currentUserId);
+            });
+        }
+        
+        // STEP 2: Fetch remaining users (background, silent)
+        function fetchRemainingUsers(container, currentUserId, excludeIds) {
+            console.log('🔄 Loading remaining users in background...');
+            
+            const excludeQuery = excludeIds.join(',');
+            fetch(`${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,profile_photo,last_seen&id=neq.${currentUserId}&id=not.in.(${excludeQuery})&limit=20`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            })
+            .then(res => res.json())
+            .then(remainingUsers => {
+                console.log(`✅ Loaded ${remainingUsers.length} additional users`);
+                
+                if (remainingUsers.length === 0) return;
+                
+                // Format remaining users
+                const formattedUsers = remainingUsers.map(user => ({
+                    ...user,
+                    lastMessageText: 'Click to start chatting',
+                    lastMessageTimeStr: 'online',
+                    unreadCount: 0,
+                    isPriority: false
+                }));
+                
+                // Append to existing list (don't replace)
+                formattedUsers.forEach(user => {
+                    const firstName = user.first_name || '';
+                    const lastName = user.last_name || '';
+                    const name = `${firstName} ${lastName}`.trim() || `User ${user.id}`;
+                    const avatar = user.profile_photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50`;
+                    
+                    const userDiv = document.createElement('div');
+                    userDiv.className = 'conversation-item';
+                    userDiv.dataset.userId = user.id;
+                    userDiv.onclick = () => window.selectUser(user.id, name, avatar, user.last_seen);
+                    
+                    userDiv.innerHTML = `
+                        <div class="user-avatar">
+                            <img src="${avatar}" alt="${name}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00a884&color=fff&size=50'">
+                            <div class="user-status ${isUserOnline(user.last_seen) ? 'online' : ''}"></div>
+                        </div>
+                        <div class="conversation-info">
+                            <div class="conversation-header">
+                                <div class="user-name">${name}</div>
+                                <div class="meta-column">
+                                    <div class="message-time">${getLastSeenText(user.last_seen)}</div>
+                                </div>
+                            </div>
+                            <div class="last-message">Click to start chatting</div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(userDiv);
+                });
+                
+                // Update cache with all users
+                allUsersCache = [...allUsersCache, ...formattedUsers];
+                safeSetStorage('cachedUsers', JSON.stringify(allUsersCache));
+            })
+            .catch(err => console.log('⚠️ Background load failed:', err));
+        }
+        
+        // Fallback: Load all users (used when no priority users found)
+        function fetchAllUsers(container, currentUserId) {
+            console.log('🚀 Loading all users...');
+            const startTime = Date.now();
+            
+            fetch(`${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,profile_photo,last_seen&id=neq.${currentUserId}&limit=30`, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            })
+            .then(res => res.json())
+            .then(users => {
+                const loadTime = Date.now() - startTime;
+                console.log(`✅ All users loaded in ${loadTime}ms`);
+                
+                const quickUsers = users.map(user => ({
                     ...user,
                     lastMessageText: 'Click to start chatting',
                     lastMessageTimeStr: 'online',
@@ -1348,15 +1485,11 @@
                 
                 displayUsers(quickUsers);
                 allUsersCache = quickUsers;
-                console.log('✅ Users displayed on screen');
-                
-                // Cache for next visit
                 safeSetStorage('cachedUsers', JSON.stringify(quickUsers));
                 
                 setTimeout(() => loadMessagesInBackground(quickUsers, currentUserId), 100);
             })
             .catch(error => {
-                clearTimeout(timeoutId);
                 const totalTime = Date.now() - startTime;
                 console.error(`❌ Load failed after ${totalTime}ms:`, error.message);
                 container.innerHTML = `<div style="text-align:center;padding:1.5rem;color:#e94560;">Failed to load users<br><small>${error.message}</small><br><a href="javascript:location.reload()" style="color:#00a884;cursor:pointer;">Refresh</a></div>`;

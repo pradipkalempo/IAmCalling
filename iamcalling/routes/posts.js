@@ -27,12 +27,18 @@ router.get('/', async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const page = parseInt(req.query.page) || 1;
     const offset = (page - 1) * limit;
+    const category = req.query.category;
 
-    const { data, error, count } = await supabase
+    let query = supabase
       .from('posts')
-      .select('id, title, content, author_name, thumbnail_url, views_count, created_at', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      .select('id, title, content, author_name, thumbnail_url, views_count, created_at, category', { count: 'exact' })
+      .order('created_at', { ascending: false });
+    
+    if (category) {
+      query = query.eq('category', category);
+    }
+    
+    const { data, error, count } = await query.range(offset, offset + limit - 1);
 
     if (error) {
       console.error('Supabase error:', error);

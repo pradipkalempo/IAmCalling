@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import compression from 'compression';
 import userProfileRoutes from './routes/userProfile.js';
 import criticalThinkingRoutes from './routes/criticalThinking.js';
 import configRoutes from './routes/config.js';
@@ -48,6 +49,7 @@ const apiRateLimiter = rateLimit({
     legacyHeaders: false
 });
 
+app.use(compression());
 app.use('/api', apiRateLimiter);
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -58,8 +60,12 @@ app.use((req, res, next) => {
     next();
 });
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files with caching
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1d',
+    etag: true,
+    lastModified: true
+}));
 
 // Health check routes
 healthCheckRoute(app);

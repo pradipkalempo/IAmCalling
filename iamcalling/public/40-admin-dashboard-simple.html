@@ -362,6 +362,9 @@
                 <a href="29-analytics_dashboard.html" class="nav-link"><i class="fas fa-chart-bar"></i> Analytics</a>
             </li>
             <li class="nav-item">
+                <a href="#notifications" class="nav-link" onclick="showNotificationPanel()"><i class="fas fa-bell"></i> Send Notification</a>
+            </li>
+            <li class="nav-item">
                 <a href="admin-profiles.html" class="nav-link"><i class="fas fa-user-circle"></i> Profiles</a>
             </li>
             <li class="nav-item">
@@ -503,6 +506,34 @@
                 <div id="recentActivity" style="max-height: 300px; overflow-y: auto;">
                     <div style="text-align: center; padding: 20px; color: var(--text-secondary);">Loading activity...</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification-panel" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);z-index:9999;align-items:center;justify-content:center">
+        <div style="background:var(--glass-bg);backdrop-filter:blur(10px);border:1px solid var(--glass-border);border-radius:15px;padding:30px;max-width:500px;width:90%">
+            <h2 style="margin-bottom:20px;color:var(--text-primary)">📢 Send Notification to All Visitors</h2>
+            <div style="margin-bottom:15px">
+                <label style="display:block;margin-bottom:5px;color:var(--text-secondary)">Title</label>
+                <input type="text" id="notif-title" placeholder="e.g., New Post Tomorrow!" style="width:100%;padding:10px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(255,255,255,.1);color:var(--text-primary)">
+            </div>
+            <div style="margin-bottom:15px">
+                <label style="display:block;margin-bottom:5px;color:var(--text-secondary)">Message</label>
+                <textarea id="notif-message" placeholder="e.g., Check back at 5 PM for exciting content!" rows="4" style="width:100%;padding:10px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(255,255,255,.1);color:var(--text-primary);resize:vertical"></textarea>
+            </div>
+            <div style="margin-bottom:20px">
+                <label style="display:block;margin-bottom:5px;color:var(--text-secondary)">Icon</label>
+                <select id="notif-icon" style="width:100%;padding:10px;border:1px solid var(--glass-border);border-radius:8px;background:rgba(255,255,255,.1);color:var(--text-primary)">
+                    <option value="📰">📰 Post</option>
+                    <option value="🔔">🔔 Alert</option>
+                    <option value="⚠️">⚠️ Important</option>
+                    <option value="🎉">🎉 Celebration</option>
+                    <option value="📢">📢 Announcement</option>
+                </select>
+            </div>
+            <div style="display:flex;gap:10px">
+                <button onclick="sendNotification()" class="btn btn-success" style="flex:1"><i class="fas fa-paper-plane"></i> Send to All</button>
+                <button onclick="closeNotificationPanel()" class="btn btn-danger"><i class="fas fa-times"></i> Cancel</button>
             </div>
         </div>
     </div>
@@ -695,6 +726,49 @@
         // Mobile sidebar toggle
         function toggleSidebar() {
             document.querySelector('.sidebar').classList.toggle('open');
+        }
+
+        function showNotificationPanel() {
+            document.getElementById('notification-panel').style.display = 'flex';
+        }
+
+        function closeNotificationPanel() {
+            document.getElementById('notification-panel').style.display = 'none';
+        }
+
+        async function sendNotification() {
+            const title = document.getElementById('notif-title').value.trim();
+            const message = document.getElementById('notif-message').value.trim();
+            const icon = document.getElementById('notif-icon').value;
+
+            if (!title || !message) {
+                alert('Please fill in both title and message');
+                return;
+            }
+
+            try {
+                const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+
+                if (!window.supabaseClient) {
+                    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+
+                const { data, error } = await window.supabaseClient
+                    .from('notifications')
+                    .insert([{ title, message, icon }])
+                    .select();
+
+                if (error) throw error;
+
+                showNotification('Notification sent to all visitors!', 'success');
+                closeNotificationPanel();
+                document.getElementById('notif-title').value = '';
+                document.getElementById('notif-message').value = '';
+            } catch (error) {
+                console.error('Error sending notification:', error);
+                alert('Failed to send notification: ' + error.message);
+            }
         }
     </script>
 </body>
