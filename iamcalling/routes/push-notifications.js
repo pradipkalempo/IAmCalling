@@ -10,21 +10,30 @@ const supabase = createClient(
     process.env.SUPABASE_SERVICE_KEY
 );
 
-// Configure web-push with VAPID keys
-webpush.setVapidDetails(
-    'mailto:admin@iamcalling.com',
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-);
+// Configure web-push with VAPID keys (only if provided)
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+        'mailto:admin@iamcalling.com',
+        process.env.VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY
+    );
+}
 
 // Get VAPID public key
 router.get('/vapid-public-key', (req, res) => {
+    if (!process.env.VAPID_PUBLIC_KEY) {
+        return res.status(503).json({ error: 'Push notifications not configured' });
+    }
     res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
 });
 
 // Subscribe to push notifications
 router.post('/push-subscribe', async (req, res) => {
     try {
+        if (!process.env.VAPID_PUBLIC_KEY) {
+            return res.status(503).json({ error: 'Push notifications not configured' });
+        }
+
         const { subscription, userAgent } = req.body;
 
         if (!subscription || !subscription.endpoint) {
@@ -56,6 +65,10 @@ router.post('/push-subscribe', async (req, res) => {
 // Admin: Send push notification to all subscribers
 router.post('/admin/send-push', async (req, res) => {
     try {
+        if (!process.env.VAPID_PUBLIC_KEY) {
+            return res.status(503).json({ error: 'Push notifications not configured' });
+        }
+
         const { title, message, icon } = req.body;
 
         if (!title || !message) {
@@ -132,6 +145,10 @@ router.post('/admin/send-push', async (req, res) => {
 // Test endpoint - send test notification
 router.post('/test-push', async (req, res) => {
     try {
+        if (!process.env.VAPID_PUBLIC_KEY) {
+            return res.status(503).json({ error: 'Push notifications not configured' });
+        }
+
         const { endpoint } = req.body;
 
         if (!endpoint) {
