@@ -694,7 +694,7 @@
                 const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
                 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                 
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/articles?select=*&published=eq.true&order=created_at.desc&limit=3`, {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/articles?select=*&published=eq.true&order=created_at.desc`, {
                     headers: {
                         'apikey': SUPABASE_KEY,
                         'Authorization': `Bearer ${SUPABASE_KEY}`,

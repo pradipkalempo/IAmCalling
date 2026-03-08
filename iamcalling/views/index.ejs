@@ -80,9 +80,9 @@
                     <label style="display:block;color:#333;font-size:0.7rem;font-weight:600;margin-bottom:0.5rem;">Filter by Category</label>
                     <select id="categoryFilter" style="width:100%;padding:0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.7rem;background:white;color:#333;cursor:pointer;">
                         <option value="">All Categories</option>
-                        <option value="innovation-tech">Innovation and Tech</option>
-                        <option value="ethics-morality">Ethics & Morality</option>
-                        <option value="fact-check">Fact Check</option>
+                        <option value="Ethics-Morality">Ethics-Morality</option>
+                        <option value="Innovation-Tech">Innovation-Tech</option>
+                        <option value="Fact-Check">Fact-Check</option>
                     </select>
                 </div>
                 
@@ -155,11 +155,11 @@
                 container.innerHTML = '<div style="text-align:center;padding:3rem;background:white;border-radius:8px;"><h3 style="color:#666;">No posts found</h3></div>';
                 return;
             }
-            container.innerHTML = postsToRender.slice(0, 3).map(p => `
+            container.innerHTML = postsToRender.map(p => `
                 <div class="article-card" data-category="${p.category || ''}">
                     <div class="article-thumbnail">
                         <img src="${p.thumbnail_url || `https://picsum.photos/seed/post${p.id}/400/250`}" alt="${p.title}" class="thumbnail-image" loading="lazy">
-                        <div class="article-category">Official</div>
+                        <div class="article-category">${p.category || 'Official'}</div>
                     </div>
                     <div class="article-content">
                         <h2 class="article-title">${p.title}</h2>
@@ -182,11 +182,11 @@
         window.addEventListener('focus', refreshViewCounts);
         
         document.getElementById('categoryFilter').addEventListener('change', function(e) {
-            const category = e.target.value.toLowerCase();
+            const category = e.target.value;
             if (!category) {
                 renderPosts(window.POSTS_DATA);
             } else {
-                const filtered = window.POSTS_DATA.filter(p => (p.category || '').toLowerCase() === category);
+                const filtered = window.POSTS_DATA.filter(p => (p.category || '') === category);
                 renderPosts(filtered);
             }
         });

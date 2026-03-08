@@ -82,9 +82,8 @@ app.get('/', async (req, res) => {
         const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
         const { data } = await supabase
             .from('posts')
-            .select('id, title, author_name, thumbnail_url, views_count, created_at')
-            .order('created_at', { ascending: false })
-            .limit(10);
+            .select('id, title, author_name, thumbnail_url, views_count, created_at, category')
+            .order('created_at', { ascending: false });
         res.set('Cache-Control', 'public, max-age=30');
         res.render('index', { posts: data || [] });
     } catch (error) {
@@ -98,9 +97,8 @@ app.get('/01-index.html', async (req, res) => {
         const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
         const { data } = await supabase
             .from('posts')
-            .select('id, title, author_name, thumbnail_url, views_count, created_at')
-            .order('created_at', { ascending: false })
-            .limit(10);
+            .select('id, title, author_name, thumbnail_url, views_count, created_at, category')
+            .order('created_at', { ascending: false });
         res.set('Cache-Control', 'public, max-age=30');
         res.render('index', { posts: data || [] });
     } catch (error) {
