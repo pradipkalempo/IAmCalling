@@ -10,6 +10,8 @@ import criticalThinkingRoutes from './routes/criticalThinking.js';
 import configRoutes from './routes/config.js';
 import postsRoutes from './routes/posts.js';
 import authRoutes from './routes/auth.js';
+import uploadRoutes from './routes/upload.js';
+import passwordResetRoutes from './routes/passwordReset.js';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const viewsRoutes = require('./routes/views.cjs');
@@ -71,6 +73,8 @@ app.use('/api/profile', userProfileRoutes);
 app.use('/api/critical-thinking', criticalThinkingRoutes);
 app.use('/api/views', viewsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/password-reset', passwordResetRoutes);
 
 // Basic routes
 app.get('/', async (req, res) => {
@@ -110,6 +114,24 @@ app.get('/15-login.html', (req, res) => {
 
 app.get('/18-profile.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public/18-profile.html'));
+});
+
+app.get('/config', (req, res) => {
+    res.json({
+        supabaseUrl: process.env.SUPABASE_URL || '',
+        supabaseAnonKey: process.env.SUPABASE_ANON_KEY || ''
+    });
+});
+
+app.post('/api/posts/create', async (req, res) => {
+    try {
+        const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+        const { data, error } = await supabase.from('posts').insert([req.body]).select();
+        if (error) throw error;
+        res.json({ success: true, data });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
 });
 
 app.get('/config.js', (req, res) => {

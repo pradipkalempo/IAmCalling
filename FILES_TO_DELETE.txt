@@ -1,0 +1,63 @@
+UNNECESSARY FILES TO DELETE BEFORE CLIENT HANDOVER
+===================================================
+
+TEST/DEBUG HTML FILES (19 files):
+- 07-article-detail-fixed.html (duplicate, keep 07-readmore.html)
+- 08-article-detail.html (duplicate)
+- 99-profile-photo-diagnostic.html
+- complete-fix.html
+- debug-article-content.html
+- debug-navigation.html
+- form-test.html
+- global-view-test.html
+- live-debug.html
+- quick-supabase-test.html
+- simple-view-test.html
+- system-test.html
+- test-auth-flow.html
+- test-code-rendering.html
+- test-navigation.html
+- test-posts.html
+- test-view-tracking.html
+- test_cloudinary_fix.html
+- websocket-fix-test.html
+
+DUPLICATE/UNUSED HTML FILES (6 files):
+- 07-article-detail-final.html (keep 07-readmore.html)
+- 41-admin-create-post-test.html (keep 41-admin-create-post.html)
+- public_profileview.html (duplicate of 27-user_profiles_public.html)
+- user-profile-articles.html (functionality in 18-profile.html)
+- reset_password.html (duplicate, keep 20-password_reset.html)
+- reset-password.html (duplicate, keep 20-password_reset.html)
+- cloudinary-explorer.html (admin tool, not needed)
+
+TEST/DEBUG JS FILES IN PUBLIC ROOT (4 files):
+- audio-fix.js
+- emergency-speed-fix.js
+- storage-fix.js
+- test-navigation.js
+
+UNUSED CSS FILES IN PUBLIC ROOT (6 files):
+- admin-style.css (styles should be in css folder)
+- editor-dashboard.css
+- enhanced-style.css
+- landing-page.css
+- profile-update.css
+- style.css (duplicate, keep css/style.css)
+
+UNUSED JS FILES (1 file):
+- 17-submit-challenge.js (should be in js folder)
+- 19-user_settings.js (should be in js folder)
+- 20-password_reset.js (should be in js folder)
+- 25-ideology-photo-uploader.js (should be in js folder)
+- image-loader.js (should be in js folder)
+- profile-update.js (should be in js folder)
+- view-monitor.js (should be in js folder)
+
+OTHER FILES:
+- add-universal-topbar.sh (development script)
+- ERROR_FIXES_SUMMARY.md (development notes)
+- package.json (in public folder - wrong location)
+- package-lock.json (in public folder - wrong location)
+
+TOTAL: ~50 files to remove

@@ -70,7 +70,7 @@
         }
         
         .article-header {
-            background: white;
+            background: #000;
             border-radius: 12px;
             padding: 20px;
             margin-bottom: 20px;
@@ -83,7 +83,7 @@
         .article-title {
             font-size: 1rem;
             margin: 0 0 15px 0;
-            color: #2c3e50;
+            color: #fff;
             font-weight: 700;
         }
         
@@ -180,10 +180,11 @@
             -webkit-align-items: center;
             align-items: center;
             gap: 6px;
-            background: #f8f9fa;
+            background: #333;
             padding: 6px 12px;
             border-radius: 15px;
             font-size: 0.7rem;
+            color: #d4af37;
         }
         
         /* Universal content display container */
@@ -192,7 +193,7 @@
             max-width: 100%;
             min-height: 600px;
             padding: 20px;
-            background: white;
+            background: #000;
             border-radius: 8px;
             overflow-x: hidden;
             overflow-y: auto;
@@ -284,7 +285,7 @@
                     </div>
                 </div>
                 
-                <div class="view-count">
+                <div class="view-count" style="opacity: 0;">
                     <i class="fa fa-eye"></i>
                     <span id="viewCount">0</span> views
                 </div>
@@ -310,6 +311,12 @@
                     </div>
                     <p style="margin-top: 20px;">Loading content...</p>
                 </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; padding: 20px; border-top: 2px solid #eee;">
+                <button id="counterThoughtsBtn" class="back-button" style="background: linear-gradient(135deg, #dc3545, #c82333); font-size: 0.9rem; padding: 12px 24px;">
+                    ✍️ Write Your Counter Thoughts
+                </button>
             </div>
         </div>
     </div>
@@ -351,6 +358,7 @@
                     .eq('id', postId);
                 
                 document.getElementById('viewCount').textContent = newCount;
+                document.querySelector('.view-count').style.opacity = '1';
             } catch (e) {}
         }
         
@@ -417,6 +425,11 @@
                     document.getElementById('challengeId').textContent = post.challenge_post_id;
                     document.getElementById('challengeInfo').style.display = 'block';
                 }
+                
+                document.getElementById('counterThoughtsBtn').addEventListener('click', () => {
+                    const challengeId = post.challenge_post_id || '';
+                    window.location.href = `22-write_article.html${challengeId ? '?challenge_id=' + challengeId : ''}`;
+                });
                 
                 trackView(postId);
                 renderContent(post);

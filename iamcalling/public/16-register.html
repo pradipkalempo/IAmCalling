@@ -607,6 +607,33 @@
                     try {
                         console.log('🚀 Registering user via API:', userData.email);
                         
+                        let cloudinaryPhotoUrl = null;
+                        
+                        // Upload photo to Cloudinary first if provided
+                        if (userData.profile_photo) {
+                            console.log('📸 Uploading photo to Cloudinary...');
+                            try {
+                                const uploadResponse = await fetch('/api/upload/upload-profile-photo', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        image: userData.profile_photo,
+                                        userId: 'temp_' + Date.now() // Temporary ID for registration
+                                    })
+                                });
+                                
+                                const uploadResult = await uploadResponse.json();
+                                if (uploadResult.success) {
+                                    cloudinaryPhotoUrl = uploadResult.photoUrl;
+                                    console.log('✅ Photo uploaded to Cloudinary:', cloudinaryPhotoUrl);
+                                }
+                            } catch (uploadError) {
+                                console.warn('⚠️ Photo upload failed, continuing without photo:', uploadError);
+                            }
+                        }
+                        
                         // Call backend registration API
                         const response = await fetch('/api/auth/register', {
                             method: 'POST',
@@ -618,7 +645,7 @@
                                 lastName: userData.last_name,
                                 email: userData.email,
                                 password: userData.password,
-                                profilePhoto: userData.profile_photo
+                                profilePhoto: cloudinaryPhotoUrl || userData.profile_photo
                             })
                         });
                         

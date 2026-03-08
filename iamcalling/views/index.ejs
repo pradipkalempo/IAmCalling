@@ -76,7 +76,17 @@
                 <% } %>
             </div>
             <aside class="sidebar">
-                <div style="text-align:center;">
+                <div style="margin-top:0;background:white;padding:1rem;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                    <label style="display:block;color:#333;font-size:0.7rem;font-weight:600;margin-bottom:0.5rem;">Filter by Category</label>
+                    <select id="categoryFilter" style="width:100%;padding:0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.7rem;background:white;color:#333;cursor:pointer;">
+                        <option value="">All Categories</option>
+                        <option value="innovation-tech">Innovation and Tech</option>
+                        <option value="ethics-morality">Ethics & Morality</option>
+                        <option value="fact-check">Fact Check</option>
+                    </select>
+                </div>
+                
+                <div style="margin-top:1rem;text-align:center;">
                     <a href="https://www.linkedin.com/in/pradip-kale-a116112a0" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;background:#0077b5;color:white;padding:0.6rem 1rem;border-radius:8px;text-decoration:none;font-weight:600;transition:all 0.3s ease;box-shadow:0 4px 12px rgba(0,119,181,0.3);font-size:0.7rem;width:100%;justify-content:center;">
                         <i class="fab fa-linkedin" style="font-size:0.9rem;"></i> Follow on LinkedIn
                     </a>
@@ -95,27 +105,18 @@
                 </div>
                 
                 <div style="margin-top:2rem;background:white;padding:1.5rem;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);text-align:center;">
-                    <a href="10-political-battle.html" class="ideology-test-button" style="display:inline-block;width:100%;text-align:center;background:linear-gradient(135deg,#dc3545,#c82333);">Ideological Battle <i class="fas fa-fist-raised"></i></a>
-                </div>
-                
-                <div style="margin-top:2rem;background:white;padding:1rem;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-                    <label style="display:block;color:#333;font-size:0.7rem;font-weight:600;margin-bottom:0.5rem;">Filter by Category</label>
-                    <select id="categoryFilter" style="width:100%;padding:0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.7rem;background:white;color:#333;cursor:pointer;">
-                        <option value="">All Categories</option>
-                        <option value="innovation-tech">Innovation and Tech</option>
-                        <option value="biology">Biology</option>
-                        <option value="geography">Geography</option>
-                        <option value="history">History</option>
-                        <option value="ethics-morality">Ethics & Morality</option>
-                        <option value="justice">Justice</option>
-                        <option value="religious-truth">Religious Truth</option>
-                        <option value="fact-check">Fact Check</option>
-                        <option value="politics">Politics</option>
-                    </select>
+                    <a href="09-cognitive-testing.html" style="display:block;text-decoration:none;">
+                        <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1772966529/360_F_111802196_fZEOY0ULYmdYTGSWyRXrSV4E2004CDEi_x36edg.jpg" alt="Cognitive Testing" style="width:100%;border-radius:8px;margin-bottom:0.5rem;">
+                        <span style="color:#333;font-weight:600;font-size:0.8rem;">Cognitive Testing</span>
+                    </a>
                 </div>
                 
                 <div style="margin-top:2rem;background:white;padding:1.5rem;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);text-align:center;">
-                    <a href="01-response-index.html" class="ideology-test-button" style="display:inline-block;width:100%;text-align:center;">Public Articles <i class="fas fa-newspaper"></i></a>
+                    <a href="10-cognitive-battle.html" class="ideology-test-button" style="display:inline-block;width:100%;text-align:center;background:linear-gradient(135deg,#dc3545,#c82333);">🧠 Analyze Your Cognitive Pattern <i class="fas fa-brain"></i></a>
+                </div>
+                
+                <div style="margin-top:2rem;background:white;padding:1.5rem;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);text-align:center;">
+                    <a href="01-response-index.html" class="ideology-test-button" style="display:inline-block;width:100%;text-align:center;background:linear-gradient(135deg,#28a745,#20c997);">📝 View Response Articles <i class="fas fa-comments"></i></a>
                 </div>
                 
                 <div style="margin-top:2rem;background:white;padding:1.5rem;border-radius:8px;box-shadow:0 4px 6px rgba(0,0,0,0.1);text-align:center;">
@@ -124,9 +125,30 @@
             </aside>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         window.POSTS_DATA = <%- JSON.stringify(posts) %>;
         const container = document.getElementById('articlesContainer');
+        
+        async function refreshViewCounts() {
+            const postIds = window.POSTS_DATA.map(p => p.id);
+            const { data } = await supabaseClient
+                .from('posts')
+                .select('id,views_count')
+                .in('id', postIds);
+            
+            if (data) {
+                data.forEach(post => {
+                    const existing = window.POSTS_DATA.find(p => p.id === post.id);
+                    if (existing) existing.views_count = post.views_count;
+                });
+                renderPosts(window.POSTS_DATA);
+            }
+        }
         
         function renderPosts(postsToRender) {
             if (!postsToRender || postsToRender.length === 0) {
@@ -155,8 +177,9 @@
         }
         
         renderPosts(window.POSTS_DATA);
-        localStorage.setItem('posts_cache', JSON.stringify(window.POSTS_DATA));
-        localStorage.setItem('posts_cache_time', Date.now());
+        refreshViewCounts();
+        
+        window.addEventListener('focus', refreshViewCounts);
         
         document.getElementById('categoryFilter').addEventListener('change', function(e) {
             const category = e.target.value.toLowerCase();

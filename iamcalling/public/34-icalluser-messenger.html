@@ -1269,20 +1269,6 @@
             }
             const currentUserId = currentUser.id || 157;
             
-            // Try to load from cache first
-            const cachedUsers = safeGetStorage('cachedUsers', null);
-            if (cachedUsers) {
-                try {
-                    const users = JSON.parse(cachedUsers);
-                    displayUsers(users);
-                    allUsersCache = users;
-                    console.log('⚡ Loaded from cache instantly');
-                    // Still fetch fresh data in background
-                    setTimeout(() => fetchUsers(container, currentUserId), 100);
-                    return;
-                } catch (e) {}
-            }
-            
             // Show skeleton
             container.innerHTML = `
                 <div class="conversation-item" style="pointer-events:none;">
@@ -1294,85 +1280,35 @@
                 </div>
                 `.repeat(5) + '<style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}</style>';
             
-            fetchUsers(container, currentUserId);
+            fetchUsersWithMessages(container, currentUserId);
         })();
         
-        function fetchUsers(container, currentUserId) {
-            console.log('🚀 Starting user load...');
+        function fetchUsersWithMessages(container, currentUserId) {
+            console.log('🚀 Loading users with messages...');
             const startTime = Date.now();
             
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
-            
-            const url = `${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,profile_photo&order=id.asc&limit=15`;
-            console.log('📡 Fetching:', url);
-            
-            fetch(url, {
-                signal: controller.signal,
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                }
-            })
-            .then(res => {
-                clearTimeout(timeoutId);
-                const loadTime = Date.now() - startTime;
-                console.log(`✅ Response received in ${loadTime}ms, status: ${res.status}`);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                return res.json();
-            })
-            .then(users => {
-                const totalTime = Date.now() - startTime;
-                console.log(`✅ JSON parsed, users count: ${users?.length || 0}`);
-                console.log(`✅ Users loaded: ${users.length} in ${totalTime}ms`);
-                
-                // Filter out current user client-side
-                const filteredUsers = users.filter(u => u.id !== currentUserId);
-                
-                if (filteredUsers.length === 0) {
-                    container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#8696a0;">No users found</div>';
-                    return;
-                }
-                
-                const quickUsers = filteredUsers.map(user => ({
-                    ...user,
-                    lastMessageText: 'Click to start chatting',
-                    lastMessageTimeStr: 'online',
-                    unreadCount: 0
-                }));
-                
-                displayUsers(quickUsers);
-                allUsersCache = quickUsers;
-                console.log('✅ Users displayed on screen');
-                
-                // Cache for next visit
-                safeSetStorage('cachedUsers', JSON.stringify(quickUsers));
-                
-                setTimeout(() => loadMessagesInBackground(quickUsers, currentUserId), 100);
-            })
-            .catch(error => {
-                clearTimeout(timeoutId);
-                const totalTime = Date.now() - startTime;
-                console.error(`❌ Load failed after ${totalTime}ms:`, error.message);
-                container.innerHTML = `<div style="text-align:center;padding:1.5rem;color:#e94560;">Failed to load users<br><small>${error.message}</small><br><a href="javascript:location.reload()" style="color:#00a884;cursor:pointer;">Refresh</a></div>`;
-            });
-        }
-        
-        // Background message loading
-        function loadMessagesInBackground(users, currentUserId) {
             const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-            const userIds = users.map(u => u.id).join(',');
             
-            fetch(`${SUPABASE_URL}/rest/v1/messages?or=(and(sender_id.in.(${userIds}),receiver_id.eq.${currentUserId}),and(sender_id.eq.${currentUserId},receiver_id.in.(${userIds})))&created_at=gte.${oneDayAgo}&order=created_at.desc&limit=30`, {
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-                }
-            })
-            .then(res => res.json())
-            .then(allMessages => {
-                if (allMessages.length === 0) return;
+            Promise.all([
+                fetch(`${SUPABASE_URL}/rest/v1/users?select=id,first_name,last_name,profile_photo&order=id.asc&limit=15`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                }).then(res => res.json()),
                 
+                fetch(`${SUPABASE_URL}/rest/v1/messages?select=id,sender_id,receiver_id,content,created_at&or=(sender_id.eq.${currentUserId},receiver_id.eq.${currentUserId})&created_at=gte.${oneDayAgo}&order=created_at.desc&limit=50`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                    }
+                }).then(res => res.json())
+            ])
+            .then(([users, allMessages]) => {
+                const totalTime = Date.now() - startTime;
+                console.log(`✅ Loaded ${users.length} users and ${allMessages.length} messages in ${totalTime}ms`);
+                
+                const filteredUsers = users.filter(u => u.id !== currentUserId);
                 const readMessages = JSON.parse(safeGetStorage('readMessages', '[]'));
                 const messagesByUser = new Map();
                 
@@ -1382,7 +1318,7 @@
                     messagesByUser.get(otherUserId).push(msg);
                 });
                 
-                const updatedUsers = users.map(user => {
+                const usersWithMessages = filteredUsers.map(user => {
                     const userMessages = messagesByUser.get(user.id) || [];
                     if (userMessages.length === 0) return { ...user, lastMessageTime: 0, lastMessageText: 'Click to start chatting', lastMessageTimeStr: 'online', unreadCount: 0 };
                     
@@ -1403,15 +1339,20 @@
                     };
                 });
                 
-                const sortedUsers = updatedUsers.sort((a, b) => {
+                const sortedUsers = usersWithMessages.sort((a, b) => {
                     if (a.unreadCount !== b.unreadCount) return b.unreadCount - a.unreadCount;
                     return b.lastMessageTime - a.lastMessageTime;
                 });
                 
                 allUsersCache = sortedUsers;
                 displayUsers(sortedUsers);
+                safeSetStorage('cachedUsers', JSON.stringify(sortedUsers));
             })
-            .catch(() => {});
+            .catch(error => {
+                const totalTime = Date.now() - startTime;
+                console.error(`❌ Load failed after ${totalTime}ms:`, error.message);
+                container.innerHTML = `<div style="text-align:center;padding:1.5rem;color:#e94560;">Failed to load users<br><small>${error.message}</small><br><a href="javascript:location.reload()" style="color:#00a884;cursor:pointer;">Refresh</a></div>`;
+            });
         }
     </script>
 </body>

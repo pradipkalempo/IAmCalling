@@ -1,38 +1,30 @@
-// Universal Topbar Injector – single bootstrap for project-links, global auth, topbar.
-// Load order: project-links → global-auth → topbar. No redundant validators.
-
+// Universal Topbar Injector – Optimized parallel loading
 (function () {
     'use strict';
+    var scripts = ['js/project-links.js', 'js/global-auth-manager.js', 'js/universal-topbar.js'];
+    var loaded = 0;
 
-    var base = 'js/';
-    var scripts = [base + 'project-links.js', base + 'global-auth-manager.js', base + 'universal-topbar.js'];
-
-    function hasScript(name) {
-        return !!document.querySelector('script[src*="' + name.replace(/.*\//, '') + '"]');
+    function hasScript(src) {
+        return !!document.querySelector('script[src="' + src + '"]');
     }
 
     function inject() {
-        var sel = 'header:not(.universal-topbar), .navbar:not(.universal-topbar), .topbar:not(.universal-topbar), .universal-bar, nav:not(.universal-topbar), .navigation:not(.universal-topbar), .header-container:not(.universal-topbar), .nav-container:not(.universal-topbar)';
-        try {
-            document.querySelectorAll(sel).forEach(function (el) { el.remove(); });
-        } catch (e) {}
+        // Remove old navbars once
+        var sel = 'header:not(.universal-topbar), .navbar:not(.universal-topbar), .topbar:not(.universal-topbar), .universal-bar, nav:not(.universal-topbar)';
+        document.querySelectorAll(sel).forEach(function (el) { el.remove(); });
 
-        function addNext(i) {
-            if (i >= scripts.length) return;
-            var src = scripts[i];
-            var name = src.replace(/.*\//, '');
-            if (hasScript(name)) {
-                addNext(i + 1);
+        // Load all scripts in parallel
+        scripts.forEach(function(src) {
+            if (hasScript(src)) {
+                loaded++;
                 return;
             }
             var s = document.createElement('script');
             s.src = src;
-            s.onload = function () { addNext(i + 1); };
-            s.onerror = function () { addNext(i + 1); };
+            s.async = false; // Maintain execution order
+            s.onload = s.onerror = function() { loaded++; };
             document.head.appendChild(s);
-        }
-
-        addNext(0);
+        });
     }
 
     if (document.readyState === 'loading') {

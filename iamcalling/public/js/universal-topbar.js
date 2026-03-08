@@ -48,15 +48,13 @@
             this.createTopBar();
             this.updateUserDisplay();
             this.setupEventListeners();
-            this._interval = setInterval(() => this.updateUserDisplay(), 10000);
+            this._interval = setInterval(() => this.updateUserDisplay(), 30000);
         }
 
         createTopBar() {
-            const sel = 'header, .navbar, .topbar, .universal-bar, nav, .navigation, .header-container, .nav-container';
-            document.querySelectorAll(sel).forEach(function (el) {
-                if (!el.classList.contains('universal-topbar')) el.remove();
-            });
             if (document.querySelector('.universal-topbar')) return;
+            const sel = 'header:not(.universal-topbar), .navbar:not(.universal-topbar), .topbar:not(.universal-topbar)';
+            document.querySelectorAll(sel).forEach(function (el) { el.remove(); });
 
             const home = getHomeHref();
             const navLinks = getNavLinks();
@@ -86,11 +84,6 @@
                 '</div>' +
                 '<div class="topbar-center">' +
                 '<nav class="topbar-nav" id="topbar-nav">' +
-                '<a href="01-index.html" class="nav-link">Home</a>' +
-                '<a href="10-political-battle.html" class="nav-link">Battle</a>' +
-                '<a href="09-ideology-analyzer.html" class="nav-link">Test</a>' +
-                '<a href="02-about.html" class="nav-link">About</a>' +
-                '<a href="04-categories.html" class="nav-link">Categories</a>' +
                 '</nav>' +
                 '</div>' +
                 '<div class="topbar-right">' +
@@ -166,14 +159,11 @@
 
         async loadProfilePhotoFromSupabase(email) {
             if (!email) return null;
-            var cacheKey = 'profile_photo_cache_' + email;
+            var cacheKey = 'profile_photo_' + email;
             
-            // Check cache first
             try {
-                var cached = sessionStorage.getItem(cacheKey);
-                if (cached && cached !== 'null' && cached !== '') {
-                    return cached;
-                }
+                var cached = localStorage.getItem(cacheKey);
+                if (cached && cached !== 'null') return cached;
             } catch (e) {}
             
             try {
@@ -181,36 +171,27 @@
                 var key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                 
                 var r = await fetch(url + '/rest/v1/users?select=profile_photo&email=eq.' + encodeURIComponent(email), {
-                    headers: { 
-                        'apikey': key, 
-                        'Authorization': 'Bearer ' + key
-                    }
+                    headers: { 'apikey': key, 'Authorization': 'Bearer ' + key }
                 });
                 
                 if (!r.ok) { 
-                    sessionStorage.setItem(cacheKey, 'null'); 
+                    localStorage.setItem(cacheKey, 'null'); 
                     return null; 
                 }
                 
                 var users = await r.json();
+                var photo = users?.[0]?.profile_photo;
                 
-                if (!users || !users.length || !users[0].profile_photo) {
-                    sessionStorage.setItem(cacheKey, 'null');
-                    return null;
-                }
-                
-                var photo = users[0].profile_photo;
-                
-                // Validate it's a real photo (not SVG or placeholder)
-                if (/^data:image\/(jpeg|jpg|png|gif|webp)/i.test(photo)) {
-                    sessionStorage.setItem(cacheKey, photo);
+                // Accept both base64 and Cloudinary URLs
+                if (photo && (photo.startsWith('http') || /^data:image\/(jpeg|jpg|png|gif|webp)/i.test(photo))) {
+                    localStorage.setItem(cacheKey, photo);
                     return photo;
                 }
                 
-                sessionStorage.setItem(cacheKey, 'null');
+                localStorage.setItem(cacheKey, 'null');
                 return null;
             } catch (err) {
-                try { sessionStorage.setItem(cacheKey, 'null'); } catch (e) {}
+                try { localStorage.setItem(cacheKey, 'null'); } catch (e) {}
                 return null;
             }
         }
@@ -256,32 +237,13 @@
     }
 
     function init() {
-        var sel = 'header, .navbar, .topbar, .universal-bar, nav, .navigation, .header-container, .nav-container';
-        document.querySelectorAll(sel).forEach(function (el) {
-            if (!el.classList.contains('universal-topbar')) el.remove();
-        });
-        if (!window.universalTopBar) window.universalTopBar = new UniversalTopBar();
-
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll(sel).forEach(function (el) {
-                if (!el.classList.contains('universal-topbar')) el.remove();
-            });
-            if (!window.universalTopBar) window.universalTopBar = new UniversalTopBar();
-        });
-
-        if (document.readyState !== 'loading') {
-            document.querySelectorAll(sel).forEach(function (el) {
-                if (!el.classList.contains('universal-topbar')) el.remove();
-            });
-            if (!window.universalTopBar) window.universalTopBar = new UniversalTopBar();
-        }
+        if (window.universalTopBar) return;
+        window.universalTopBar = new UniversalTopBar();
     }
 
-    if (typeof window.NAV_LINKS !== 'undefined' || typeof window.PROJECT_LINKS !== 'undefined') {
-        init();
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
     } else {
-        document.addEventListener('DOMContentLoaded', function () { init(); });
-        if (document.readyState !== 'loading') init();
+        init();
     }
-    setTimeout(init, 100);
 })();

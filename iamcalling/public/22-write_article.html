@@ -1195,14 +1195,8 @@
                     
                     const categoryNames = {
                         'innovation-tech': 'Innovation and Tech',
-                        'biology': 'Biology',
-                        'geography': 'Geography',
-                        'history': 'History',
                         'ethics-morality': 'Ethics & Morality',
-                        'justice': 'Justice',
-                        'religious-truth': 'Religious Truth',
-                        'fact-check': 'Fact Check',
-                        'politics': 'Politics'
+                        'fact-check': 'Fact Check'
                     };
                     
                     const categoryDisplay = categoryNames[post.category] || post.category || 'General';
@@ -1260,6 +1254,14 @@
             if (challengeInput) {
                 challengeInput.disabled = false;
                 challengeInput.readOnly = false;
+            }
+            
+            // Prefill challenge ID from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const challengeId = urlParams.get('challenge_id');
+            if (challengeId && challengeInput) {
+                challengeInput.value = challengeId;
+                setTimeout(() => verifyChallengePostId(), 500);
             }
             
             waitForAuth(() => {

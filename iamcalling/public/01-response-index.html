@@ -134,7 +134,7 @@
         .sidebar {
             flex: 1;
             position: sticky;
-            top: 100px;
+            top: 80px;
             height: fit-content;
         }
         
@@ -370,7 +370,7 @@
             
             .sidebar {
                 min-width: 100px;
-                top: 100px;
+                top: 80px;
                 height: fit-content;
             }
             
@@ -781,16 +781,16 @@
         async function trackArticleView(articleId, articleType = 'response') {
             try {
                 const contentType = articleType === 'response' ? 'article' : 'post';
-                
-                // Use the new ViewTracker utility
                 const result = await window.ViewTracker.trackView(articleId, contentType);
                 
                 if (result.view_counts && !result.alreadyTracked) {
-                    // Update view count display
-                    window.ViewTracker.updateViewDisplay(articleId, contentType, result.view_counts);
-                    console.log(`📊 View tracked for ${articleType} article ${articleId}:`, result.view_counts);
-                } else if (result.alreadyTracked) {
-                    console.log(`⏭️ View already tracked for ${articleType} article ${articleId}`);
+                    // Update all view count displays for this article
+                    const viewElements = document.querySelectorAll(`[data-article-id="${articleId}"][data-view-count]`);
+                    viewElements.forEach(el => {
+                        const countSpan = el.querySelector('span[data-view-count]');
+                        if (countSpan) countSpan.textContent = result.view_counts.total_views;
+                    });
+                    console.log(`📊 View tracked: ${articleId} = ${result.view_counts.total_views}`);
                 }
             } catch (error) {
                 console.error('Error tracking view:', error);

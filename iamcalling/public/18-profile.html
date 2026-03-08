@@ -9,9 +9,6 @@
     <link rel="stylesheet" href="css/mobile-responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
-    <script src="js/ultimate-console-cleaner.js"></script>
-    <script src="js/storage-fallback.js"></script>
-    <script src="js/mobile-init.js"></script>
     <script src="js/session-manager.js"></script>
     <script src="js/view-tracker.js"></script>
     <script src="js/global-security-config.js"></script>
@@ -455,7 +452,7 @@
 
             
             <div class="profile-actions">
-                <button class="sync-btn" id="refreshProfileBtn">🔄 Sync Profile</button>
+                <button class="sync-btn" id="refreshProfileBtn" style="background: linear-gradient(135deg, #10b981, #059669); border: 2px solid rgba(255,255,255,0.3);">↻ Refresh</button>
                 <a href="22-write_article.html" class="sync-btn" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); text-decoration: none; display: inline-flex;">📝 Write Article</a>
                 <a href="19-user_settings.html" class="sync-btn" style="text-decoration: none; display: inline-flex;">⚙️ Settings</a>
                 <a href="34-icalluser-messenger.html" class="sync-btn" id="messengerLink" style="text-decoration: none; display: inline-flex; position: relative;">📨 Messenger <span id="messengerBadge" class="message-badge" style="display: none;">0</span></a>
@@ -810,27 +807,58 @@
                 }
                 
                 const currentUser = window.globalAuth.getCurrentUser();
-                if (!currentUser || !currentUser.id) {
+                if (!currentUser || !currentUser.email) {
                     return;
                 }
                 
                 const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
                 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
                 
-                // Use same logic as messenger - sum up local unread counts
+                try {
+                    const allKeys = Object.keys(localStorage);
+                    const unreadKeys = allKeys.filter(key => key.startsWith('unreadCount_'));
+                    unreadKeys.forEach(key => localStorage.removeItem(key));
+                } catch (e) {}
+                
+                const userResponse = await fetch(`${SUPABASE_URL}/rest/v1/users?select=id&email=eq.${encodeURIComponent(currentUser.email)}`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (!userResponse.ok) {
+                    const badge = document.getElementById('messengerBadge');
+                    if (badge) badge.style.display = 'none';
+                    return;
+                }
+                
+                const userData = await userResponse.json();
+                if (!userData || userData.length === 0) {
+                    const badge = document.getElementById('messengerBadge');
+                    if (badge) badge.style.display = 'none';
+                    return;
+                }
+                
+                const userId = userData[0].id;
+                
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=id,created_at&receiver_id=eq.${userId}&order=created_at.desc`, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
                 let totalUnread = 0;
-                
-                // Get unread counts from localStorage (same as messenger uses)
-                const allKeys = Object.keys(localStorage);
-                const unreadKeys = allKeys.filter(key => key.startsWith('unreadCount_'));
-                
-                for (const key of unreadKeys) {
-                    const count = parseInt(localStorage.getItem(key) || '0');
-                    totalUnread += count;
+                if (response.ok) {
+                    const allMessages = await response.json();
+                    const readMessages = JSON.parse(localStorage.getItem('readMessages') || '[]');
+                    totalUnread = allMessages.filter(msg => !readMessages.includes(msg.id)).length;
                 }
                 
                 const badge = document.getElementById('messengerBadge');
-                
                 if (badge) {
                     if (totalUnread > 0) {
                         badge.textContent = totalUnread > 99 ? '99+' : totalUnread.toString();
@@ -840,7 +868,6 @@
                     }
                 }
             } catch (error) {
-                console.error('Error loading unread message count:', error);
                 const badge = document.getElementById('messengerBadge');
                 if (badge) {
                     badge.style.display = 'none';
