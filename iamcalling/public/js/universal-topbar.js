@@ -80,7 +80,7 @@
             topbar.innerHTML =
                 '<div class="topbar-container">' +
                 '<div class="topbar-left">' +
-                '<a href="/" class="topbar-logo"><i class="fas fa-phone"></i><span>IAMCALLING</span></a>' +
+                '<a href="/" class="topbar-logo"><i class="fas fa-phone"></i><span>Debate Me</span></a>' +
                 '</div>' +
                 '<div class="topbar-center">' +
                 '<nav class="topbar-nav" id="topbar-nav">' +

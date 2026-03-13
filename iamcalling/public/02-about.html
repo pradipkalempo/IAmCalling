@@ -212,6 +212,52 @@
             margin: 0 auto 30px;
         }
 
+        .ai-challenge {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 700px;
+            border: 2px solid var(--gold);
+        }
+
+        .ai-challenge h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--gold);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .ai-challenge .highlight {
+            color: var(--gold);
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .ai-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .ai-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .ai-logo:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
         .section {
             padding: 60px 0;
         }
@@ -437,6 +483,24 @@
             .hero p {
                 font-size: 1rem;
             }
+
+            .ai-challenge {
+                padding: 20px;
+                margin: 20px auto;
+            }
+
+            .ai-challenge h3 {
+                font-size: 1.5rem;
+            }
+
+            .ai-logos {
+                gap: 20px;
+            }
+
+            .ai-logo {
+                width: 50px;
+                height: 50px;
+            }
         }
     </style>
     <script src="js/universal-topbar-injector.js"></script>
@@ -446,9 +510,42 @@
 
     <section class="hero">
         <div class="container hero-content">
-            <h1>About IAMCALLING</h1>
+            <h1>About Debate Me</h1>
             <p>A platform for diverse perspectives, ideology analysis, and rewarding discussions that brings clarity to your beliefs.</p>
-            <a href="09-ideology-analyzer.html" class="cta-button">Take Ideology Test</a>
+            
+            <div class="ai-challenge">
+                <h3>🤖 You can use evn AI to prove us challenge wrong</h3>
+                <p>You can use AI tools to prove us wrong and we are <span class="highlight">PROUD</span> of it!</p>
+                <div class="ai-logos">
+                    <img src="https://lh3.googleusercontent.com/COxitqgJr1sJnIDe8-jiKhxDx1FrYbtRHKJ9z_hELisAlapwE9LUPh6fcXIfb5vwpbMl4xl9H9TRFPc5NOO8Sb3VSgIBrfRYvW6cUA" alt="Google Gemini" class="ai-logo">
+                    <img src="https://cdn.oaistatic.com/_next/static/media/apple-touch-icon.82af6fe1.png" alt="ChatGPT" class="ai-logo">
+                    <img src="https://scontent.xx.fbcdn.net/v/t39.8562-6/120009688_325579128711709_6295589415457785280_n.png?_nc_cat=1&ccb=1-7&_nc_sid=f537c7&_nc_ohc=T9Nh8VqJqJsAX-hTdLl&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&oh=00_AfAiso-hrCoswom7PGCGNPBOs3UkRp4TrBsHDeRn0c789g&oe=65F5A1C8" alt="Meta" class="ai-logo">
+                    <img src="https://claude.ai/images/claude_app_icon.png" alt="Claude AI" class="ai-logo">
+                </div>
+                <p style="font-size: 1rem; margin-top: 15px; opacity: 0.9;">Use any AI assistant to challenge our analysis and earn rewards!</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">How to Write Counter Articles</h2>
+            <div class="about-card" style="max-width: 800px; margin: 0 auto 40px; background: rgba(212, 175, 55, 0.1); border: 2px solid var(--gold);">
+                <i class="fas fa-pen-alt" style="color: var(--gold);"></i>
+                <h3 style="color: var(--gold);">📝 Step-by-Step Guide</h3>
+                <ol style="text-align: left; line-height: 1.8; color: var(--text-dark);">
+                    <li><strong>Read the Full Post:</strong> Carefully read the entire article from beginning to end to understand the complete argument.</li>
+                    <li><strong>Research & Analyze:</strong> Conduct thorough research on the topic using reliable sources to gather supporting evidence.</li>
+                    <li><strong>Revisit & Re-read:</strong> Go back to the original post and read it again with your research in mind.</li>
+                    <li><strong>Write Your Counter Thoughts:</strong> At the bottom of the post, you'll find a section to write your counter-arguments with evidence.</li>
+                    <li><strong>Write & Publish:</strong> Craft your response thoughtfully and publish your counter-article.</li>
+                    <li><strong>Verification Process:</strong> We will verify your article, check the quality and accuracy, then message you within 12 hours.</li>
+                    <li><strong>Get Rewarded:</strong> If your counter-argument is compelling and well-researched, you'll receive rewards!</li>
+                </ol>
+                <div style="background: rgba(45, 90, 45, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid var(--accent-green);">
+                    <p style="margin: 0; font-weight: 500;"><i class="fas fa-comments" style="color: var(--accent-green); margin-right: 8px;"></i><strong>Need Help?</strong> If you have any questions or need assistance, message us on <strong>iCall Messenger</strong> - we're here to help!</p>
+                </div>
+            </div>
         </div>
     </section>
 

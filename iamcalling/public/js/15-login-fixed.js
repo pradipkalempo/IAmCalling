@@ -37,43 +37,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // Proceed with Supabase login
+            // Proceed with backend API login
             try {
-                console.log('🔍 Attempting Supabase login with:', { email, password: '****' });
+                console.log('🔍 Attempting login via API with:', { email, password: '****' });
                 
-                // Initialize Supabase with fallback config
-                let SUPABASE_URL = window.APP_CONFIG?.supabaseUrl;
-                let SUPABASE_ANON_KEY = window.APP_CONFIG?.supabaseAnonKey;
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
                 
-                if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-                    // Fallback configuration
-                    SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
-                    SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
-                }
+                const result = await response.json();
+                console.log('📦 API response:', result);
                 
-                if (typeof window.supabase === 'undefined') {
-                    throw new Error('Supabase library not loaded');
-                }
-                
-                const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                
-                // Query user from Supabase
-                const { data: user, error } = await supabaseClient
-                    .from('users')
-                    .select('*')
-                    .eq('email', email)
-                    .eq('password', password)
-                    .single();
-                
-                console.log('📦 Supabase response:', { user, error });
-                
-                if (error || !user) {
+                if (!response.ok || result.error) {
                     console.log('❌ Login failed - invalid credentials');
                     showNotification('❌ Invalid email or password', true);
                     return;
                 }
                 
-                console.log('🖼️ Profile photo from Supabase:', user.profile_photo ? 'EXISTS (length: ' + user.profile_photo.length + ')' : 'NULL/EMPTY');
+                const user = result.user;
+                console.log('🖼️ Profile photo from API:', user.profile_photo ? 'EXISTS' : 'NULL/EMPTY');
                 
                 // Login successful - use global auth manager
                 if (window.globalAuth) {
@@ -96,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification('✅ Login successful! Redirecting...', false);
                 console.log('🚀 Login successful, redirecting...');
                 
-                // Immediate redirect like Instagram
+                // Immediate redirect
                 setTimeout(() => {
                     window.location.href = '18-profile.html';
                 }, 1000);

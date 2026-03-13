@@ -536,9 +536,53 @@ input[type="password"] {
 .w-full { width: 100%; }
 .h-full { height: 100%; }
 
-/* Responsive Breakpoints */
-/* Responsive Breakpoints */
-@media (max-width: 768px) {
+/* Responsive Breakpoints - Industry Standard */
+/* Large Desktop: 1200px+ (default) */
+/* Desktop: 1024px - 1199px */
+@media (max-width: 1199px) {
+    .container, .game-container, .main-container {
+        max-width: 1024px;
+        padding: 0 20px;
+    }
+    
+    .main-layout {
+        gap: 1rem;
+    }
+    
+    .sidebar {
+        min-width: 200px;
+        max-width: 250px;
+    }
+}
+
+/* Tablet: 768px - 1023px */
+@media (max-width: 1023px) {
+    .container, .game-container, .main-container {
+        max-width: 768px;
+        padding: 0 15px;
+    }
+    
+    .main-layout {
+        gap: 0.8rem;
+    }
+    
+    .sidebar {
+        min-width: 180px;
+        max-width: 220px;
+    }
+    
+    .photo-option {
+        flex: 0 0 80px;
+        height: 115px;
+    }
+    
+    .photo-image {
+        height: 75px;
+    }
+}
+
+/* Mobile: 480px - 767px */
+@media (max-width: 767px) {
     .container, .game-container, .main-container {
         padding: 0 10px;
     }
@@ -672,7 +716,8 @@ input[type="password"] {
     }
 }
 
-@media (max-width: 480px) {
+/* Small Mobile: up to 479px */
+@media (max-width: 479px) {
     html {
         font-size: 14px;
     }
@@ -747,7 +792,8 @@ input[type="password"] {
     }
 }
 
-@media (max-width: 360px) {
+/* Extra Small Mobile: up to 359px */
+@media (max-width: 359px) {
     html {
         font-size: 13px;
     }

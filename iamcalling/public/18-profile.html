@@ -843,19 +843,16 @@
                 
                 const userId = userData[0].id;
                 
-                const response = await fetch(`${SUPABASE_URL}/rest/v1/messages?select=id,created_at&receiver_id=eq.${userId}&order=created_at.desc`, {
-                    headers: {
-                        'apikey': SUPABASE_ANON_KEY,
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                        'Accept': 'application/json'
-                    }
-                });
-                
+                // Get unread messages from localStorage (same as messenger)
                 let totalUnread = 0;
-                if (response.ok) {
-                    const allMessages = await response.json();
-                    const readMessages = JSON.parse(localStorage.getItem('readMessages') || '[]');
-                    totalUnread = allMessages.filter(msg => !readMessages.includes(msg.id)).length;
+                try {
+                    const allKeys = Object.keys(localStorage);
+                    const unreadKeys = allKeys.filter(key => key.startsWith('unreadCount_'));
+                    totalUnread = unreadKeys.reduce((sum, key) => {
+                        return sum + (parseInt(localStorage.getItem(key)) || 0);
+                    }, 0);
+                } catch (e) {
+                    totalUnread = 0;
                 }
                 
                 const badge = document.getElementById('messengerBadge');

@@ -485,15 +485,9 @@
             <h2 class="filter-title"><i class="fas fa-filter"></i> Filter by Category</h2>
             <div class="filter-options">
                 <div class="filter-option active">All Categories</div>
-                <div class="filter-option">Innovation and Tech</div>
-                <div class="filter-option">Biology</div>
-                <div class="filter-option">Geography</div>
-                <div class="filter-option">History</div>
-                <div class="filter-option">Ethics & Morality</div>
-                <div class="filter-option">Justice</div>
-                <div class="filter-option">Religious Truth</div>
-                <div class="filter-option">Fact Check</div>
-                <div class="filter-option">Politics</div>
+                <div class="filter-option">Ethics-Morality</div>
+                <div class="filter-option">Innovation-Tech</div>
+                <div class="filter-option">Fact-Check</div>
             </div>
         </div>
         
@@ -533,11 +527,7 @@
             } else {
                 const filtered = allPosts.filter(post => {
                     const postCategory = post.category || 'General';
-                    return postCategory === category || 
-                           (category === 'Innovation and Tech' && postCategory === 'innovation-tech') ||
-                           (category === 'Ethics & Morality' && postCategory === 'ethics-morality') ||
-                           (category === 'Religious Truth' && postCategory === 'religious-truth') ||
-                           (category === 'Fact Check' && postCategory === 'fact-check');
+                    return postCategory === category;
                 });
                 displayPosts(filtered);
             }

@@ -2,6 +2,7 @@ import express from 'express';
 import { createClient } from '@supabase/supabase-js';
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
@@ -98,7 +99,7 @@ router.post('/request-reset', async (req, res) => {
                     </p>
                     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
                     <p style="color: #999; font-size: 12px;">
-                        © 2024 IAMCALLING. All rights reserved.
+                        © 2025 IAMCALLING. All rights reserved.
                     </p>
                 </div>
             `
@@ -124,6 +125,8 @@ router.post('/request-reset', async (req, res) => {
 router.get('/verify-token/:token', async (req, res) => {
     try {
         const { token } = req.params;
+        
+        console.log('🔍 Verifying token:', token);
 
         const supabase = createClient(
             process.env.SUPABASE_URL,
@@ -137,6 +140,7 @@ router.get('/verify-token/:token', async (req, res) => {
             .single();
 
         if (error || !user) {
+            console.log('❌ Token not found or error:', error);
             return res.status(400).json({ 
                 success: false, 
                 message: 'Invalid or expired reset token' 
@@ -144,13 +148,21 @@ router.get('/verify-token/:token', async (req, res) => {
         }
 
         // Check if token expired
-        if (new Date(user.reset_token_expiry) < new Date()) {
+        const expiryDate = new Date(user.reset_token_expiry);
+        const now = new Date();
+        
+        console.log('Token expiry:', expiryDate);
+        console.log('Current time:', now);
+        
+        if (expiryDate < now) {
+            console.log('❌ Token expired');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Reset token has expired' 
             });
         }
 
+        console.log('✅ Token valid');
         res.json({ success: true, email: user.email });
 
     } catch (error) {
@@ -166,6 +178,8 @@ router.get('/verify-token/:token', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
     try {
         const { token, newPassword } = req.body;
+        
+        console.log('🔐 Password reset attempt with token:', token);
 
         if (!token || !newPassword) {
             return res.status(400).json({ 
@@ -187,6 +201,7 @@ router.post('/reset-password', async (req, res) => {
             .single();
 
         if (error || !user) {
+            console.log('❌ Invalid token');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Invalid or expired reset token' 
@@ -195,29 +210,36 @@ router.post('/reset-password', async (req, res) => {
 
         // Check if token expired
         if (new Date(user.reset_token_expiry) < new Date()) {
+            console.log('❌ Token expired');
             return res.status(400).json({ 
                 success: false, 
                 message: 'Reset token has expired' 
             });
         }
 
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        console.log('✅ Password hashed');
+
         // Update password and clear token
         const { error: updateError } = await supabase
             .from('users')
             .update({ 
-                password: newPassword,
+                password: hashedPassword,
                 reset_token: null,
                 reset_token_expiry: null
             })
             .eq('id', user.id);
 
         if (updateError) {
+            console.log('❌ Update failed:', updateError);
             return res.status(500).json({ 
                 success: false, 
                 message: 'Failed to reset password' 
             });
         }
 
+        console.log('✅ Password reset successfully');
         res.json({ 
             success: true, 
             message: 'Password reset successfully' 
