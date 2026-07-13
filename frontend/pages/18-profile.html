@@ -1805,17 +1805,22 @@
         const sb = await getSB();
         if (!sb)  { table.style.display='none'; empty.style.display='block'; return; }
 
-        let query = sb.from('referrals')
-            .select('id, project_name, commission, status, created_at')
-            .eq('referrer_id', uid);
+        let refCode = localStorage.getItem('myRefCode');
+        if (!refCode) {
+            const seed = uid.replace(/-/g,'').substring(0,6).toUpperCase();
+            refCode = 'IAM-' + seed.padEnd(6,'0');
+        }
 
-        if (currentFilter !== 'all') query = query.eq('status', currentFilter);
+        let query = sb.from('purchase_requests')
+            .select('id, plan_name, plan_price, status, created_at')
+            .eq('referred_by', refCode);
 
-        // server-side sort
+        if (currentFilter !== 'all') query = query.eq('status', currentFilter === 'paid' ? 'approved' : currentFilter);
+
         const [sf, sd] = currentSort === 'date_desc'  ? ['created_at','desc']
                        : currentSort === 'date_asc'   ? ['created_at','asc']
-                       : currentSort === 'amt_desc'   ? ['commission','desc']
-                                                      : ['commission','asc'];
+                       : currentSort === 'amt_desc'   ? ['plan_price','desc']
+                                                      : ['plan_price','asc'];
         query = query.order(sf, { ascending: sd === 'asc' });
 
         const { data, error } = await query;
@@ -1866,24 +1871,24 @@
         footer.style.display = 'flex';
 
         const statusMap = {
-            paid:       '<span class="status-pill status-paid">✔ Paid</span>',
+            approved:   '<span class="status-pill status-paid">✔ Approved</span>',
             pending:    '<span class="status-pill status-pending">⏳ Pending</span>',
-            processing: '<span class="status-pill status-processing">🔄 Processing</span>',
+            rejected:   '<span class="status-pill status-processing">❌ Rejected</span>',
         };
 
         body.innerHTML = pageRows.map((r, i) => `
             <tr>
                 <td style="color:var(--muted);font-size:0.78rem;">${start + i + 1}</td>
-                <td><div class="td-project"><span class="td-project-name">${r.project_name}</span></div></td>
-                <td><span style="font-size:0.78rem;color:var(--accent2);">${r.project_name || '—'}</span></td>
+                <td><div class="td-project"><span class="td-project-name">${r.plan_name}</span></div></td>
+                <td><span class="td-amount">₹${r.plan_price || 0}</span></td>
                 <td>${statusMap[r.status] || r.status}</td>
                 <td class="td-date">${r.created_at ? r.created_at.slice(0,10) : '—'}</td>
             </tr>`).join('');
 
-        const paidEarned = rows.filter(r => r.status === 'paid').reduce((a, r) => a + (r.commission || 0), 0);
+        const approvedCount = rows.filter(r => r.status === 'approved').length;
         document.getElementById('historyShowing').textContent = pageRows.length;
         document.getElementById('historyTotal').textContent   = total;
-        document.getElementById('historyEarned').textContent  = paidEarned + ' paid';
+        document.getElementById('historyEarned').textContent  = approvedCount + ' approved';
 
         // pagination
         buildPagination(totalPages);
@@ -2020,60 +2025,54 @@
         if (!sb) { setStatsError(); return; }
 
         try {
-            const { data: refs, error } = await sb
-                .from('referrals')
-                .select('project_name, status, commission, created_at')
-                .eq('referrer_id', uid);
+            // Get user's ref code
+            let refCode = localStorage.getItem('myRefCode');
+            if (!refCode) {
+                const seed = uid.replace(/-/g,'').substring(0,6).toUpperCase();
+                refCode = 'IAM-' + seed.padEnd(6,'0');
+            }
+
+            // Count purchase_requests where referred_by = this user's ref code
+            const { data: rows, error } = await sb
+                .from('purchase_requests')
+                .select('plan_name, status, plan_price, created_at')
+                .eq('referred_by', refCode);
 
             if (error) throw error;
-            const rows = refs || [];
+            const all = rows || [];
 
-            // group by project/plan
-            const planMap = {};
-            rows.forEach(r => {
-                const key = r.project_name || 'Unknown';
-                if (!planMap[key]) planMap[key] = { total: 0, successful: 0 };
-                planMap[key].total++;
-                if (r.status === 'paid') planMap[key].successful++;
-            });
+            const banking   = all.filter(r => r.plan_name && r.plan_name.toLowerCase().includes('aksh') || r.plan_name && r.plan_name.toLowerCase().includes('bank')).length;
+            const messenger = all.filter(r => r.plan_name && r.plan_name.toLowerCase().includes('messenger')).length;
+            const platform  = all.filter(r => r.plan_name && (r.plan_name.toLowerCase().includes('iamcalling') || r.plan_name.toLowerCase().includes('ai') || r.plan_name.toLowerCase().includes('analytics') || r.plan_name.toLowerCase().includes('cockroach') || r.plan_name.toLowerCase().includes('admin'))).length;
 
-            // plan categories
-            const banking   = rows.filter(r => r.project_name && r.project_name.toLowerCase().includes('aksh') || r.project_name && r.project_name.toLowerCase().includes('bank')).length;
-            const messenger = rows.filter(r => r.project_name && r.project_name.toLowerCase().includes('messenger')).length;
-            const platform  = rows.filter(r => r.project_name && (r.project_name.toLowerCase().includes('iamcalling') || r.project_name.toLowerCase().includes('ai') || r.project_name.toLowerCase().includes('analytics'))).length;
-
-            document.getElementById('totalRefs').textContent    = rows.length;
-            document.getElementById('successRefSub').textContent = rows.filter(r => r.status === 'paid').length + ' successful';
+            document.getElementById('totalRefs').textContent     = all.length;
+            document.getElementById('successRefSub').textContent = all.filter(r => r.status === 'approved').length + ' approved';
             document.getElementById('connBanking').textContent   = banking;
             document.getElementById('connMessenger').textContent = messenger;
             document.getElementById('connPlatform').textContent  = platform;
 
             // plan breakdown bars
             const PLANS = [
-                { name: 'Aksh Finance — Banking',     icon: '🏦', color: 'var(--gold)',    keys: ['aksh','bank'] },
-                { name: 'Analytics Dashboard',        icon: '📈', color: 'var(--accent)',  keys: ['analytics'] },
-                { name: 'iCall Messenger',             icon: '💬', color: 'var(--accent2)', keys: ['messenger'] },
-                { name: 'Cockroach AI',                icon: '🤖', color: 'var(--green)',   keys: ['cockroach','ai'] },
-                { name: 'IAMCALLING Full Platform',    icon: '🧠', color: 'var(--gold)',    keys: ['iamcalling','platform'] },
+                { name: 'Aksh Finance — Banking',  icon: '🏦', color: 'var(--gold)',    keys: ['aksh','bank'] },
+                { name: 'Analytics Dashboard',     icon: '📈', color: 'var(--accent)',  keys: ['analytics'] },
+                { name: 'iCall Messenger',          icon: '💬', color: 'var(--accent2)', keys: ['messenger'] },
+                { name: 'Cockroach AI',             icon: '🤖', color: 'var(--green)',   keys: ['cockroach','ai'] },
+                { name: 'IAMCALLING Full Platform', icon: '🧠', color: 'var(--gold)',    keys: ['iamcalling','platform'] },
             ];
 
-            const maxConn = Math.max(1, ...Object.values(planMap).map(p => p.total));
+            const maxConn = Math.max(1, ...PLANS.map(plan =>
+                all.filter(r => plan.keys.some(k => (r.plan_name||'').toLowerCase().includes(k))).length
+            ));
 
             document.getElementById('planBreakdown').innerHTML = PLANS.map(plan => {
-                const count = rows.filter(r => {
-                    const n = (r.project_name || '').toLowerCase();
-                    return plan.keys.some(k => n.includes(k));
-                }).length;
-                const successful = rows.filter(r => {
-                    const n = (r.project_name || '').toLowerCase();
-                    return plan.keys.some(k => n.includes(k)) && r.status === 'paid';
-                }).length;
+                const count      = all.filter(r => plan.keys.some(k => (r.plan_name||'').toLowerCase().includes(k))).length;
+                const successful = all.filter(r => plan.keys.some(k => (r.plan_name||'').toLowerCase().includes(k)) && r.status === 'approved').length;
                 const pct = Math.round((count / maxConn) * 100);
                 return `
                 <div>
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
                         <span style="font-size:0.82rem;font-weight:600;">${plan.icon} ${plan.name}</span>
-                        <span style="font-family:'Fira Code',monospace;font-size:0.82rem;color:${plan.color};font-weight:700;">${count} connections &nbsp;<span style="color:var(--muted);font-size:0.7rem;">(${successful} successful)</span></span>
+                        <span style="font-family:'Fira Code',monospace;font-size:0.82rem;color:${plan.color};font-weight:700;">${count} connections &nbsp;<span style="color:var(--muted);font-size:0.7rem;">(${successful} approved)</span></span>
                     </div>
                     <div style="background:var(--border);border-radius:99px;height:6px;overflow:hidden;">
                         <div style="height:100%;border-radius:99px;background:${plan.color};width:${pct}%;transition:width 0.6s ease;"></div>
@@ -2081,8 +2080,8 @@
                 </div>`;
             }).join('');
 
-            renderMilestones(rows.length);
-            renderLeaderboard(rows.length);
+            renderMilestones(all.length);
+            renderLeaderboard(all.length);
 
         } catch (err) {
             console.error('loadStats error', err);
