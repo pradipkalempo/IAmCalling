@@ -7,7 +7,7 @@
     'use strict';
 
     const PROJECT_LINKS = {
-        home: { href: '01-index.html', label: 'Home' },
+        home: { href: '01-response-index.html', label: 'Home' },
         articles: { href: '01-response-index.html', label: 'Articles' },
         battle: { href: '10-political-battle.html', label: 'Battle' },
         ideologyAnalyzer: { href: '09-ideology-analyzer.html', label: 'Test Ideology' },

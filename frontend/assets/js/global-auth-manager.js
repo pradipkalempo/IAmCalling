@@ -103,7 +103,7 @@ class GlobalAuthManager {
     // Logout user – project-wide; redirect to home, not login
     logout() {
         this.clearUserState();
-        const home = (typeof window.HOME_PAGE !== 'undefined') ? window.HOME_PAGE : '01-index.html';
+        const home = (typeof window.HOME_PAGE !== 'undefined') ? window.HOME_PAGE : '01-response-index.html';
         window.location.href = home;
     }
 

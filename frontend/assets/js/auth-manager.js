@@ -109,7 +109,7 @@ class SupabaseAuthManager {
             await this.supabase.auth.signOut();
             this.currentUser = null;
             localStorage.clear();
-            window.location.href = '15-login.html';
+            window.location.href = '01-response-index.html';
         } catch (error) {
             console.error('Logout error:', error);
         }

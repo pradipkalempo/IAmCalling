@@ -83,7 +83,7 @@ class UniversalAuth {
         this.storage.removeItem('userAuth');
         this.updateUI();
         this.broadcast();
-        window.location.href = '15-login.html';
+        window.location.href = '01-response-index.html';
     }
 
     // Create universal topbar
