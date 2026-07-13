@@ -19,6 +19,7 @@ const adminRoutes = require('./controllers/admin.cjs');
 import SimpleSupabaseClient from './services/simpleSupabaseClient.js';
 import healthCheckRoute from './controllers/health.js';
 import roboRoutes from './controllers/robo.js';
+import pushRoutes from './controllers/push.js';
 
 dotenv.config();
 
@@ -71,6 +72,14 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/password-reset', passwordResetRoutes);
 app.use('/api/robo', roboRoutes);
+app.use('/api/push', pushRoutes);
+
+// Serve service worker from root scope
+app.get('/sw.js', (req, res) => {
+    res.set('Content-Type', 'application/javascript');
+    res.set('Service-Worker-Allowed', '/');
+    res.sendFile(path.join(__dirname, '../frontend/assets/sw.js'));
+});
 
 // Landing page
 app.get('/', (req, res) => {

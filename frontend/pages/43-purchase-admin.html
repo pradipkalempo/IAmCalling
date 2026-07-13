@@ -129,6 +129,17 @@ function adminLogin() {
     document.getElementById('mainApp').style.display = 'block';
     sb = window.supabase.createClient(SURL, SKEY);
     loadAll();
+    // Subscribe admin to push notifications
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+        fetch('/api/push/vapid-public-key').then(r => r.json()).then(async ({ key }) => {
+            const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') return;
+            const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: _toUint8(key) });
+            await fetch('/api/push/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub, role: 'admin' }) });
+            showToast('🔔 Push notifications enabled');
+        }).catch(() => {});
+    }
 }
 
 async function loadAll() {
@@ -208,6 +219,13 @@ async function updateStatus(id, status) {
     updateStats();
     renderTable();
     showToast(status === 'approved' ? '✅ Approved!' : '❌ Rejected');
+}
+
+function _toUint8(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
 }
 
 function showToast(msg) {

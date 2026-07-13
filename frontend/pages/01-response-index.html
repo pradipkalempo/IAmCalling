@@ -1578,6 +1578,12 @@ async function submitPM() {
     });
 
     if (error) { pmToast('Error: ' + error.message); return; }
+    // Notify admin via push
+    fetch('/api/push/notify-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ planName: _pmPlan, userName, price: _pmPrice })
+    }).catch(() => {});
     closePM();
     pmToast('Request submitted! Admin will verify and approve.');
     const btn = document.getElementById('pbtn-' + _pmPlan);
