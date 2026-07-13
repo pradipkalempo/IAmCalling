@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cockroach AI — Indian Cockroach Movement</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0a;
+    font-family: 'Share Tech Mono', monospace;
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .header {
+    width: 100%;
+    text-align: center;
+    padding: 28px 20px 10px;
+    border-bottom: 1px solid rgba(0,180,100,0.2);
+  }
+  .movement-tag { font-size: 0.65rem; letter-spacing: 4px; color: #4caf50; text-transform: uppercase; margin-bottom: 6px; }
+  h1 { font-family: 'Orbitron', sans-serif; font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 900; color: #fff; letter-spacing: 3px; }
+  .tagline { font-size: 0.7rem; color: #4caf50; letter-spacing: 2px; margin-top: 6px; }
+  .pillars { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; font-size: 0.6rem; letter-spacing: 2px; }
+  .pillars span { border: 1px solid rgba(76,175,80,0.3); padding: 3px 10px; border-radius: 2px; color: #4caf50; }
+
+  .main {
+    display: flex;
+    width: 100%;
+    max-width: 1000px;
+    flex: 1;
+    padding: 24px 20px;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  @media (max-width: 680px) {
+    .main { flex-direction: column; align-items: center; }
+    .creature-side, .chat-side { width: 100%; }
+  }
+
+  /* ── CREATURE SIDE ── */
+  .creature-side {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .creature-container {
+    position: relative;
+    width: 100%;
+    height: 420px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* ── CSS COCKROACH (from cockroach.html, recolored green) ── */
+  .cockroach-wrap {
+    position: relative;
+    width: 280px; height: 380px;
+    animation: roachEnter 1.6s cubic-bezier(0.16,1,0.3,1) forwards;
+    opacity: 0;
+  }
+  @keyframes roachEnter {
+    from { opacity:0; transform:translateY(40px) scale(0.88); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .leader-glow {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 300px; height: 400px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(76,175,80,0.12) 0%, transparent 70%);
+    filter: blur(30px);
+    transition: all 0.6s ease;
+    pointer-events: none;
+  }
+  .leader-glow.speaking {
+    width: 380px; height: 480px;
+    background: radial-gradient(ellipse, rgba(76,175,80,0.32) 0%, transparent 70%);
+  }
+
+  .cockroach {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 180px; height: 310px;
+    animation: breathe 3.5s ease-in-out infinite;
+  }
+  .cockroach.speaking {
+    animation: breathe 1.6s ease-in-out infinite, vibrate 0.09s linear infinite;
+  }
+  @keyframes breathe {
+    0%,100% { transform: translate(-50%,-50%) scale(1); }
+    50%      { transform: translate(-50%,-50%) scale(1.018); }
+  }
+  @keyframes vibrate {
+    0%   { transform: translate(-50%,-50%) scale(1.018) translateX(0); }
+    33%  { transform: translate(-50%,-50%) scale(1.018) translateX(1.2px); }
+    66%  { transform: translate(-50%,-50%) scale(1.018) translateX(-1.2px); }
+    100% { transform: translate(-50%,-50%) scale(1.018) translateX(0); }
+  }
+
+  /* Head */
+  .roach-head {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 64px; height: 50px; z-index: 5;
+    background: radial-gradient(ellipse at 42% 38%, #2a5a18 0%, #1a3a0a 50%, #0f2206 100%);
+    border-radius: 50% 50% 44% 44%;
+  }
+  .roach-eye {
+    position: absolute; width: 17px; height: 19px; top: 11px;
+    background: radial-gradient(circle at 38% 36%, #5a8a20 0%, #0f1a05 72%);
+    border-radius: 50%;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.85), 0 0 6px rgba(76,175,80,0.4);
+  }
+  .roach-eye.l { left: 6px; }
+  .roach-eye.r { right: 6px; }
+  .roach-eye::after {
+    content: ''; position: absolute;
+    width: 5px; height: 5px; top: 4px; left: 4px;
+    background: rgba(100,255,100,0.6); border-radius: 50%;
+  }
+
+  /* Antennae */
+  .antenna {
+    position: absolute; width: 2.5px; height: 105px;
+    top: -52px; z-index: 4;
+    transform-origin: bottom center;
+    border-radius: 0 0 45% 45%;
+  }
+  .antenna.l {
+    left: calc(50% - 22px);
+    background: linear-gradient(to top, #1a3a0a, #4a8a20, #1a3a0a);
+    transform: rotate(-34deg);
+    animation: antL 2.8s ease-in-out infinite;
+  }
+  .antenna.r {
+    right: calc(50% - 22px);
+    background: linear-gradient(to top, #1a3a0a, #4a8a20, #1a3a0a);
+    transform: rotate(34deg);
+    animation: antR 2.8s ease-in-out infinite 0.45s;
+  }
+  .cockroach.speaking .antenna.l { animation: antLA 0.7s ease-in-out infinite; }
+  .cockroach.speaking .antenna.r { animation: antRA 0.7s ease-in-out infinite 0.1s; }
+  @keyframes antL  { 0%,100%{transform:rotate(-34deg)} 50%{transform:rotate(-29deg)} }
+  @keyframes antR  { 0%,100%{transform:rotate(34deg)}  50%{transform:rotate(29deg)} }
+  @keyframes antLA { 0%,100%{transform:rotate(-42deg)} 50%{transform:rotate(-22deg)} }
+  @keyframes antRA { 0%,100%{transform:rotate(42deg)}  50%{transform:rotate(22deg)} }
+
+  /* Crown */
+  .roach-crown {
+    position: absolute; top: -26px; left: 50%;
+    transform: translateX(-50%);
+    width: 44px; height: 24px; z-index: 9;
+  }
+  .crown-base {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 10px;
+    background: linear-gradient(90deg, #b8860b, #ffd700, #b8860b);
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 0 10px rgba(255,215,0,0.5);
+  }
+  .crown-spike {
+    position: absolute; bottom: 8px; width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 14px solid #ffd700;
+    filter: drop-shadow(0 0 4px rgba(255,215,0,0.6));
+  }
+  .crown-spike:nth-child(1) { left: 2px; }
+  .crown-spike:nth-child(2) { left: 50%; transform: translateX(-50%); border-bottom-width: 18px; }
+  .crown-spike:nth-child(3) { right: 2px; }
+
+  /* Pronotum */
+  .roach-pronotum {
+    position: absolute; top: 36px; left: 50%; transform: translateX(-50%);
+    width: 78px; height: 38px; z-index: 6;
+    background: linear-gradient(180deg, #2a5a18 0%, #0f2206 100%);
+    border-radius: 50% 50% 30% 30%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.55);
+  }
+
+  /* Thorax */
+  .roach-thorax {
+    position: absolute; top: 42px; left: 50%; transform: translateX(-50%);
+    width: 82px; height: 62px; z-index: 4;
+    background: radial-gradient(ellipse at 42% 32%, #3a7a28 0%, #2a5a18 42%, #0f2206 100%);
+    border-radius: 44% 44% 38% 38%;
+  }
+
+  /* Abdomen */
+  .roach-abdomen {
+    position: absolute; top: 95px; left: 50%; transform: translateX(-50%);
+    width: 138px; height: 185px; z-index: 3; overflow: hidden;
+    background: radial-gradient(ellipse at 36% 24%, #3a7a28 0%, #2a5a18 26%, #0f2206 62%, #071205 100%);
+    border-radius: 34% 34% 48% 48%;
+  }
+  .abd-seg { position: absolute; left: 9%; right: 9%; height: 1.5px; background: rgba(0,0,0,0.25); }
+  .wing-ln { position: absolute; top: 8%; height: 88%; width: 1px; background: rgba(0,0,0,0.15); }
+  .wing-ln.l { left: 48%; } .wing-ln.r { right: 48%; }
+
+  /* Shell shine */
+  .shell-shine {
+    position: absolute; top: 100px; left: calc(50% - 18px);
+    width: 42px; height: 148px;
+    background: linear-gradient(168deg, rgba(100,255,100,0.08) 0%, transparent 52%);
+    border-radius: 50%; z-index: 7; pointer-events: none; transform: rotate(-8deg);
+  }
+
+  /* Legs */
+  .leg {
+    position: absolute; height: 2.5px; z-index: 2; border-radius: 2px;
+    background: linear-gradient(90deg, #0f2206, #3a7a18, #0f2206);
+  }
+  .leg.ll1 { top:52px;  left:12px; width:52px; transform:rotate(-28deg); transform-origin:right center; }
+  .leg.ll2 { top:76px;  left:2px;  width:66px; transform:rotate(-11deg); transform-origin:right center; }
+  .leg.ll3 { top:118px; left:8px;  width:60px; transform:rotate(11deg);  transform-origin:right center; }
+  .leg.rl1 { top:52px;  right:12px; width:52px; transform:rotate(28deg);  transform-origin:left center; }
+  .leg.rl2 { top:76px;  right:2px;  width:66px; transform:rotate(11deg);  transform-origin:left center; }
+  .leg.rl3 { top:118px; right:8px;  width:60px; transform:rotate(-11deg); transform-origin:left center; }
+
+  /* Cerci */
+  .cercus {
+    position: absolute; bottom: -22px; width: 2px; height: 32px; z-index: 3;
+    background: linear-gradient(to bottom, #1a3a0a, #071205); border-radius: 1px;
+  }
+  .cercus.l { left: calc(50% - 11px); transform: rotate(13deg);  animation: cerL 2.2s ease-in-out infinite; }
+  .cercus.r { right: calc(50% - 11px); transform: rotate(-13deg); animation: cerR 2.2s ease-in-out infinite 0.35s; }
+  @keyframes cerL { 0%,100%{transform:rotate(13deg)}  50%{transform:rotate(20deg)} }
+  @keyframes cerR { 0%,100%{transform:rotate(-13deg)} 50%{transform:rotate(-20deg)} }
+
+  /* ── SPEECH BUBBLE ── */
+  .speech-bubble {
+    position: absolute;
+    top: -65px; left: 50%;
+    transform: translateX(-50%) scale(0.9);
+    background: #111;
+    border: 1px solid #4caf50;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 0.65rem;
+    color: #4caf50;
+    max-width: 230px;
+    text-align: center;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 20;
+    white-space: normal;
+    line-height: 1.5;
+  }
+  .speech-bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+  .speech-bubble::after {
+    content: '';
+    position: absolute; bottom: -8px; left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #4caf50;
+    border-bottom: none;
+  }
+
+  .creature-name { margin-top: 10px; text-align: center; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #4caf50; letter-spacing: 2px; }
+  .creature-desc { margin-top: 6px; text-align: center; font-size: 0.6rem; color: #555; line-height: 1.6; }
+
+  /* ── CHAT SIDE ── */
+  .chat-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 520px;
+    background: #111;
+    border: 1px solid rgba(76,175,80,0.25);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .chat-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(76,175,80,0.2);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem; letter-spacing: 3px; color: #4caf50;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .online-dot { width: 7px; height: 7px; background: #4caf50; border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .chat-log {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .chat-log::-webkit-scrollbar { width: 4px; }
+  .chat-log::-webkit-scrollbar-thumb { background: rgba(76,175,80,0.3); border-radius: 2px; }
+
+  .msg { max-width: 85%; font-size: 0.75rem; line-height: 1.6; padding: 10px 14px; border-radius: 6px; }
+  .msg.user { align-self: flex-end; background: rgba(76,175,80,0.12); border: 1px solid rgba(76,175,80,0.3); color: #ccc; }
+  .msg.bot  { align-self: flex-start; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.06); color: #e0e0e0; }
+  .msg.bot .sender { font-size: 0.6rem; color: #4caf50; letter-spacing: 1px; margin-bottom: 4px; font-family: 'Orbitron', sans-serif; }
+  .msg.typing { color: #555; font-style: italic; font-size: 0.7rem; align-self: flex-start; padding: 6px 14px; }
+
+  .chat-input-area { padding: 12px; border-top: 1px solid rgba(76,175,80,0.2); display: flex; gap: 8px; }
+  #chat-input {
+    flex: 1; background: #0a0a0a; border: 1px solid rgba(76,175,80,0.3);
+    border-radius: 4px; color: #e0e0e0; font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem; padding: 10px 12px; outline: none; transition: border-color 0.2s;
+  }
+  #chat-input:focus { border-color: #4caf50; }
+  #chat-input::placeholder { color: #444; }
+  #chat-send {
+    background: rgba(76,175,80,0.15); border: 1px solid rgba(76,175,80,0.5);
+    color: #4caf50; font-family: 'Orbitron', sans-serif; font-size: 0.55rem;
+    letter-spacing: 2px; padding: 10px 16px; border-radius: 4px; cursor: pointer; transition: all 0.2s;
+  }
+  #chat-send:hover { background: rgba(76,175,80,0.3); }
+  #chat-send:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .footer { font-size: 0.55rem; color: #333; letter-spacing: 2px; padding: 16px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="movement-tag">Indian Cockroach Movement · Abhijit Dipake</div>
+  <h1>COCKROACH AI</h1>
+  <div class="tagline">Inspired by Dr. B.R. Ambedkar · The voice that cannot be crushed</div>
+  <div class="pillars">
+    <span>EDUCATE</span><span>AGITATE</span><span>ORGANIZE</span>
+    <span>ANNIHILATION OF CASTE</span><span>CONSTITUTIONAL RIGHTS</span><span>SELF-RESPECT</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- CSS COCKROACH CHARACTER -->
+  <div class="creature-side">
+    <div class="creature-container">
+      <div class="speech-bubble" id="speech-bubble"></div>
+      <div class="cockroach-wrap">
+        <div class="leader-glow" id="leader-glow"></div>
+        <div class="cockroach" id="css-cockroach">
+          <div class="antenna l"></div>
+          <div class="antenna r"></div>
+          <div class="roach-head">
+            <div class="roach-crown">
+              <div class="crown-spike"></div>
+              <div class="crown-spike"></div>
+              <div class="crown-spike"></div>
+              <div class="crown-base"></div>
+            </div>
+            <div class="roach-eye l"></div>
+            <div class="roach-eye r"></div>
+          </div>
+          <div class="roach-pronotum"></div>
+          <div class="roach-thorax"></div>
+          <div class="roach-abdomen">
+            <div class="abd-seg" style="top:18%"></div>
+            <div class="abd-seg" style="top:35%"></div>
+            <div class="abd-seg" style="top:52%"></div>
+            <div class="abd-seg" style="top:69%"></div>
+            <div class="abd-seg" style="top:84%"></div>
+            <div class="wing-ln l"></div>
+            <div class="wing-ln r"></div>
+          </div>
+          <div class="shell-shine"></div>
+          <div class="leg ll1"></div><div class="leg ll2"></div><div class="leg ll3"></div>
+          <div class="leg rl1"></div><div class="leg rl2"></div><div class="leg rl3"></div>
+          <div class="cercus l"></div>
+          <div class="cercus r"></div>
+        </div>
+      </div>
+    </div>
+    <div class="creature-name">🪳 THE COCKROACH</div>
+    <div class="creature-desc">Symbol of the oppressed.<br>Crushed but never destroyed.<br>Rooted in Ambedkar's vision.</div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="chat-side">
+    <div class="chat-header">
+      <div class="online-dot"></div>
+      COCKROACH AI — ONLINE
+    </div>
+    <div class="chat-log" id="chat-log">
+      <div class="msg bot">
+        <div class="sender">🪳 COCKROACH AI</div>
+        Jai Bhim. I am the Cockroach — the symbol of those who were crushed but never destroyed. Ask me anything. I speak through the wisdom of Dr. B.R. Ambedkar and the Indian Cockroach Movement.
+      </div>
+    </div>
+    <div class="chat-input-area">
+      <input id="chat-input" type="text" placeholder="Ask anything..." maxlength="300" autocomplete="off">
+      <button id="chat-send">SEND</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Indian Cockroach Movement · Founded by Abhijit Dipake · Rooted in Ambedkarite Philosophy</div>
+
+<script>
+  const cssCockroach = document.getElementById('css-cockroach');
+  const leaderGlow   = document.getElementById('leader-glow');
+  const speechBubble = document.getElementById('speech-bubble');
+  const chatLog      = document.getElementById('chat-log');
+  const chatInput    = document.getElementById('chat-input');
+  const chatSend     = document.getElementById('chat-send');
+
+  function setSpeaking(on) {
+    cssCockroach.classList.toggle('speaking', on);
+    leaderGlow.classList.toggle('speaking', on);
+  }
+
+  const autoQuotes = [
+    "Educate, Agitate, Organize — Ambedkar",
+    "The cockroach survives. So do we.",
+    "Caste must be annihilated, not reformed.",
+    "The Constitution is our weapon.",
+    "Self-respect is not a privilege. It is a right.",
+    "They tried to crush us. We multiplied."
+  ];
+
+  function showSpeech(text) {
+    speechBubble.textContent = text;
+    speechBubble.classList.add('show');
+    setTimeout(() => speechBubble.classList.remove('show'), 4000);
+  }
+
+  let qi = 0;
+  setInterval(() => showSpeech(autoQuotes[qi++ % autoQuotes.length]), 10000);
+
+  function appendMsg(text, role) {
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    if (role === 'bot') {
+      div.innerHTML = '<div class="sender">🪳 COCKROACH AI</div>' + text;
+    } else {
+      div.textContent = text;
+    }
+    chatLog.appendChild(div);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
+    const msg = chatInput.value.trim();
+    if (!msg) return;
+    chatInput.value = '';
+    chatSend.disabled = true;
+    appendMsg(msg, 'user');
+    const typing = appendMsg('thinking...', 'typing');
+    setSpeaking(true);
+    try {
+      const res = await fetch('/api/robo/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg })
+      });
+      const data = await res.json();
+      typing.remove();
+      const reply = data.reply || data.error || 'The movement is silent for now...';
+      appendMsg(reply, 'bot');
+      showSpeech(reply.length > 80 ? reply.slice(0, 80) + '...' : reply);
+    } catch {
+      typing.remove();
+      appendMsg('Connection lost. But the movement never stops.', 'bot');
+    }
+    setSpeaking(false);
+    chatSend.disabled = false;
+    chatInput.focus();
+  }
+
+  chatSend.addEventListener('click', sendMessage);
+  chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
+</script>
+</body>
+</html>

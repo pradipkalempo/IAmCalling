@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portfolio - IAMCALLING</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #0a3d0a;
+            --secondary-color: #1a1a1a;
+            --gold: #d4af37;
+            --text-light: #f8f8f8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--gold), #f0c040);
+            padding: 2rem;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+        
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .portfolio-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--gold);
+            transition: transform 0.3s ease;
+        }
+        
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .portfolio-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .portfolio-card .icon {
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 1rem;
+        }
+        
+        .stats-section {
+            background: var(--primary-color);
+            color: var(--text-light);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+        
+        .stat-item h4 {
+            font-size: 2rem;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+        }
+        
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--primary-color);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+        
+        .back-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .protected-content {
+            display: block;
+        }
+        
+        .password-form {
+            display: none;
+        }
+        
+        .password-input {
+            padding: 0.75rem 1rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            margin: 1rem;
+            width: 250px;
+        }
+        
+        .password-btn {
+            background: var(--gold);
+            color: var(--secondary-color);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .password-btn:hover {
+            background: #f0c040;
+            transform: translateY(-2px);
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            margin-top: 1rem;
+        }
+        
+        .portfolio-overview {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 2px solid var(--gold);
+        }
+        
+        .ascii-diagram {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre;
+            text-align: center;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+    <script src="js/universal-topbar-injector.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Password Protection Form -->
+        <div id="passwordForm" class="password-form">
+            <div class="header">
+                <h1><i class="fas fa-lock"></i> Admin Portfolio Access</h1>
+                <p>Enter password to view admin portfolio</p>
+            </div>
+            <div class="content">
+                <form onsubmit="checkPassword(event)">
+                    <input type="password" id="portfolioPassword" class="password-input" placeholder="Enter portfolio password" required>
+                    <br>
+                    <button type="submit" class="password-btn">
+                        <i class="fas fa-key"></i> Access Portfolio
+                    </button>
+                </form>
+                <div id="errorMessage" class="error-message" style="display:none;"></div>
+                <br>
+                <a href="01-response-index.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Portfolio
+                </a>
+            </div>
+        </div>
+        
+        <!-- Protected Portfolio Content -->
+        <div id="portfolioContent" class="protected-content">
+            <div class="header">
+                <h1><i class="fas fa-briefcase"></i> Project Details</h1>
+                <p>In-depth breakdown of projects — Pradip Kale</p>
+            </div>
+            
+            <div class="content">
+                <a href="01-response-index.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Portfolio
+                </a>
+                
+                <!-- Portfolio Overview Diagram -->
+                <div class="portfolio-overview">
+                    <pre class="ascii-diagram">
+┌────────────────────────────────────────┐
+│    YOUR EXPERT PORTFOLIO (3 Projects)  │
+└───────────────────┬────────────────────┘
+                    │
+   ┌────────────────────────────┼────────────────────────────┐
+   │                            │                            │
+   ▼                            ▼                            ▼
+┌──────────────────┐        ┌──────────────────┐        ┌──────────────────┐
+│   PROJECT 1      │        │   PROJECT 2      │        │   PROJECT 3      │
+├──────────────────┤        ├──────────────────┤        ├──────────────────┤
+│ Domain:          │        │ Domain:          │        │ Domain:          │
+│ Data Engineering │        │ Predictive       │        │ Real-Time        │
+│ & Core Analytics │        │ Modeling         │        │ Automation       │
+└──────────────────┘        └──────────────────┘        └──────────────────┘
+                    </pre>
+                </div>
+                
+                <div class="stats-section">
+                    <h2 style="text-align:center; margin-bottom:2rem; font-family: 'Playfair Display', serif;">Platform Statistics</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <h4 id="totalUsers">1,250+</h4>
+                            <p>Total Users</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4 id="totalPosts">450+</h4>
+                            <p>Total Posts</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4 id="totalViews">25,000+</h4>
+                            <p>Total Views</p>
+                        </div>
+                        <div class="stat-item">
+                            <h4>99.9%</h4>
+                            <p>Uptime</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Projects Section -->
+                <div style="margin-top: 3rem;">
+                    <h2 style="text-align: center; font-family: 'Playfair Display', serif; color: var(--primary-color); margin-bottom: 2rem;">
+                        <i class="fas fa-project-diagram"></i> My Projects
+                    </h2>
+                    
+                    <!-- Fullstack Projects -->
+                    <h3 style="color: var(--primary-color); margin: 2rem 0 1rem 0; border-bottom: 2px solid var(--gold); padding-bottom: 0.5rem;">
+                        <i class="fas fa-code"></i> Fullstack Projects
+                    </h3>
+                    <div class="portfolio-grid">
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-brain"></i></div>
+                            <h3>IAMCALLING Platform</h3>
+                            <p><strong>Tech Stack:</strong> Node.js, Express, Supabase, EJS, JavaScript</p>
+                            <p><strong>Features:</strong> User Authentication, Real-time Chat, Content Management, Cognitive Testing</p>
+                            <p>A comprehensive ideology analysis platform fostering critical thinking through interactive content and community engagement.</p>
+                            <p><strong>Status:</strong> Live & Active</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+                            <h3>E-Commerce Platform</h3>
+                            <p><strong>Tech Stack:</strong> React, Node.js, MongoDB, Stripe API</p>
+                            <p><strong>Features:</strong> Product Catalog, Shopping Cart, Payment Integration, Admin Dashboard</p>
+                            <p>Full-featured e-commerce solution with secure payment processing and inventory management.</p>
+                            <p><strong>Status:</strong> Development</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-tasks"></i></div>
+                            <h3>Task Management System</h3>
+                            <p><strong>Tech Stack:</strong> Vue.js, Express, PostgreSQL, Socket.io</p>
+                            <p><strong>Features:</strong> Real-time Updates, Team Collaboration, Progress Tracking, File Sharing</p>
+                            <p>Collaborative project management tool with real-time synchronization and team communication features.</p>
+                            <p><strong>Status:</strong> Completed</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+                            <h3>Learning Management System</h3>
+                            <p><strong>Tech Stack:</strong> PHP, Laravel, MySQL, Bootstrap</p>
+                            <p><strong>Features:</strong> Course Management, Student Portal, Quiz System, Progress Analytics</p>
+                            <p>Educational platform for online learning with interactive courses and assessment tools.</p>
+                            <p><strong>Status:</strong> Completed</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Analytics Projects -->
+                    <h3 style="color: var(--primary-color); margin: 3rem 0 1rem 0; border-bottom: 2px solid var(--gold); padding-bottom: 0.5rem;">
+                        <i class="fas fa-chart-bar"></i> Data Analytics Projects
+                    </h3>
+                    <div class="portfolio-grid">
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-chart-line"></i></div>
+                            <h3>User Behavior Analytics Dashboard</h3>
+                            <p><strong>Tech Stack:</strong> Python, Pandas, Plotly, Streamlit</p>
+                            <p><strong>Data Sources:</strong> Web Analytics, User Interactions, Performance Metrics</p>
+                            <p>Interactive dashboard analyzing user engagement patterns and platform performance metrics for IAMCALLING.</p>
+                            <p><strong>Insights:</strong> 25% increase in user retention identified</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-brain"></i></div>
+                            <h3>Ideology Analysis ML Model</h3>
+                            <p><strong>Tech Stack:</strong> Python, Scikit-learn, NLTK, TensorFlow</p>
+                            <p><strong>Techniques:</strong> NLP, Sentiment Analysis, Classification Algorithms</p>
+                            <p>Machine learning model to analyze and categorize political ideologies from user-generated content.</p>
+                            <p><strong>Accuracy:</strong> 87% classification accuracy achieved</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-database"></i></div>
+                            <h3>Sales Performance Analytics</h3>
+                            <p><strong>Tech Stack:</strong> R, ggplot2, Shiny, SQL</p>
+                            <p><strong>Analysis:</strong> Trend Analysis, Forecasting, Customer Segmentation</p>
+                            <p>Comprehensive sales data analysis with predictive modeling and interactive visualizations.</p>
+                            <p><strong>Impact:</strong> 15% improvement in sales forecasting accuracy</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-search"></i></div>
+                            <h3>Market Research Data Mining</h3>
+                            <p><strong>Tech Stack:</strong> Python, BeautifulSoup, Selenium, Tableau</p>
+                            <p><strong>Methods:</strong> Web Scraping, Data Cleaning, Statistical Analysis</p>
+                            <p>Automated data collection and analysis system for market trends and competitor analysis.</p>
+                            <p><strong>Output:</strong> Weekly market intelligence reports</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Skills & Experience Section -->
+                <div style="margin-top: 3rem;">
+                    <h3 style="color: var(--primary-color); margin: 2rem 0 1rem 0; border-bottom: 2px solid var(--gold); padding-bottom: 0.5rem;">
+                        <i class="fas fa-cogs"></i> Skills & Experience
+                    </h3>
+                    <div class="portfolio-grid">
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-code"></i></div>
+                            <h3>Full Stack Development</h3>
+                            <p><strong>Skills:</strong> JavaScript, Node.js, Express, React, Vue.js</p>
+                            <p><strong>Experience:</strong> 3+ years</p>
+                            <p>Specialized in building scalable web applications with modern technologies and best practices.</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-database"></i></div>
+                            <h3>Database Architecture</h3>
+                            <p><strong>Expertise:</strong> Supabase, PostgreSQL, MongoDB, MySQL</p>
+                            <p><strong>Projects:</strong> Multiple production databases</p>
+                            <p>Designed and implemented efficient database schemas for complex applications.</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-mobile-alt"></i></div>
+                            <h3>Responsive Design</h3>
+                            <p><strong>Technologies:</strong> CSS3, Bootstrap, Mobile-First Design</p>
+                            <p><strong>Focus:</strong> User Experience & Accessibility</p>
+                            <p>Created mobile-responsive interfaces that work seamlessly across all devices.</p>
+                        </div>
+                        
+                        <div class="portfolio-card">
+                            <div class="icon"><i class="fas fa-graduation-cap"></i></div>
+                            <h3>Education & Certification</h3>
+                            <p>BCA Graduate specializing in Web Development & Full-Stack Applications.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="text-align:center; margin-top:3rem; padding:2rem; background:#f9f9f9; border-radius:10px;">
+                    <h3 style="color:var(--primary-color); margin-bottom:1rem;">Contact Information</h3>
+                    <p><strong>Email:</strong> kalepradip135@gmail.com</p>
+                    <p><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/pradip-kale-a116112a0" target="_blank" style="color:var(--gold);">linkedin.com/in/pradip-kale</a></p>
+                    <p><strong>Instagram:</strong> <a href="https://www.instagram.com/pradip_kale___" target="_blank" style="color:var(--gold);">@pradip_kale___</a></p>
+                    <div style="margin-top:1.5rem;">
+                        <a href="01-response-index.html" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--primary-color);color:white;padding:0.75rem 2rem;border-radius:25px;text-decoration:none;font-weight:600;transition:all 0.3s;" onmouseover="this.style.background='#1a5c1a'" onmouseout="this.style.background='var(--primary-color)'">
+                            <i class="fas fa-home"></i> Back to Project Showcase
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 2rem; margin-top: 2rem; border-radius: 15px; text-align: center;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: flex; justify-content: center; align-items: center; gap: 2rem; flex-wrap: wrap;">
+                <div style="color: var(--text-light);">
+                    <p style="margin: 0; font-size: 1.1rem;">© 2025 Pradip Kale — Project Showcase</p>
+                    <p style="margin: 0.5rem 0 0 0; opacity: 0.8;">All rights reserved</p>
+                </div>
+                <a href="01-response-index.html" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--gold); color: var(--secondary-color); padding: 0.75rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <i class="fas fa-home"></i> Back to Showcase
+                </a>
+                <a href="42-robo.html" style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.15); color: white; padding: 0.75rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
+                    <i class="fas fa-robot"></i> Talk with Cockroach
+                </a>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        function checkPassword(event) {
+            event.preventDefault();
+            
+            const password = document.getElementById('portfolioPassword').value;
+            const correctPassword = 'MyJob@25';
+            
+            if (password === correctPassword) {
+                document.getElementById('passwordForm').style.display = 'none';
+                document.getElementById('portfolioContent').style.display = 'block';
+                
+                // Store auth in sessionStorage (expires when browser closes)
+                sessionStorage.setItem('portfolioAccess', 'granted');
+                
+                loadRealStats();
+            } else {
+                document.getElementById('errorMessage').textContent = 'Incorrect password. Access denied.';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('portfolioPassword').value = '';
+            }
+        }
+        
+        // Check if already authenticated
+        if (sessionStorage.getItem('portfolioAccess') === 'granted') {
+            document.getElementById('passwordForm').style.display = 'none';
+            document.getElementById('portfolioContent').style.display = 'block';
+            loadRealStats();
+        }
+        
+        async function loadRealStats() {
+            try {
+                const supabaseUrl = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                
+                // Get user count
+                const usersResponse = await fetch(`${supabaseUrl}/rest/v1/users?select=id`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                const users = await usersResponse.json();
+                
+                // Get posts count
+                const postsResponse = await fetch(`${supabaseUrl}/rest/v1/posts?select=id,views_count`, {
+                    headers: {
+                        'apikey': supabaseKey,
+                        'Authorization': `Bearer ${supabaseKey}`
+                    }
+                });
+                const posts = await postsResponse.json();
+                
+                // Update stats
+                if (users) document.getElementById('totalUsers').textContent = `${users.length}+`;
+                if (posts) {
+                    document.getElementById('totalPosts').textContent = `${posts.length}+`;
+                    const totalViews = posts.reduce((sum, post) => sum + (post.views_count || 0), 0);
+                    document.getElementById('totalViews').textContent = `${totalViews.toLocaleString()}+`;
+                }
+                
+            } catch (error) {
+                console.log('Stats loading failed, using default values');
+            }
+        }
+    </script>
+</body>
+</html>

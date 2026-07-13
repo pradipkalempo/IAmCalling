@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aksh Finance Loan & Banking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/ref-tracker.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                        serif: ['Instrument Serif', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            500: '#f sarey',
+                            600: '#1e40af',
+                            700: '#1e3a5f',
+                            800: '#0f2440',
+                            900: '#0a1628',
+                        },
+                        gold: {
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes countUp {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(234,179,8,0.3); }
+            50% { box-shadow: 0 0 20px rgba(234,179,8,0.6); }
+        }
+        .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+        .animate-slide-left { animation: slideInLeft 0.6s ease-out forwards; }
+        .animate-count { animation: countUp 0.5s ease-out forwards; }
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-500 { animation-delay: 500ms; }
+        .hero-gradient {
+            background: linear-gradient(135deg, #0a1628 0%, #1e3a5f 40%, #1e40af 100%);
+        }
+        .card-shine {
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s infinite;
+        }
+        .gold-border {
+            border: 1px solid rgba(234,179,8,0.3);
+        }
+        .stamp-approved {
+            border: 3px solid #16a34a;
+            color: #16a34a;
+            transform: rotate(-12deg);
+            font-weight: 800;
+            padding: 4px 16px;
+            border-radius: 6px;
+            opacity: 0.8;
+        }
+        .rupee-symbol {
+            font-weight: 700;
+        }
+        .table-row-hover:hover {
+            background: rgba(234,179,8,0.05);
+        }
+        .nav-blur {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .emi-input:focus {
+            outline: none;
+            border-color: #eab308;
+            box-shadow: 0 0 0 3px rgba(234,179,8,0.2);
+        }
+        .toast {
+            animation: fadeInUp 0.4s ease-out forwards;
+        }
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 nav-blur bg-brand-900/95 border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center shadow-lg">
+                        <span class="text-brand-900 font-extrabold text-lg sm:text-xl">A</span>
+                    </div>
+                    <div>
+                        <h1 class="text-white font-bold text-base sm:text-lg leading-tight">Aksh Finance</h1>
+                        <p class="text-gold-400 text-[10px] sm:text-xs font-medium tracking-wider uppercase">Loan & Banking</p>
+                    </div>
+                </div>
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#dashboard" class="text-white/80 hover:text-gold-400 text-sm font-medium transition-colors">Dashboard</a>
+                    <a href="#loan-details" class="text-white/80 hover:text-gold-400 text-sm font-medium transition-colors">Loan Details</a>
+                    <a href="#emi-calculator" class="text-white/80 hover:text-gold-400 text-sm font-medium transition-colors">EMI Calculator</a>
+                    <a href="#services" class="text-white/80 hover:text-gold-400 text-sm font-medium transition-colors">Services</a>
+                    <a href="#contact" class="text-white/80 hover:text-gold-400 text-sm font-medium transition-colors">Contact</a>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleLang()" class="text-white/70 hover:text-gold-400 border border-white/20 rounded-full px-3 py-1 text-xs font-medium transition-colors" id="langBtn">
+                        मराठी
+                    </button>
+                    <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-brand-900 border-t border-white/10 pb-4">
+            <div class="px-4 py-2 space-y-2">
+                <a href="#dashboard" class="block text-white/80 hover:text-gold-400 py-2 text-sm font-medium">Dashboard</a>
+                <a href="#loan-details" class="block text-white/80 hover:text-gold-400 py-2 text-sm font-medium">Loan Details</a>
+                <a href="#emi-calculator" class="block text-white/80 hover:text-gold-400 py-2 text-sm font-medium">EMI Calculator</a>
+                <a href="#services" class="block text-white/80 hover:text-gold-400 py-2 text-sm font-medium">Services</a>
+                <a href="#contact" class="block text-white/80 hover:text-gold-400 py-2 text-sm font-medium">Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-20 sm:pt-24 pb-12 sm:pb-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-20 right-10 w-72 h-72 bg-gold-400 rounded-full blur-[120px]"></div>
+            <div class="absolute bottom-10 left-10 w-96 h-96 bg-blue-500 rounded-full blur-[150px]"></div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <div class="animate-fade-in-up">
+                    <div class="inline-flex items-center gap-2 bg-gold-500/20 border border-gold-500/30 rounded-full px-4 py-1.5 mb-6">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        <span class="text-gold-400 text-xs font-semibold uppercase tracking-wider">RBI Registered | NBFC</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight mb-4">
+                        तुमच्या <span class="text-gold-400 font-serif italic">स्वप्नांची</span><br>
+                        पूर्तता करणारा<br>
+                        <span class="text-gold-400">विश्वासू साथीदार</span>
+                    </h2>
+                    <p class="text-blue-200/80 text-base sm:text-lg font-light leading-relaxed mb-8 max-w-lg">
+                        Aksh Finance provides quick and affordable loans with minimal documentation. Your trusted partner for personal, business, and gold loans across Maharashtra.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#apply" class="inline-flex items-center gap-2 bg-gold-500 hover:bg-gold-600 text-brand-900 font-bold px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg shadow-gold-500/25 text-sm sm:text-base">
+                            Apply for Loan
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#emi-calculator" class="inline-flex items-center gap-2 border border-white/20 hover:border-gold-400/50 text-white font-medium px-6 sm:px-8 py-3 sm:py-4 rounded-xl transition-all duration-300 text-sm sm:text-base">
+                            EMI Calculator
+                            <i data-lucide="calculator" class="w-4 h-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="animate-fade-in-up delay-300 hidden lg:block">
+                    <div class="relative">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-6 gold-border">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gold-400 font-bold text-lg">Loan Status</span>
+                                <span class="bg-yellow-500/20 text-yellow-400 text-xs font-bold px-3 py-1 rounded-full">● ACTIVE</span>
+                            </div>
+                            <div class="text-white/60 text-sm mb-1">Borrower</div>
+                            <div class="text-white font-semibold text-lg mb-3">ज्योती बालनाथ भिसे</div>
+                            <div class="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <div class="text-white/50 text-xs uppercase tracking-wider">Loan Amount</div>
+                                    <div class="text-gold-400 font-bold text-2xl">₹10,000</div>
+                                </div>
+                                <div>
+                                    <div class="text-white/50 text-xs uppercase tracking-wider">Current EMI</div>
+                                    <div class="text-white font-bold text-2xl">₹2,800</div>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <div class="flex justify-between text-xs text-white/50 mb-1">
+                                    <span>Repaid: ₹0</span>
+                                    <span>0%</span>
+                                </div>
+                                <div class="w-full bg-white/10 rounded-full h-2.5">
+                                    <div class="bg-gradient-to-r from-gold-400 to-gold-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-4 -right-4 w-24 h-24 bg-gold-500/10 rounded-full blur-xl"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Bar -->
+    <section class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8">
+                <div class="text-center animate-count">
+                    <div class="text-2xl sm:text-3xl font-bold text-brand-800">₹50Cr+</div>
+                    <div class="text-slate-500 text-xs sm:text-sm mt-1">Loans Disbursed</div>
+                </div>
+                <div class="text-center animate-count delay-100">
+                    <div class="text-2xl sm:text-3xl font-bold text-brand-800">25,000+</div>
+                    <div class="text-slate-500 text-xs sm:text-sm mt-1">Happy Customers / ग्राहक</div>
+                </div>
+                <div class="text-center animate-count delay-200">
+                    <div class="text-2xl sm:text-3xl font-bold text-brand-800">12%</div>
+                    <div class="text-slate-500 text-xs sm:text-sm mt-1">Starting ROI / व्याज दर</div>
+                </div>
+                <div class="text-center animate-count delay-300">
+                    <div class="text-2xl sm:text-3xl font-bold text-brand-800">24hrs</div>
+                    <div class="text-slate-500 text-xs sm:text-sm mt-1">Quick Disbursal / वितरण</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Loan Details Section -->
+    <section id="loan-details" class="py-12 sm:py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10 sm:mb-14">
+                <span class="inline-block text-gold-600 text-xs font-bold uppercase tracking-widest mb-3">Loan Portfolio / कर्ज तपशील</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-brand-900">Active Loan Details</h2>
+            </div>
+
+            <!-- Main Loan Card -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-8">
+                <!-- Card Header -->
+                <div class="bg-gradient-to-r from-brand-800 to-brand-900 p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 border-gold-400/50 flex-shrink-0">
+                                <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1781150604/WhatsApp_Image_2026-06-11_at_9.32.33_AM_algd4k.jpg" 
+                                     alt="ज्योती बालनाथ भिसे" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <h3 class="text-white font-bold text-lg sm:text-xl">ज्योती बालनाथ भिसे</h3>
+                                <p class="text-blue-200/70 text-sm">Jyoti Balnath Bhise</p>
+                                <p class="text-gold-400 text-xs font-semibold mt-1">Deposit ID: AKSH-2026-DP-0892</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="stamp-approved text-sm">✓ REGISTERED</span>
+                            <span class="bg-yellow-500/20 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full">PENDING</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div class="p-4 sm:p-6 lg:p-8">
+                    <div class="grid md:grid-cols-3 gap-6 lg:gap-8">
+                        <!-- Personal Info -->
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-brand-900 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                <i data-lucide="user" class="w-4 h-4 text-gold-600"></i>
+                                Personal Info / वैयक्तिक माहिती
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Full Name / पूर्ण नाव</span>
+                                    <span class="font-semibold text-sm text-right">ज्योती बालनाथ भिसे</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Father's Name / वडिलांचे नाव</span>
+                                    <span class="font-semibold text-sm text-right">बालनाथ विठ्ठल भिसे</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Date of Birth / जन्मतारीख</span>
+                                    <span class="font-semibold text-sm">25/03/1985</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Mobile / मोबाईल</span>
+                                    <span class="font-semibold text-sm">+91 86988 45055</span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-slate-500 text-sm">Address / पत्ता</span>
+                                    <span class="font-semibold text-sm text-right max-w-[180px]">रा. सरताळे , ता. सातारा , जि. सातारा </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KYC Documents -->
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-brand-900 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                <i data-lucide="shield-check" class="w-4 h-4 text-gold-600"></i>
+                                KYC Documents / कागदपत्रे
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-bold text-brand-800 uppercase tracking-wider">Aadhaar Card / आधार कार्ड</span>
+                                        <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">✓ Verified</span>
+                                    </div>
+                                    <div class="font-mono text-lg font-bold text-brand-900 tracking-wider">8048 3851 3185</div>
+                                    <div class="text-slate-400 text-xs mt-1">Issued by UIDAI / UIDAI कडून जारी</div>
+                                </div>
+                                <div class="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-xs font-bold text-brand-800 uppercase tracking-wider">PAN Card / पॅन कार्ड</span>
+                                        <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">✓ Verified</span>
+                                    </div>
+                                    <div class="font-mono text-lg font-bold text-brand-900 tracking-wider">GPUPB1319L</div>
+                                    <div class="text-slate-400 text-xs mt-1">Income Tax Dept / आयकर विभाग</div>
+                                </div>
+                                <div class="bg-gold-500/5 rounded-xl p-3 border border-gold-500/20">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                                        <span class="text-xs font-semibold text-green-700">e-KYC Verified on 10/05/2026</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Loan Info -->
+                        <div class="space-y-4">
+                            <h4 class="font-bold text-brand-900 flex items-center gap-2 text-sm uppercase tracking-wider">
+                                <i data-lucide="indian-rupee" class="w-4 h-4 text-gold-600"></i>
+                                Loan Info / कर्ज माहिती
+                            </h4>
+                            <div class="space-y-3">
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Loan Type / कर्ज प्रकार</span>
+                                    <span class="font-semibold text-sm">Personal Loan</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Loan Amount / कर्ज रक्कम</span>
+                                    <span class="font-bold text-lg text-gold-600">₹10,000</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Interest Rate / व्याज दर</span>
+                                    <span class="font-semibold text-sm">8% per month</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Tenure / कालावधी</span>
+                                    <span class="font-semibold text-sm">5 Months / ०५ महिने</span>
+                                </div>
+                                <div class="flex justify-between py-2 border-b border-slate-100">
+                                    <span class="text-slate-500 text-sm">Monthly EMI / मासिक EMI</span>
+                                    <span class="font-semibold text-sm">Variable (Reducing)</span>
+                                </div>
+                                <div class="flex justify-between py-2">
+                                    <span class="text-slate-500 text-sm">Disbursed On / वितरण दिनांक</span>
+                                    <span class="font-semibold text-sm">10/05/2026</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repayment Schedule -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden mb-8">
+                <div class="p-4 sm:p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <h4 class="font-bold text-brand-900 flex items-center gap-2">
+                        <i data-lucide="calendar-check" class="w-5 h-5 text-gold-600"></i>
+                        EMI Schedule / EMI वेळापत्रक
+                    </h4>
+                    <div class="flex items-center gap-2 text-sm">
+                        <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs font-bold">● Not Paid</span>
+                        <span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded text-xs font-bold">● Pending</span>
+                        <span class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs font-bold">● Upcoming</span>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-slate-50 text-left">
+                                <th class="px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">EMI #</th>
+                                <th class="px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Due Date / देय दिनांक</th>
+                                <th class="px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Principal / मुद्दल</th>
+                                <th class="px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Interest / व्याज</th>
+                                <th class="px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">EMI Amount</th>
+                                <th class="px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Outstanding / शिल्लक</th>
+                                <th class="px-4 sm:px-6 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="table-row-hover border-b border-slate-100 bg-red-50/30">
+                                <td class="px-4 sm:px-6 py-3.5 text-sm font-semibold">1</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm font-semibold">10/06/2026</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm">₹2,000</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm">₹800</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm font-bold text-red-600">₹2,800</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm">₹8,000</td>
+                                <td class="px-4 sm:px-6 py-3.5"><span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full animate-pulse">Not Paid / नाही भरले</span></td>
+                            </tr>
+                            <tr class="table-row-hover border-b border-slate-100">
+                                <td class="px-4 sm:px-6 py-3.5 text-sm font-semibold text-slate-400">2</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">10/07/2026</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,000</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹640</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,640</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹6,000</td>
+                                <td class="px-4 sm:px-6 py-3.5"><span class="bg-slate-100 text-slate-500 text-xs font-bold px-2.5 py-1 rounded-full">Upcoming</span></td>
+                            </tr>
+                            <tr class="table-row-hover border-b border-slate-100">
+                                <td class="px-4 sm:px-6 py-3.5 text-sm font-semibold text-slate-400">3</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">10/08/2026</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,000</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹480</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,480</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹4,000</td>
+                                <td class="px-4 sm:px-6 py-3.5"><span class="bg-slate-100 text-slate-500 text-xs font-bold px-2.5 py-1 rounded-full">Upcoming</span></td>
+                            </tr>
+                            <tr class="table-row-hover border-b border-slate-100">
+                                <td class="px-4 sm:px-6 py-3.5 text-sm font-semibold text-slate-400">4</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">10/09/2026</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,000</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹320</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,320</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,000</td>
+                                <td class="px-4 sm:px-6 py-3.5"><span class="bg-slate-100 text-slate-500 text-xs font-bold px-2.5 py-1 rounded-full">Upcoming</span></td>
+                            </tr>
+                            <tr class="table-row-hover">
+                                <td class="px-4 sm:px-6 py-3.5 text-sm font-semibold text-slate-400">5</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">10/10/2026</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,000</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹160</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹2,160</td>
+                                <td class="px-4 sm:px-6 py-3.5 text-sm text-slate-400">₹0</td>
+                                <td class="px-4 sm:px-6 py-3.5"><span class="bg-slate-100 text-slate-500 text-xs font-bold px-2.5 py-1 rounded-full">Upcoming</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="p-4 sm:p-6 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div class="text-sm text-slate-600">
+                        <span class="font-semibold">Total EMI Paid / एकूण EMI भरले:</span> ₹0 of ₹12,400 (Total Interest: ₹2,400)
+                    </div>
+                    <button onclick="payEMI()" class="bg-gold-500 hover:bg-gold-600 text-brand-900 font-bold px-6 py-2.5 rounded-lg transition-all duration-300 hover:scale-105 text-sm flex items-center gap-2">
+                        <i data-lucide="credit-card" class="w-4 h-4"></i>
+                        Pay EMI ₹2,800 / EMI भरा
+                    </button>
+                </div>
+            </div>
+
+            <!-- Borrower Photo Card -->
+            <div class="bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden">
+                <div class="p-4 sm:p-6 border-b border-slate-200">
+                    <h4 class="font-bold text-brand-900 flex items-center gap-2">
+                        <i data-lucide="camera" class="w-5 h-5 text-gold-600"></i>
+                        Borrower Photograph / कर्जदार फोटो
+                    </h4>
+                </div>
+                <div class="p-4 sm:p-6">
+                    <div class="flex flex-col sm:flex-row gap-6 items-start">
+                        <div class="flex flex-col gap-4">
+                            <div class="w-40 h-48 sm:w-48 sm:h-56 rounded-xl overflow-hidden border-4 border-slate-200 flex-shrink-0 shadow-lg">
+                                <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1781150604/WhatsApp_Image_2026-06-11_at_9.32.33_AM_algd4k.jpg" 
+                                     alt="ज्योती बालनाथ भिसे - Depositor Photo" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div class="w-40 h-20 sm:w-48 sm:h-24 rounded-xl overflow-hidden border-2 border-slate-200 flex-shrink-0 shadow-md bg-white">
+                                <div class="w-full h-4 bg-slate-100 flex items-center justify-center">
+                                    <span class="text-xs text-slate-500">Signature / सही</span>
+                                </div>
+                                <div class="w-full h-16 sm:h-20">
+                                    <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1781153076/WhatsApp_Image_2026-06-11_at_10.13.59_AM_qwo7fp.jpg" 
+                                         alt="ज्योती बालनाथ भिसे - Signature" 
+                                         class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1 space-y-4">
+                            <div class="bg-brand-900/5 rounded-xl p-4 border border-brand-900/10">
+                                <h5 class="font-bold text-brand-900 mb-2">Borrower Declaration / कर्जदार घोषणा</h5>
+                                <p class="text-sm text-slate-600 leading-relaxed">
+                                    "मी, ज्योती बालनाथ भिसे, याद्वारे प्रमाणित करतो की वरील सर्व माहिती सत्य आहे. मी Aksh Finance Loan & Banking कडून ₹10,000 (दहा हजार रुपये) वैयक्तिक कर्ज घेतले आहे. कर्जाची व्याजदर व परतावा अटी मला माहित आहेत."
+                                </p>
+                                <p class="text-sm text-slate-600 leading-relaxed mt-2">
+                                    "I, Jyoti Balnath Bhise, hereby declare that all the above information is true. I have taken a personal loan of ₹10,000 from Aksh Finance Loan & Banking. I am aware of the interest rate and repayment terms."
+                                </p>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div class="bg-green-50 rounded-lg p-3 border border-green-200 flex items-center gap-2">
+                                    <i data-lucide="fingerprint" class="w-5 h-5 text-green-600"></i>
+                                    <div>
+                                        <div class="text-xs text-green-600 font-bold">Biometric Verified</div>
+                                        <div class="text-[10px] text-green-500">Aadhaar e-KYC / आधार e-KYC</div>
+                                    </div>
+                                </div>
+                                <div class="bg-blue-50 rounded-lg p-3 border border-blue-200 flex items-center gap-2">
+                                    <i data-lucide="video" class="w-5 h-5 text-blue-600"></i>
+                                    <div>
+                                        <div class="text-xs text-blue-600 font-bold">KYC Done</div>
+                                        <div class="text-[10px] text-blue-500">10/05/2026 at 10:30 AM</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="downloadStatement()" class="inline-flex items-center gap-2 bg-brand-800 hover:bg-brand-900 text-white font-semibold px-5 py-2.5 rounded-lg transition-all duration-300 text-sm">
+                                <i data-lucide="download" class="w-4 h-4"></i>
+                                Download Statement / स्टेटमेंट डाउनलोड
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- EMI Calculator -->
+    <section id="emi-calculator" class="py-12 sm:py-20 bg-brand-900 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <div class="absolute top-0 left-1/4 w-96 h-96 bg-gold-400 rounded-full blur-[200px]"></div>
+        </div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-10 sm:mb-14">
+                <span class="inline-block text-gold-400 text-xs font-bold uppercase tracking-widest mb-3">EMI Calculator / EMI कॅल्क्युलेटर</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-white">Calculate Your EMI</h2>
+                <p class="text-blue-200/60 mt-3 text-sm sm:text-base">तुमचा मासिक हप्ता मोजा / Calculate your monthly installment</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-6 sm:p-10">
+                <div class="grid sm:grid-cols-3 gap-6 mb-8">
+                    <div>
+                        <label class="text-white/70 text-sm font-medium mb-2 block">Loan Amount / कर्ज रक्कम (₹)</label>
+                        <input type="number" id="loanAmount" value="10000" min="1000" max="500000" step="1000"
+                               class="emi-input w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white font-semibold text-lg" 
+                               oninput="calculateEMI()">
+                        <input type="range" id="loanAmountSlider" min="1000" max="500000" step="1000" value="10000"
+                               class="w-full mt-2 accent-gold-500" oninput="document.getElementById('loanAmount').value=this.value; calculateEMI()">
+                        <div class="flex justify-between text-white/40 text-xs mt-1">
+                            <span>₹1,000</span>
+                            <span>₹5,00,000</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-white/70 text-sm font-medium mb-2 block">Interest Rate / व्याज दर (%)</label>
+                        <input type="number" id="interestRate" value="18" min="5" max="36" step="0.5"
+                               class="emi-input w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white font-semibold text-lg" 
+                               oninput="calculateEMI()">
+                        <input type="range" id="interestRateSlider" min="5" max="36" step="0.5" value="18"
+                               class="w-full mt-2 accent-gold-500" oninput="document.getElementById('interestRate').value=this.value; calculateEMI()">
+                        <div class="flex justify-between text-white/40 text-xs mt-1">
+                            <span>5%</span>
+                            <span>36%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-white/70 text-sm font-medium mb-2 block">Tenure / कालावधी (Months)</label>
+                        <input type="number" id="loanTenure" value="6" min="1" max="60" step="1"
+                               class="emi-input w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white font-semibold text-lg" 
+                               oninput="calculateEMI()">
+                        <input type="range" id="loanTenureSlider" min="1" max="60" step="1" value="6"
+                               class="w-full mt-2 accent-gold-500" oninput="document.getElementById('loanTenure').value=this.value; calculateEMI()">
+                        <div class="flex justify-between text-white/40 text-xs mt-1">
+                            <span>1 Month</span>
+                            <span>60 Months</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Results -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div class="bg-white/5 rounded-xl p-4 text-center border border-white/10">
+                        <div class="text-white/50 text-xs uppercase tracking-wider mb-1">Monthly EMI</div>
+                        <div class="text-gold-400 font-bold text-xl sm:text-2xl" id="emiResult">₹1,847</div>
+                        <div class="text-white/40 text-xs">मासिक हप्ता</div>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4 text-center border border-white/10">
+                        <div class="text-white/50 text-xs uppercase tracking-wider mb-1">Total Interest</div>
+                        <div class="text-white font-bold text-xl sm:text-2xl" id="totalInterest">₹1,082</div>
+                        <div class="text-white/40 text-xs">एकूण व्याज</div>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4 text-center border border-white/10">
+                        <div class="text-white/50 text-xs uppercase tracking-wider mb-1">Total Amount</div>
+                        <div class="text-white font-bold text-xl sm:text-2xl" id="totalAmount">₹11,082</div>
+                        <div class="text-white/40 text-xs">एकूण रक्कम</div>
+                    </div>
+                    <div class="bg-white/5 rounded-xl p-4 text-center border border-white/10">
+                        <div class="text-white/50 text-xs uppercase tracking-wider mb-1">Interest %</div>
+                        <div class="text-white font-bold text-xl sm:text-2xl" id="interestPercent">9.8%</div>
+                        <div class="text-white/40 text-xs">व्याज टक्केवारी</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="py-12 sm:py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10 sm:mb-14">
+                <span class="inline-block text-gold-600 text-xs font-bold uppercase tracking-widest mb-3">Our Services / आमच्या सेवा</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-brand-900">Loan Products / कर्ज उत्पादने</h2>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Personal Loan -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-xl hover:border-gold-300 transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center mb-5 group-hover:bg-gold-500/10 transition-colors">
+                        <i data-lucide="user-check" class="w-7 h-7 text-blue-600 group-hover:text-gold-600 transition-colors"></i>
+                    </div>
+                    <h3 class="font-bold text-brand-900 text-lg mb-2">Personal Loan / वैयक्तिक कर्ज</h3>
+                    <p class="text-slate-500 text-sm mb-4 leading-relaxed">सगळ्यात कमी व्याजदरात वैयक्तिक कर्ज. किमान कागदपत्रे, जलद मंजुरी.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gold-600 font-bold text-sm">12% - 24% p.a.</span>
+                        <span class="text-slate-400 text-xs">₹5K - ₹5L</span>
+                    </div>
+                </div>
+                <!-- Business Loan -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-xl hover:border-gold-300 transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-xl bg-green-50 flex items-center justify-center mb-5 group-hover:bg-gold-500/10 transition-colors">
+                        <i data-lucide="briefcase" class="w-7 h-7 text-green-600 group-hover:text-gold-600 transition-colors"></i>
+                    </div>
+                    <h3 class="font-bold text-brand-900 text-lg mb-2">Business Loan / व्यवसाय कर्ज</h3>
+                    <p class="text-slate-500 text-sm mb-4 leading-relaxed">तुमचा व्यवसाय वाढवा. कोणत्याही गहाणखताशिवाय व्यावसायिक कर्ज.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gold-600 font-bold text-sm">14% - 22% p.a.</span>
+                        <span class="text-slate-400 text-xs">₹10K - ₹10L</span>
+                    </div>
+                </div>
+                <!-- Gold Loan -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-xl hover:border-gold-300 transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-xl bg-yellow-50 flex items-center justify-center mb-5 group-hover:bg-gold-500/10 transition-colors">
+                        <i data-lucide="gem" class="w-7 h-7 text-yellow-600 group-hover:text-gold-600 transition-colors"></i>
+                    </div>
+                    <h3 class="font-bold text-brand-900 text-lg mb-2">Gold Loan / सोने कर्ज</h3>
+                    <p class="text-slate-500 text-sm mb-4 leading-relaxed">सोन्यावर कर्ज. सर्वात कमी व्याजदर. 30 मिनिटात पैसे खात्यात.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gold-600 font-bold text-sm">8% - 16% p.a.</span>
+                        <span class="text-slate-400 text-xs">₹1K - ₹20L</span>
+                    </div>
+                </div>
+                <!-- Vehicle Loan -->
+                <div class="bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-xl hover:border-gold-300 transition-all duration-300 group">
+                    <div class="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center mb-5 group-hover:bg-gold-500/10 transition-colors">
+                        <i data-lucide="car" class="w-7 h-7 text-purple-600 group-hover:text-gold-600 transition-colors"></i>
+                    </div>
+                    <h3 class="font-bold text-brand-900 text-lg mb-2">Vehicle Loan / वाहन कर्ज</h3>
+                    <p class="text-slate-500 text-sm mb-4 leading-relaxed">दुचाकी किंवा चारचाकी वाहन कर्ज. कमी डाउन पेमेंट, मोठा कालावधी.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gold-600 font-bold text-sm">10% - 18% p.a.</span>
+                        <span class="text-slate-400 text-xs">₹10K - ₹15L</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Apply Section -->
+    <section id="apply" class="py-12 sm:py-20 bg-slate-50">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10">
+                <span class="inline-block text-gold-600 text-xs font-bold uppercase tracking-widest mb-3">Apply Now / अर्ज करा</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-brand-900">Loan Application / कर्ज अर्ज</h2>
+            </div>
+            <form id="loanForm" onsubmit="submitLoanApplication(event)" class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-10 space-y-6">
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Full Name / पूर्ण नाव *</label>
+                        <input type="text" required placeholder="संतोष बाबुराव पवार" 
+                               class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all">
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Mobile Number / मोबाईल *</label>
+                        <input type="tel" required placeholder="+91 98XXX XXXXX" 
+                               class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all">
+                    </div>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Aadhaar Number / आधार क्रमांक *</label>
+                        <input type="text" required placeholder="XXXX XXXX XXXX" maxlength="14"
+                               class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-mono focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all">
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">PAN Number / पॅन क्रमांक *</label>
+                        <input type="text" required placeholder="ABCDE1234F" maxlength="10"
+                               class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm font-mono uppercase focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all">
+                    </div>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-6">
+                    <div>
+                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Loan Amount / कर्ज रक्कम (₹) *</label>
+                        <input type="number" required placeholder="10000" min="1000" 
+                               class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all">
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Loan Type / कर्ज प्रकार *</label>
+                        <select required class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all bg-white">
+                            <option value="">Select / निवडा</option>
+                            <option value="personal">Personal Loan / वैयक्तिक कर्ज</option>
+                            <option value="business">Business Loan / व्यवसाय कर्ज</option>
+                            <option value="gold">Gold Loan / सोने कर्ज</option>
+                            <option value="vehicle">Vehicle Loan / वाहन कर्ज</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-sm font-semibold text-slate-700 mb-1.5 block">Address / पत्ता *</label>
+                    <textarea required rows="2" placeholder="रा. गाव, ता. जि." 
+                              class="w-full border border-slate-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold-500 focus:ring-2 focus:ring-gold-500/20 transition-all resize-none"></textarea>
+                </div>
+                <div class="flex items-start gap-3">
+                    <input type="checkbox" required id="agree" class="mt-1 accent-gold-500">
+                    <label for="agree" class="text-sm text-slate-600">मी सर्व अटी व शर्ती मान्य करतो/करते. I agree to all terms and conditions of Aksh Finance Loan & Banking.</label>
+                </div>
+                <button type="submit" class="w-full bg-gold-500 hover:bg-gold-600 text-brand-900 font-bold px-8 py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg shadow-gold-500/25 text-base flex items-center justify-center gap-2">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                    Submit Application / अर्ज सबमिट करा
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-12 sm:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-10 sm:mb-14">
+                <span class="inline-block text-gold-600 text-xs font-bold uppercase tracking-widest mb-3">Contact Us / संपर्क</span>
+                <h2 class="text-3xl sm:text-4xl font-bold text-brand-900">Get in Touch / संपर्क साधा</h2>
+            </div>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-slate-50 rounded-2xl p-6 text-center border border-slate-200 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-brand-800 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="map-pin" class="w-6 h-6 text-gold-400"></i>
+                    </div>
+                    <h4 class="font-bold text-brand-900 mb-1">Office / कार्यालय</h4>
+                    <p class="text-slate-500 text-sm">श्रीरामप्लाझा, 2nd Floor,<br>नेवासा, अहमदनगर 414603</p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-6 text-center border border-slate-200 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-brand-800 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="phone" class="w-6 h-6 text-gold-400"></i>
+                    </div>
+                    <h4 class="font-bold text-brand-900 mb-1">Phone / फोन</h4>
+                    <p class="text-slate-500 text-sm">+91 24272 XXXXX<br>+91 98XXX XXXXX</p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-6 text-center border border-slate-200 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-brand-800 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="mail" class="w-6 h-6 text-gold-400"></i>
+                    </div>
+                    <h4 class="font-bold text-brand-900 mb-1">Email / ईमेल</h4>
+                    <p class="text-slate-500 text-sm">info@akshfinance.in<br>loan@akshfinance.in</p>
+                </div>
+                <div class="bg-slate-50 rounded-2xl p-6 text-center border border-slate-200 hover:shadow-lg transition-all">
+                    <div class="w-12 h-12 rounded-xl bg-brand-800 flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="clock" class="w-6 h-6 text-gold-400"></i>
+                    </div>
+                    <h4 class="font-bold text-brand-900 mb-1">Timing / वेळ</h4>
+                    <p class="text-slate-500 text-sm">सोमवार - शनिवार<br>10:00 AM - 6:00 PM</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-brand-900 pt-12 pb-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gold-400 to-gold-600 flex items-center justify-center">
+                            <span class="text-brand-900 font-extrabold text-lg">A</span>
+                        </div>
+                        <div>
+                            <h3 class="text-white font-bold">Aksh Finance</h3>
+                            <p class="text-gold-400 text-[10px] font-medium tracking-wider uppercase">Loan & Banking</p>
+                        </div>
+                    </div>
+                    <p class="text-blue-200/50 text-sm leading-relaxed">
+                        तुमच्या विश्वासाचा साथीदार. Your trusted financial partner since 2020.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Loan Services</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-blue-200/50 hover:text-gold-400 text-sm transition-colors">Personal Loan / वैयक्तिक</a></li>
+                        <li><a href="#" class="text-blue-200/50 hover:text-gold-400 text-sm transition-colors">Business Loan / व्यवसाय</a></li>
+                        <li><a href="#" class="text-blue-200/50 hover:text-gold-400 text-sm transition-colors">Gold Loan / सोने कर्ज</a></li>
+                        <li><a href="#" class="text-blue-200/50 hover:text-gold-400 text-sm transition-colors">Vehicle Loan / वाहन</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-blue-200/50 hover:text-gold-400 text-sm transition-colors">About Us / आमच्याबद्दल</a></li>
+                        <li><a href="#" class="text-blue-200/50 hover:text-gold-400 text-sm transition-colors">EMI Calculator</a></li>
+                        <li><a href="#" class="text-blue-200/50 hover:text-gold-400 text-sm transition-colors">Terms & Conditions</a></li>
+                        <li><a href="#" class="text-blue-200/50 hover:text-gold-400 text-sm transition-colors">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold text-sm uppercase tracking-wider mb-4">Regulatory / नियामक</h4>
+                    <ul class="space-y-2">
+                        <li class="text-blue-200/50 text-sm">RBI Reg. No: N-XX-XXXXX</li>
+                        <li class="text-blue-200/50 text-sm">CIN: UXXXXX MH 2020</li>
+                        <li class="text-blue-200/50 text-sm">GSTIN: 27AXXXXX1234</li>
+                        <li class="text-blue-200/50 text-sm">PAN: AACXX1234F</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <p class="text-blue-200/40 text-xs">© 2026 Aksh Finance Loan & Banking. All rights reserved. / सर्व हक्क राखीव.</p>
+                <p class="text-blue-200/30 text-[10px]">⚠️</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-3"></div>
+
+    <!-- JavaScript -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // EMI Calculator
+        function calculateEMI() {
+            const principal = parseFloat(document.getElementById('loanAmount').value) || 0;
+            const rate = parseFloat(document.getElementById('interestRate').value) || 0;
+            const tenure = parseInt(document.getElementById('loanTenure').value) || 1;
+
+            const monthlyRate = rate / 12 / 100;
+            let emi = 0;
+
+            if (monthlyRate > 0) {
+                emi = principal * monthlyRate * Math.pow(1 + monthlyRate, tenure) / (Math.pow(1 + monthlyRate, tenure) - 1);
+            } else {
+                emi = principal / tenure;
+            }
+
+            const totalAmount = emi * tenure;
+            const totalInterest = totalAmount - principal;
+            const interestPercent = principal > 0 ? ((totalInterest / principal) * 100).toFixed(1) : 0;
+
+            document.getElementById('emiResult').textContent = '₹' + Math.round(emi).toLocaleString('en-IN');
+            document.getElementById('totalInterest').textContent = '₹' + Math.round(totalInterest).toLocaleString('en-IN');
+            document.getElementById('totalAmount').textContent = '₹' + Math.round(totalAmount).toLocaleString('en-IN');
+            document.getElementById('interestPercent').textContent = interestPercent + '%';
+        }
+
+        // Initial calculation
+        calculateEMI();
+
+        // Pay EMI
+        function payEMI() {
+            showToast('✅ EMI ₹2,800 payment initiated! / EMI भरता येत आहे', 'success');
+        }
+
+        // Download Statement
+        function downloadStatement() {
+            showToast('📄 Loan statement downloading... / स्टेटमेंट डाउनलोड होत आहे', 'info');
+        }
+
+        // Submit Loan Application
+        function submitLoanApplication(e) {
+            e.preventDefault();
+            showToast('✅ Application submitted successfully! / अर्ज यशस्वीरित्या सबमिट झाला!', 'success');
+            e.target.reset();
+        }
+
+        // Toast notification system
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-brand-800';
+            
+            toast.className = `toast ${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl text-sm font-medium max-w-sm`;
+            toast.innerHTML = `<div class="flex items-center gap-2">${message}</div>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s ease-out';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // Language toggle (basic)
+        let isMarathi = false;
+        function toggleLang() {
+            isMarathi = !isMarathi;
+            document.getElementById('langBtn').textContent = isMarathi ? 'English' : 'मराठी';
+            showToast(isMarathi ? 'मराठी भाषा निवडली / Marathi selected' : 'English language selected', 'info');
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Close mobile menu
+                    document.getElementById('mobileMenu').classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

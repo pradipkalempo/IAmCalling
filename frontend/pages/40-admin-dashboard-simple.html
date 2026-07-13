@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — User & Referral Management</title>
+    <link rel="stylesheet" href="css/mobile-responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #0f1b3d 0%, #1a3668 50%, #2a4a8a 100%);
+            --accent-gradient: linear-gradient(135deg, #4a6fc5 0%, #6b8ddf 100%);
+            --glass-bg: rgba(15, 27, 61, 0.7);
+            --glass-border: rgba(106, 153, 255, 0.3);
+            --text-primary: #e6f0ff;
+            --text-secondary: #a0c0ff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--primary-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            width: 250px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--glass-border);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .sidebar-header { padding: 0 20px 20px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; }
+        .sidebar-header h2 { color: var(--text-primary); font-size: 1.2rem; }
+        .nav-menu { list-style: none; }
+        .nav-item { margin-bottom: 3px; }
+        .nav-link {
+            display: flex; align-items: center; padding: 12px 20px;
+            color: var(--text-secondary); text-decoration: none; transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(106,153,255,0.2); color: var(--text-primary);
+            border-right: 3px solid #6a99ff;
+        }
+        .nav-link i { margin-right: 10px; width: 20px; }
+        .nav-section-label {
+            padding: 14px 20px 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(160,192,255,0.5);
+        }
+
+        /* ── Main ── */
+        .main-content { flex: 1; margin-left: 250px; padding: 24px; }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 28px;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .header-right { display: flex; align-items: center; gap: 12px; }
+        .user-avatar {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+
+        /* ── Stats ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 15px;
+            padding: 22px; text-align: center; transition: transform 0.3s ease;
+        }
+        .stat-card:hover { transform: translateY(-4px); }
+        .stat-icon {
+            width: 56px; height: 56px; border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+        }
+        .stat-icon.users    { background: linear-gradient(135deg,#4caf50,#8bc34a); }
+        .stat-icon.referrals{ background: linear-gradient(135deg,#2196f3,#64b5f6); }
+        .stat-icon.withdraw { background: linear-gradient(135deg,#ff9800,#ffb74d); }
+        .stat-icon.paid     { background: linear-gradient(135deg,#9c27b0,#ce93d8); }
+        .stat-number { font-size: 1.9rem; font-weight: bold; margin-bottom: 4px; }
+        .stat-label  { color: var(--text-secondary); font-size: 0.85rem; }
+
+        /* ── Tabs ── */
+        .tabs {
+            display: flex; gap: 6px; margin-bottom: 22px;
+            border-bottom: 1px solid var(--glass-border); padding-bottom: 0;
+        }
+        .tab-btn {
+            padding: 10px 20px; border: none; background: transparent;
+            color: var(--text-secondary); cursor: pointer; font-size: 0.95rem;
+            border-bottom: 3px solid transparent; transition: all 0.2s;
+        }
+        .tab-btn:hover { color: var(--text-primary); }
+        .tab-btn.active { color: #6a99ff; border-bottom-color: #6a99ff; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ── Card ── */
+        .card {
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border); border-radius: 15px; padding: 24px;
+            margin-bottom: 24px;
+        }
+        .card-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px;
+        }
+        .card-title { font-size: 1.2rem; color: var(--text-primary); }
+
+        /* ── Table ── */
+        .table-wrap { overflow-x: auto; }
+        .table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .table th, .table td { padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--glass-border); }
+        .table th { background: rgba(106,153,255,0.1); color: var(--text-primary); font-weight: 600; font-size: 0.85rem; }
+        .table td { color: var(--text-secondary); font-size: 0.9rem; }
+        .table tbody tr:hover { background: rgba(106,153,255,0.05); }
+
+        /* ── Badges ── */
+        .badge {
+            padding: 3px 9px; border-radius: 12px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .badge-active   { background: rgba(76,175,80,0.2);  color: #4caf50; }
+        .badge-pending  { background: rgba(255,152,0,0.2);  color: #ff9800; }
+        .badge-paid     { background: rgba(156,39,176,0.2); color: #ce93d8; }
+        .badge-rejected { background: rgba(244,67,54,0.2);  color: #f44336; }
+        .badge-processing { background: rgba(33,150,243,0.2); color: #64b5f6; }
+
+        /* ── Buttons ── */
+        .btn {
+            padding: 7px 14px; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 0.85rem; transition: all 0.2s;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
+        }
+        .btn-primary { background: var(--accent-gradient); color: white; }
+        .btn-success { background: linear-gradient(135deg,#4caf50,#8bc34a); color: white; }
+        .btn-warning { background: linear-gradient(135deg,#ff9800,#ffb74d); color: white; }
+        .btn-danger  { background: linear-gradient(135deg,#f44336,#ef5350); color: white; }
+        .btn-sm      { padding: 4px 10px; font-size: 0.78rem; }
+        .btn:hover   { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+
+        /* ── Inline edit ── */
+        .edit-amount-wrap { display: flex; align-items: center; gap: 6px; }
+        .edit-amount-input {
+            width: 90px; padding: 4px 8px;
+            background: rgba(106,153,255,0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px; color: var(--text-primary); font-size: 0.85rem;
+        }
+
+        /* ── Search bar ── */
+        .search-bar {
+            display: flex; gap: 10px; margin-bottom: 16px;
+        }
+        .search-input {
+            flex: 1; padding: 9px 14px;
+            background: rgba(106,153,255,0.08);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px; color: var(--text-primary); font-size: 0.9rem;
+        }
+        .search-input::placeholder { color: var(--text-secondary); }
+
+        /* ── Notification toast ── */
+        .toast {
+            position: fixed; top: 20px; right: 20px;
+            padding: 14px 20px; border-radius: 8px; color: white;
+            font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+            transform: translateX(420px); transition: transform 0.3s ease;
+            z-index: 9999;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #4caf50; }
+        .toast.error   { background: #f44336; }
+        .toast.info    { background: #2196f3; }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 500;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal {
+            background: #1a3668; border: 1px solid var(--glass-border);
+            border-radius: 15px; padding: 28px; width: 420px; max-width: 95%;
+        }
+        .modal h3 { margin-bottom: 16px; color: var(--text-primary); }
+        .modal-field { margin-bottom: 14px; }
+        .modal-field label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--text-secondary); }
+        .modal-field input, .modal-field select {
+            width: 100%; padding: 9px 12px;
+            background: rgba(106,153,255,0.1);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px; color: var(--text-primary); font-size: 0.9rem;
+        }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 16px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .mobile-toggle {
+                display: flex; position: fixed; top: 14px; left: 14px;
+                z-index: 200; background: var(--glass-bg);
+                border: 1px solid var(--glass-border); border-radius: 8px;
+                padding: 8px 10px; color: var(--text-primary); cursor: pointer;
+            }
+        }
+        @media (min-width: 769px) { .mobile-toggle { display: none; } }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <!-- Mobile toggle -->
+    <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fas fa-crown"></i> Admin Panel</h2>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-section-label">Main</li>
+            <li class="nav-item">
+                <a href="#" class="nav-link active" onclick="showTab('users')"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            </li>
+
+            <li class="nav-section-label">User &amp; Referral</li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="showTab('users')"><i class="fas fa-user-circle"></i> User Profiles</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="showTab('withdrawals')"><i class="fas fa-money-bill-wave"></i> Withdrawals</a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link" onclick="showTab('referrals')"><i class="fas fa-share-alt"></i> Referrals</a>
+            </li>
+
+            <li class="nav-section-label">Other</li>
+            <li class="nav-item">
+                <a href="29-analytics_dashboard.html" class="nav-link"><i class="fas fa-chart-bar"></i> Analytics</a>
+            </li>
+            <li class="nav-item">
+                <a href="31-content_moderation.html" class="nav-link"><i class="fas fa-shield-alt"></i> Moderation</a>
+            </li>
+            <li class="nav-item">
+                <a href="01-response-index.html" class="nav-link"><i class="fas fa-home"></i> Back to Site</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-crown" style="font-size:1.4rem;color:#6a99ff"></i> User &amp; Referral Management</h1>
+            <div class="header-right">
+                <button class="btn btn-success btn-sm" onclick="loadAll()">
+                    <i class="fas fa-sync"></i> Refresh
+                </button>
+                <div class="user-avatar">A</div>
+                <span style="color:var(--text-secondary)">Administrator</span>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon users"><i class="fas fa-users"></i></div>
+                <div class="stat-number" id="statTotalUsers">—</div>
+                <div class="stat-label">Total Users</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon referrals"><i class="fas fa-share-alt"></i></div>
+                <div class="stat-number" id="statTotalReferrals">—</div>
+                <div class="stat-label">Total Referrals</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon withdraw"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="stat-number" id="statPendingWithdrawals">—</div>
+                <div class="stat-label">Pending Withdrawals</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon paid"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-number" id="statTotalPaid">—</div>
+                <div class="stat-label">Total Paid Out (₹)</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-users"      onclick="showTab('users')"><i class="fas fa-user-circle"></i> User Profiles</button>
+            <button class="tab-btn"        id="tab-withdrawals" onclick="showTab('withdrawals')"><i class="fas fa-money-bill-wave"></i> Withdrawals</button>
+            <button class="tab-btn"        id="tab-referrals"  onclick="showTab('referrals')"><i class="fas fa-share-alt"></i> Referrals</button>
+        </div>
+
+        <!-- TAB: User Profiles -->
+        <div class="tab-panel active" id="panel-users">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">All User Profiles</span>
+                    <span style="color:var(--text-secondary);font-size:0.85rem" id="userCount"></span>
+                </div>
+                <div class="search-bar">
+                    <input class="search-input" type="text" id="userSearch" placeholder="Search by name or email..." oninput="filterUsers()">
+                </div>
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Ref Code</th>
+                                <th>Wallet (₹)</th>
+                                <th>Joined</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr><td colspan="7" style="text-align:center;padding:24px">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Withdrawals -->
+        <div class="tab-panel" id="panel-withdrawals">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Withdrawal Requests</span>
+                    <div style="display:flex;gap:8px">
+                        <select id="withdrawFilter" onchange="filterWithdrawals()" style="padding:6px 10px;background:rgba(106,153,255,0.1);border:1px solid var(--glass-border);border-radius:8px;color:var(--text-primary);font-size:0.85rem">
+                            <option value="all">All</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="paid">Paid</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>User</th>
+                                <th>Amount (₹)</th>
+                                <th>Method</th>
+                                <th>Details</th>
+                                <th>Status</th>
+                                <th>Requested</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdrawalsTableBody">
+                            <tr><td colspan="8" style="text-align:center;padding:24px">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Referrals -->
+        <div class="tab-panel" id="panel-referrals">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Referral Connections</span>
+                    <span style="color:var(--text-secondary);font-size:0.85rem" id="refCount"></span>
+                </div>
+                <div class="search-bar">
+                    <input class="search-input" type="text" id="refSearch" placeholder="Search by ref code or project..." oninput="filterReferrals()">
+                </div>
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Referrer</th>
+                                <th>Ref Code</th>
+                                <th>Project</th>
+                                <th>Commission (₹)</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="referralsTableBody">
+                            <tr><td colspan="7" style="text-align:center;padding:24px">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Referral Summary per user -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">Referral Summary per User</span>
+                </div>
+                <div class="table-wrap">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Ref Code</th>
+                                <th>Total Referrals</th>
+                                <th>Total Earned (₹)</th>
+                                <th>Pending (₹)</th>
+                                <th>Paid (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="refSummaryBody">
+                            <tr><td colspan="6" style="text-align:center;padding:24px">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end main-content -->
+
+    <!-- Edit Wallet Modal -->
+    <div class="modal-overlay" id="editWalletModal">
+        <div class="modal">
+            <h3><i class="fas fa-wallet"></i> Edit Wallet Amount</h3>
+            <div class="modal-field">
+                <label>User</label>
+                <input type="text" id="editWalletUserName" disabled>
+            </div>
+            <div class="modal-field">
+                <label>Wallet Amount (₹)</label>
+                <input type="number" id="editWalletAmount" min="0" placeholder="Enter amount">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-danger" onclick="closeModal('editWalletModal')">Cancel</button>
+                <button class="btn btn-success" onclick="saveWalletAmount()"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/supabase-client.js"></script>
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for supabase client to initialize
+            setTimeout(() => {
+                loadDashboardData();
+            }, 2000);
+        });
+
+        async function loadDashboardData() {
+            try {
+                // Load statistics
+                await loadStats();
+                await loadRecentUsers();
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                // Initialize Supabase client with hardcoded credentials
+                const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                
+                if (!window.supabaseClient) {
+                    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+
+                // Get user count
+                const { count: userCount } = await window.supabaseClient
+                    .from('users')
+                    .select('*', { count: 'exact', head: true });
+
+                // Get posts count
+                const { count: postCount } = await window.supabaseClient
+                    .from('posts')
+                    .select('*', { count: 'exact', head: true });
+
+                // Get articles count
+                const { count: articleCount } = await window.supabaseClient
+                    .from('articles')
+                    .select('*', { count: 'exact', head: true });
+
+                // Update UI
+                document.getElementById('totalUsers').textContent = userCount || 0;
+                document.getElementById('totalPosts').textContent = postCount || 0;
+                document.getElementById('totalArticles').textContent = articleCount || 0;
+                document.getElementById('totalReports').textContent = '0'; // Placeholder
+
+            } catch (error) {
+                console.error('Error loading stats:', error);
+                // Set default values
+                document.getElementById('totalUsers').textContent = '0';
+                document.getElementById('totalPosts').textContent = '0';
+                document.getElementById('totalArticles').textContent = '0';
+                document.getElementById('totalReports').textContent = '0';
+            }
+        }
+
+        async function loadRecentUsers() {
+            try {
+                // Initialize Supabase client with hardcoded credentials
+                const SUPABASE_URL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+                
+                if (!window.supabaseClient) {
+                    window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+
+                const { data: users, error } = await window.supabaseClient
+                    .from('users')
+                    .select('id, full_name, email, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(5);
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('recentUsers');
+                
+                if (!users || users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No users found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.full_name || 'N/A'}</td>
+                        <td>${user.email}</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading recent users:', error);
+                document.getElementById('recentUsers').innerHTML = 
+                    '<tr><td colspan="4" style="text-align: center;">Error loading users</td></tr>';
+            }
+        }
+
+        function refreshData() {
+            loadDashboardData();
+            showNotification('Data refreshed successfully', 'success');
+        }
+
+        function exportData() {
+            showNotification('Export feature coming soon', 'info');
+        }
+
+        function clearCache() {
+            if (confirm('Are you sure you want to clear the cache?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                showNotification('Cache cleared successfully', 'success');
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.classList.add('show'), 100);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

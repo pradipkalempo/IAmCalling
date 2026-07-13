@@ -1,0 +1,8 @@
+Get-Content : Cannot find path 'E:\softstock\backend\controllers\authController.js' because it does not exist.
+At line:1 char:1
++ Get-Content 'e:\softstock\backend\controllers\authController.js' | Se ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (E:\softstock\ba...thController.js:String) [Get-Content], ItemNotFoundEx 
+   ception
+    + FullyQualifiedErrorId : PathNotFound,Microsoft.PowerShell.Commands.GetContentCommand
+ 

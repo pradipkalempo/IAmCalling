@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Purchase Approvals</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+    :root {
+        --bg: #0d1117; --bg2: #161b22; --card: #1c2128;
+        --border: rgba(255,255,255,0.08); --text: #e6edf3;
+        --muted: #7d8590; --gold: #f0c040; --green: #3fb950;
+        --red: #f85149; --accent: #58a6ff;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',system-ui,sans-serif; min-height:100vh; }
+    header { background:var(--bg2); border-bottom:1px solid var(--border); padding:1rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    header h1 { font-size:1rem; font-weight:700; color:var(--gold); }
+    .tabs { display:flex; gap:0.5rem; padding:1rem 1.5rem 0; }
+    .tab { padding:0.5rem 1.2rem; border-radius:8px 8px 0 0; border:1px solid var(--border); border-bottom:none; background:var(--bg2); color:var(--muted); cursor:pointer; font-size:0.82rem; font-weight:600; }
+    .tab.active { background:var(--card); color:var(--text); border-color:var(--border); }
+    .content { padding:1.5rem; }
+    .filters { display:flex; gap:0.7rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+    .filter-btn { padding:0.35rem 0.9rem; border-radius:20px; border:1px solid var(--border); background:var(--bg2); color:var(--muted); cursor:pointer; font-size:0.78rem; font-weight:600; transition:all 0.2s; }
+    .filter-btn.active, .filter-btn:hover { border-color:var(--gold); color:var(--gold); }
+    .search-box { flex:1; min-width:200px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:0.4rem 0.8rem; font-size:0.82rem; outline:none; }
+    .search-box:focus { border-color:var(--accent); }
+    table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+    th { background:var(--bg2); color:var(--muted); font-weight:600; padding:0.7rem 1rem; text-align:left; border-bottom:1px solid var(--border); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; }
+    td { padding:0.75rem 1rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+    tr:hover td { background:rgba(255,255,255,0.02); }
+    .badge { display:inline-block; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.72rem; font-weight:700; }
+    .badge-pending { background:rgba(240,192,64,0.12); color:var(--gold); border:1px solid rgba(240,192,64,0.3); }
+    .badge-approved { background:rgba(63,185,80,0.12); color:var(--green); border:1px solid rgba(63,185,80,0.3); }
+    .badge-rejected { background:rgba(248,81,73,0.12); color:var(--red); border:1px solid rgba(248,81,73,0.3); }
+    .btn-approve { background:rgba(63,185,80,0.15); color:var(--green); border:1px solid rgba(63,185,80,0.3); padding:0.3rem 0.8rem; border-radius:6px; cursor:pointer; font-size:0.75rem; font-weight:700; transition:all 0.2s; }
+    .btn-approve:hover { background:rgba(63,185,80,0.3); }
+    .btn-reject { background:rgba(248,81,73,0.1); color:var(--red); border:1px solid rgba(248,81,73,0.25); padding:0.3rem 0.8rem; border-radius:6px; cursor:pointer; font-size:0.75rem; font-weight:700; transition:all 0.2s; }
+    .btn-reject:hover { background:rgba(248,81,73,0.25); }
+    .stat-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+    .stat-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1rem 1.2rem; }
+    .stat-val { font-size:1.6rem; font-weight:800; color:var(--gold); }
+    .stat-lbl { font-size:0.72rem; color:var(--muted); margin-top:0.2rem; }
+    .empty { text-align:center; color:var(--muted); padding:3rem; font-size:0.88rem; }
+    .toast { position:fixed; bottom:1.5rem; right:1.5rem; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:0.75rem 1.2rem; font-size:0.84rem; z-index:9999; opacity:0; transition:opacity 0.3s; pointer-events:none; }
+    .toast.show { opacity:1; }
+    .plan-tag { font-size:0.72rem; color:var(--accent); font-family:'Fira Code',monospace; }
+    #loginWall { display:flex; align-items:center; justify-content:center; min-height:100vh; flex-direction:column; gap:1rem; }
+    #loginWall input { background:var(--bg2); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:0.6rem 1rem; font-size:0.9rem; outline:none; width:260px; }
+    #loginWall button { background:var(--gold); color:#1a1a2e; border:none; padding:0.6rem 2rem; border-radius:8px; font-weight:700; cursor:pointer; }
+    #mainApp { display:none; }
+</style>
+</head>
+<body>
+
+<!-- Login Wall -->
+<div id="loginWall">
+    <div style="font-size:1.2rem;font-weight:700;color:var(--gold);">🛡️ Admin — Purchase Approvals</div>
+    <input type="password" id="adminPass" placeholder="Admin password" onkeydown="if(event.key==='Enter')adminLogin()">
+    <button onclick="adminLogin()">Login</button>
+    <div id="loginErr" style="color:var(--red);font-size:0.8rem;"></div>
+</div>
+
+<!-- Main App -->
+<div id="mainApp">
+    <header>
+        <h1>🛒 Purchase Approval Dashboard</h1>
+        <div style="display:flex;gap:0.8rem;align-items:center;">
+            <span id="lastRefresh" style="font-size:0.75rem;color:var(--muted);"></span>
+            <button onclick="loadAll()" style="background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:0.4rem 0.9rem;border-radius:7px;cursor:pointer;font-size:0.78rem;"><i class="fas fa-sync-alt"></i> Refresh</button>
+            <a href="40-admin-dashboard-simple.html" style="color:var(--muted);font-size:0.78rem;text-decoration:none;">← Main Dashboard</a>
+        </div>
+    </header>
+
+    <div class="content">
+        <!-- Stats -->
+        <div class="stat-row">
+            <div class="stat-card"><div class="stat-val" id="sTotalReq">—</div><div class="stat-lbl">Total Requests</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:var(--gold);" id="sPending">—</div><div class="stat-lbl">Pending</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:var(--green);" id="sApproved">—</div><div class="stat-lbl">Approved</div></div>
+            <div class="stat-card"><div class="stat-val" style="color:var(--red);" id="sRejected">—</div><div class="stat-lbl">Rejected</div></div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+            <button class="filter-btn" onclick="setFilter('pending',this)">⏳ Pending</button>
+            <button class="filter-btn" onclick="setFilter('approved',this)">✅ Approved</button>
+            <button class="filter-btn" onclick="setFilter('rejected',this)">❌ Rejected</button>
+            <input class="search-box" id="searchBox" placeholder="Search name, plan, txn, ref..." oninput="renderTable()">
+        </div>
+
+        <!-- Table -->
+        <div style="overflow-x:auto;background:var(--card);border:1px solid var(--border);border-radius:12px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>User</th>
+                        <th>Plan</th>
+                        <th>Referred By</th>
+                        <th>Txn ID</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div id="emptyMsg" class="empty" style="display:none;">No requests found.</div>
+        </div>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SURL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+const ADMIN_PASS = 'pkventure2025';
+
+let sb, allData = [], currentFilter = 'all';
+
+function adminLogin() {
+    const p = document.getElementById('adminPass').value;
+    if (p !== ADMIN_PASS) { document.getElementById('loginErr').textContent = 'Wrong password'; return; }
+    document.getElementById('loginWall').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    sb = window.supabase.createClient(SURL, SKEY);
+    loadAll();
+}
+
+async function loadAll() {
+    const { data, error } = await sb.from('purchase_requests').select('*').order('created_at', { ascending: false });
+    if (error) { showToast('Load error: ' + error.message); return; }
+    allData = data || [];
+    updateStats();
+    renderTable();
+    document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+}
+
+function updateStats() {
+    document.getElementById('sTotalReq').textContent = allData.length;
+    document.getElementById('sPending').textContent  = allData.filter(r => r.status === 'pending').length;
+    document.getElementById('sApproved').textContent = allData.filter(r => r.status === 'approved').length;
+    document.getElementById('sRejected').textContent = allData.filter(r => r.status === 'rejected').length;
+}
+
+function setFilter(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderTable();
+}
+
+function renderTable() {
+    const q = document.getElementById('searchBox').value.toLowerCase();
+    let rows = allData.filter(r => {
+        if (currentFilter !== 'all' && r.status !== currentFilter) return false;
+        if (q) {
+            const hay = (r.user_name + r.plan_name + r.referred_by + r.txn_id + r.user_id).toLowerCase();
+            if (!hay.includes(q)) return false;
+        }
+        return true;
+    });
+
+    const tbody = document.getElementById('tableBody');
+    const empty = document.getElementById('emptyMsg');
+
+    if (!rows.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+
+    tbody.innerHTML = rows.map((r, i) => `
+        <tr id="row-${r.id}">
+            <td style="color:var(--muted);font-size:0.72rem;">${i + 1}</td>
+            <td>
+                <div style="font-weight:600;">${r.user_name || '—'}</div>
+                <div style="font-size:0.7rem;color:var(--muted);font-family:'Fira Code',monospace;">${r.user_id?.slice(0,12)}…</div>
+            </td>
+            <td>
+                <div class="plan-tag">${r.plan_name}</div>
+                <div style="font-weight:700;color:var(--gold);">₹${r.plan_price}</div>
+            </td>
+            <td style="font-family:'Fira Code',monospace;font-size:0.78rem;color:var(--accent);">${r.referred_by || '—'}</td>
+            <td style="font-family:'Fira Code',monospace;font-size:0.75rem;">${r.txn_id || '—'}</td>
+            <td style="font-size:0.75rem;color:var(--muted);">${new Date(r.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'})}</td>
+            <td><span class="badge badge-${r.status}">${r.status}</span></td>
+            <td>
+                ${r.status === 'pending' ? `
+                    <button class="btn-approve" onclick="updateStatus('${r.id}','approved')">✅ Approve</button>
+                    <button class="btn-reject" style="margin-top:0.3rem;" onclick="updateStatus('${r.id}','rejected')">❌ Reject</button>
+                ` : r.status === 'approved' ? `
+                    <button class="btn-reject" onclick="updateStatus('${r.id}','rejected')">❌ Reject</button>
+                ` : `
+                    <button class="btn-approve" onclick="updateStatus('${r.id}','approved')">✅ Approve</button>
+                `}
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function updateStatus(id, status) {
+    const { error } = await sb.from('purchase_requests').update({ status }).eq('id', id);
+    if (error) { showToast('Error: ' + error.message); return; }
+    const rec = allData.find(r => r.id === id);
+    if (rec) rec.status = status;
+    updateStats();
+    renderTable();
+    showToast(status === 'approved' ? '✅ Approved!' : '❌ Rejected');
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

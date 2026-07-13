@@ -1,0 +1,2408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile | Softstock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="js/global-security-config.js"></script>
+    <script src="js/universal-topbar-injector.js"></script>
+    <script src="/config.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0a;
+            --bg2: #111;
+            --card: #161616;
+            --border: #252525;
+            --accent: #6c63ff;
+            --accent2: #00d4aa;
+            --gold: #f0c040;
+            --text: #e8e8e8;
+            --muted: #777;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding-top: 70px;
+        }
+
+        .dashboard-wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem;
+        }
+
+        /* ── STAGE 1: PROFILE HEADER ── */
+        .profile-header {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 2rem 2rem 1.6rem;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: start;
+            gap: 1.8rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--gold), var(--green), var(--accent));
+        }
+
+        /* avatar col */
+        .avatar-wrap { position: relative; flex-shrink: 0; }
+
+        .profile-avatar, .avatar-placeholder {
+            width: 88px; height: 88px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            flex-shrink: 0;
+        }
+
+        .profile-avatar { object-fit: cover; }
+
+        .avatar-placeholder {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+        }
+
+        .avatar-online {
+            position: absolute;
+            bottom: 4px; right: 4px;
+            width: 14px; height: 14px;
+            background: var(--green);
+            border-radius: 50%;
+            border: 2px solid var(--card);
+            animation: pulse 1.6s infinite;
+        }
+
+        @keyframes pulse {
+            0%,100% { opacity:1; transform:scale(1); }
+            50% { opacity:0.5; transform:scale(1.25); }
+        }
+
+        /* info col */
+        .profile-info { min-width: 0; }
+
+        .profile-name-row {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-name {
+            font-size: 1.45rem;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 0.2rem 0.65rem;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .badge-private {
+            background: rgba(108,99,255,0.12);
+            border: 1px solid rgba(108,99,255,0.3);
+            color: var(--accent);
+        }
+
+        .badge-active {
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.25);
+            color: var(--green);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .badge-active span {
+            width: 6px; height: 6px;
+            background: var(--green);
+            border-radius: 50%;
+            animation: pulse 1.6s infinite;
+        }
+
+        .badge-referrer {
+            background: rgba(240,192,64,0.12);
+            border: 1px solid rgba(240,192,64,0.3);
+            color: var(--gold);
+        }
+
+        .profile-meta {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.9rem;
+        }
+
+        .profile-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .profile-meta-item i { font-size: 0.7rem; }
+        .profile-meta-item.email-item { font-family: 'Fira Code', monospace; font-size: 0.76rem; }
+
+        .profile-ref-code {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            flex-wrap: wrap;
+        }
+
+        .ref-code-label {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .ref-code-val {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--gold);
+            background: rgba(240,192,64,0.08);
+            border: 1px solid rgba(240,192,64,0.22);
+            padding: 0.22rem 0.75rem;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+        }
+
+        .ref-copy-mini {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.22rem 0.65rem;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .ref-copy-mini:hover { border-color: var(--gold); color: var(--gold); }
+
+        .member-id {
+            font-size: 0.68rem;
+            color: var(--muted);
+            font-family: 'Fira Code', monospace;
+            margin-top: 0.6rem;
+        }
+
+        /* actions col */
+        .profile-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+
+        .btn-settings {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.48rem 1rem;
+            border-radius: 7px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: border-color 0.2s, color 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-settings:hover { border-color: var(--accent); color: var(--text); }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: linear-gradient(135deg, var(--gold), #e0a800);
+            color: #000;
+            padding: 0.48rem 1.1rem;
+            border-radius: 7px;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-home:hover { opacity: 0.88; }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            border: 1px solid rgba(239,68,68,0.3);
+            color: var(--red);
+            background: rgba(239,68,68,0.06);
+            padding: 0.48rem 1rem;
+            border-radius: 7px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s, background 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-logout:hover { border-color: var(--red); background: rgba(239,68,68,0.12); }
+
+        /* ── SECTION TAG ── */
+        .section-tag {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.72rem;
+            color: var(--accent2);
+            letter-spacing: 0.08em;
+            margin-bottom: 1.2rem;
+            display: block;
+        }
+
+        /* ── EARNINGS SUMMARY CARDS ── */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.4rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+
+        .summary-card.gold-card { border-color: rgba(240,192,64,0.3); }
+        .summary-card.green-card { border-color: rgba(34,197,94,0.25); }
+
+        .summary-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            font-family: 'Fira Code', monospace;
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
+
+        .summary-sub {
+            font-size: 0.72rem;
+            color: var(--muted);
+        }
+
+        .summary-sub .up { color: var(--green); font-weight: 600; }
+        .summary-sub .down { color: var(--red); font-weight: 600; }
+
+        /* ── PROJECTS TO REFER ── */
+        .projects-refer {
+            margin-bottom: 2.5rem;
+        }
+
+        .projects-refer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .refer-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .refer-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold);
+            box-shadow: 0 10px 30px rgba(240,192,64,0.1);
+        }
+
+        .refer-card-top {
+            padding: 1.2rem 1.2rem 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .refer-card-emoji { font-size: 2rem; }
+
+        .refer-price-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.2rem;
+        }
+
+        /* actual market price developers charge */
+        .refer-market-price {
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        /* platform selling price (strikethrough) */
+        .refer-platform-price {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.72rem;
+            color: var(--muted);
+            text-decoration: line-through;
+        }
+
+        .refer-price {
+            font-family: 'Fira Code', monospace;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--gold);
+            background: rgba(240,192,64,0.1);
+            border: 1px solid rgba(240,192,64,0.25);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        .discount-sticker {
+            font-size: 0.62rem;
+            font-weight: 800;
+            color: #fff;
+            background: var(--red);
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            letter-spacing: 0.03em;
+            animation: blink-red 0.9s step-start infinite;
+        }
+
+        @keyframes blink-red {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0; }
+        }
+
+        .refer-card-body {
+            padding: 0 1.2rem 1rem;
+            flex: 1;
+        }
+
+        .refer-card-cat {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.65rem;
+            color: var(--accent2);
+            letter-spacing: 0.07em;
+            margin-bottom: 0.3rem;
+        }
+
+        .refer-card-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.3;
+            margin-bottom: 0.5rem;
+        }
+
+        .refer-earn-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .refer-earn-row strong {
+            color: var(--green);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .refer-card-footer {
+            padding: 0.8rem 1.2rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .btn-refer-sm {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            background: linear-gradient(135deg, var(--green), #16a34a);
+            color: white;
+            border: none;
+            padding: 0.6rem;
+            border-radius: 7px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .btn-refer-sm:hover { opacity: 0.88; transform: translateY(-1px); }
+
+
+        .btn-purchase { width:100%; background:linear-gradient(135deg,#f0c040,#e0a800); color:#1a1a2e; border:none; padding:0.5rem 0.9rem; border-radius:7px; font-size:0.78rem; font-weight:700; cursor:pointer; font-family:'Inter',sans-serif; transition:opacity 0.2s; }
+        .btn-purchase:hover { opacity:0.88; }
+        .btn-purchased { width:100%; background:rgba(0,200,100,0.12); color:#00c864; border:1px solid rgba(0,200,100,0.3); padding:0.5rem 0.9rem; border-radius:7px; font-size:0.78rem; font-weight:700; font-family:'Inter',sans-serif; cursor:default; }
+        .btn-pending { width:100%; background:rgba(240,192,64,0.1); color:var(--gold); border:1px solid rgba(240,192,64,0.3); padding:0.5rem 0.9rem; border-radius:7px; font-size:0.78rem; font-weight:700; font-family:'Inter',sans-serif; cursor:default; }
+        #purchaseModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center; }
+        #purchaseModal.open { display:flex; }
+        .pm-box { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.8rem; width:90%; max-width:420px; }
+        .pm-title { font-size:1rem; font-weight:700; color:var(--gold); margin-bottom:1.2rem; }
+        .pm-field { margin-bottom:1rem; }
+        .pm-field label { display:block; font-size:0.72rem; color:var(--muted); font-weight:600; margin-bottom:0.35rem; }
+        .pm-field input { width:100%; background:var(--bg2); border:1px solid var(--border); border-radius:7px; color:var(--text); padding:0.55rem 0.9rem; font-size:0.84rem; font-family:'Fira Code',monospace; outline:none; }
+        .pm-field input:focus { border-color:var(--gold); }
+        .pm-actions { display:flex; gap:0.7rem; margin-top:1.2rem; }
+        .pm-submit { flex:1; background:var(--gold); color:#1a1a2e; border:none; padding:0.65rem; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.88rem; }
+        .pm-cancel { background:var(--bg2); color:var(--muted); border:1px solid var(--border); padding:0.65rem 1rem; border-radius:8px; cursor:pointer; font-size:0.88rem; }
+        .btn-refer-sm.gold {
+            background: linear-gradient(135deg, var(--gold), #e0a800);
+            color: #000;
+        }
+
+        .btn-demo-sm {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            background: none;
+            padding: 0.5rem;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .btn-demo-sm:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* ── STAGE 3: HISTORY UPGRADES ── */
+        .history-section { margin-bottom: 2.5rem; }
+
+        .history-table-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .filter-tabs { display: flex; gap: 0.4rem; }
+
+        .filter-tab {
+            padding: 0.3rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .filter-tab.active, .filter-tab:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(240,192,64,0.08);
+        }
+
+        .history-footer {
+            padding: 0.9rem 1.4rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .history-footer span { font-size: 0.78rem; color: var(--muted); }
+        .history-footer strong { color: var(--green); font-family: 'Fira Code', monospace; }
+        .history-toolbar {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .history-toolbar h3 {
+            font-size: 0.92rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .sort-select {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.28rem 0.7rem;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .sort-select:focus { border-color: var(--gold); color: var(--text); }
+
+        thead th.sortable { cursor: pointer; user-select: none; }
+        thead th.sortable:hover { color: var(--gold); }
+        thead th .sort-icon { margin-left: 0.3rem; opacity: 0.4; font-size: 0.6rem; }
+        thead th.sort-asc .sort-icon::after  { content: '▲'; opacity: 1; }
+        thead th.sort-desc .sort-icon::after { content: '▼'; opacity: 1; }
+
+        /* skeleton rows */
+        .skeleton-row td { padding: 0.9rem 1.4rem; }
+        .skeleton-cell {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, var(--border) 25%, var(--bg2) 50%, var(--border) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+        /* pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.9rem 1.4rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .page-btn {
+            min-width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover, .page-btn.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(240,192,64,0.08);
+        }
+
+        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .page-info { font-size: 0.72rem; color: var(--muted); padding: 0 0.4rem; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border);
+        }
+
+        thead th {
+            padding: 0.8rem 1.4rem;
+            text-align: left;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+        tbody td {
+            padding: 0.9rem 1.4rem;
+            font-size: 0.84rem;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .td-project {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .td-project-emoji { font-size: 1.2rem; }
+
+        .td-project-name {
+            font-weight: 600;
+            font-size: 0.84rem;
+        }
+
+        .td-amount {
+            font-family: 'Fira Code', monospace;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .td-amount.gold { color: var(--gold); }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.22rem 0.65rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-paid {
+            background: rgba(34,197,94,0.1);
+            border: 1px solid rgba(34,197,94,0.25);
+            color: var(--green);
+        }
+
+        .status-pending {
+            background: rgba(240,192,64,0.1);
+            border: 1px solid rgba(240,192,64,0.25);
+            color: var(--gold);
+        }
+
+        .status-processing {
+            background: rgba(108,99,255,0.1);
+            border: 1px solid rgba(108,99,255,0.25);
+            color: var(--accent);
+        }
+
+        .td-date { color: var(--muted); font-size: 0.78rem; }
+
+        .empty-history {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--muted);
+        }
+
+        .empty-history .empty-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+        .empty-history p { font-size: 0.88rem; margin-bottom: 1.2rem; }
+
+        .btn-start-ref {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--green), #16a34a);
+            color: white;
+            padding: 0.6rem 1.4rem;
+            border-radius: 7px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: opacity 0.2s;
+        }
+
+        .btn-start-ref:hover { opacity: 0.88; }
+
+        .history-footer {
+            padding: 0.9rem 1.4rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .history-footer span { font-size: 0.78rem; color: var(--muted); }
+
+        .history-footer strong { color: var(--green); font-family: 'Fira Code', monospace; }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: var(--card);
+            border: 1px solid var(--green);
+            color: var(--green);
+            padding: 0.8rem 1.4rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            z-index: 999;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+
+        /* ── STAGE 2: SOCIAL SHARE STRIP ── */
+        .share-strip {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.4rem;
+        }
+
+        .share-strip-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 600;
+            margin-right: 0.3rem;
+            white-space: nowrap;
+        }
+
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 1rem;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s, transform 0.2s;
+            text-decoration: none;
+        }
+
+        .share-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        .share-btn.wa  { background: #25d366; color: #fff; }
+        .share-btn.tw  { background: #1da1f2; color: #fff; }
+        .share-btn.li  { background: #0077b5; color: #fff; }
+        .share-btn.cp  { background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+        .share-btn.cp:hover { border-color: var(--gold); color: var(--gold); }
+
+        /* ── STAGE 3: LEADERBOARD ── */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .leaderboard-card, .payout-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .card-head {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .lb-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.75rem 1.4rem;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.15s;
+        }
+
+        .lb-row:last-child { border-bottom: none; }
+        .lb-row:hover { background: rgba(255,255,255,0.02); }
+        .lb-row.is-you { background: rgba(240,192,64,0.05); border-left: 3px solid var(--gold); }
+
+        .lb-rank {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            width: 28px;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .lb-avatar {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .lb-name {
+            flex: 1;
+            font-size: 0.82rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .lb-earn {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        /* ── STAGE 1 + 5: PAYOUT SECTION ── */
+        .payout-card { }
+
+        .payout-body { padding: 1.2rem 1.4rem; }
+
+        .payout-method-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .method-tab {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 7px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: none;
+            color: var(--muted);
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .method-tab.active {
+            border-color: var(--gold);
+            color: var(--gold);
+            background: rgba(240,192,64,0.08);
+        }
+
+        .payout-field {
+            margin-bottom: 0.9rem;
+        }
+
+        .payout-field label {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .payout-field input {
+            width: 100%;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            color: var(--text);
+            padding: 0.55rem 0.9rem;
+            font-size: 0.84rem;
+            font-family: 'Fira Code', monospace;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .payout-field input:focus { border-color: var(--gold); }
+        .payout-field input::placeholder { color: var(--muted); }
+
+        .payout-min-note {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-bottom: 1rem;
+        }
+
+        .payout-min-note strong { color: var(--gold); font-family: 'Fira Code', monospace; }
+
+        .btn-withdraw {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--gold), #e0a800);
+            color: #000;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .btn-withdraw:hover { opacity: 0.88; transform: translateY(-1px); }
+        .btn-withdraw:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        .bank-fields { display: none; }
+        .bank-fields.show { display: block; }
+
+        /* ── QR PAYMENT CARD ── */
+        .qr-card {
+            background: var(--card);
+            border: 1px solid rgba(240,192,64,0.3);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 2.5rem;
+        }
+
+        .qr-card-head {
+            padding: 1rem 1.4rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .qr-card-body {
+            padding: 1.4rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.4rem;
+            align-items: center;
+        }
+
+        .qr-img-wrap {
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .qr-img-wrap img {
+            width: 130px;
+            height: 130px;
+            border-radius: 10px;
+            border: 2px solid rgba(240,192,64,0.4);
+            display: block;
+            transition: transform 0.2s;
+        }
+
+        .qr-img-wrap:hover img { transform: scale(1.04); }
+
+        .qr-scan-hint {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gold);
+            color: #000;
+            font-size: 0.58rem;
+            font-weight: 800;
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+        }
+
+        .qr-info { display: flex; flex-direction: column; gap: 0.7rem; }
+
+        .qr-info-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .qr-info-sub {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .qr-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+
+        .btn-qr-wa {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            background: #25d366;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 7px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .btn-qr-wa:hover { opacity: 0.88; }
+
+        .btn-qr-call {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            background: rgba(240,192,64,0.1);
+            border: 1px solid rgba(240,192,64,0.35);
+            color: var(--gold);
+            padding: 0.6rem 1rem;
+            border-radius: 7px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .btn-qr-call:hover { background: rgba(240,192,64,0.18); }
+
+        /* QR lightbox */
+        .qr-lightbox {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 99999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .qr-lightbox.open { display: flex; }
+
+        .qr-lightbox img {
+            width: min(320px, 90vw);
+            height: min(320px, 90vw);
+            border-radius: 14px;
+            border: 3px solid var(--gold);
+        }
+
+        .qr-lightbox-caption {
+            color: var(--gold);
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .qr-lightbox-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            font-size: 1.4rem;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 480px) {
+            .qr-card-body { grid-template-columns: 1fr; justify-items: center; text-align: center; }
+            .qr-actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+        }
+
+        .milestones-wrap {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.4rem;
+        }
+
+        .milestones-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.2rem;
+        }
+
+        .milestone-item {
+            position: relative;
+        }
+
+        .milestone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .milestone-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .milestone-reward {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--gold);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .milestone-bar-bg {
+            background: var(--border);
+            border-radius: 99px;
+            height: 6px;
+            overflow: hidden;
+            margin-bottom: 0.4rem;
+        }
+
+        .milestone-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, var(--accent), var(--gold));
+            transition: width 0.6s ease;
+        }
+
+        .milestone-bar-fill.done { background: linear-gradient(90deg, var(--green), var(--accent2)); }
+
+        .milestone-sub {
+            font-size: 0.68rem;
+            color: var(--muted);
+        }
+
+        .milestone-done-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 768px) {
+            .bottom-grid { grid-template-columns: 1fr; }
+            .milestones-row { grid-template-columns: 1fr; gap: 0.8rem; }
+            .dashboard-wrap { padding: 1.5rem 1rem; }
+
+            .profile-header {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .avatar-wrap { margin: 0 auto; }
+            .profile-name-row { justify-content: center; }
+            .profile-meta { justify-content: center; }
+            .profile-ref-code { justify-content: center; }
+            .member-id { text-align: center; }
+
+            .profile-actions {
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .summary-grid { grid-template-columns: 1fr 1fr; }
+
+            .projects-refer-grid { grid-template-columns: 1fr 1fr; }
+
+            .history-table-wrap { overflow-x: auto; }
+            thead th, tbody td { padding: 0.7rem 0.8rem; }
+        }
+
+        @media (max-width: 480px) {
+            .summary-grid { grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+            .summary-value { font-size: 1.4rem; }
+            .share-strip { gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-wrap">
+
+    <!-- STAGE 1: PROFILE HEADER -->
+    <div class="profile-header">
+
+        <!-- Avatar -->
+        <div class="avatar-wrap">
+            <div class="avatar-placeholder" id="avatarPlaceholder">👤</div>
+            <img src="" alt="Avatar" class="profile-avatar" id="profileAvatar" style="display:none;"
+                 onerror="this.style.display='none';document.getElementById('avatarPlaceholder').style.display='flex';">
+            <div class="avatar-online"></div>
+        </div>
+
+        <!-- Info -->
+        <div class="profile-info">
+            <div class="profile-name-row">
+                <span class="profile-name" id="profileName">Loading...</span>
+                <span class="badge badge-private"><i class="fas fa-lock"></i> Private</span>
+                <span class="badge badge-active"><span></span> Online</span>
+                <span class="badge badge-referrer">⭐ Referrer</span>
+            </div>
+
+            <div class="profile-meta">
+                <span class="profile-meta-item email-item"><i class="fas fa-envelope"></i> <span id="profileEmail">—</span></span>
+                <span class="profile-meta-item"><i class="fas fa-calendar-alt"></i> Joined <span id="profileJoined">—</span></span>
+                <span class="profile-meta-item"><i class="fas fa-map-marker-alt"></i> <span id="profileLocation">India</span></span>
+            </div>
+
+            <div class="profile-ref-code">
+                <span class="ref-code-label">Your Ref Code:</span>
+                <span class="ref-code-val" id="myRefCode">—</span>
+                <button class="ref-copy-mini" onclick="copyRefCode()"><i class="fas fa-copy"></i> Copy</button>
+            </div>
+
+            <div class="member-id">Member ID: <span id="memberId">—</span></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="profile-actions">
+            <a href="01-response-index.html" class="btn-home"><i class="fas fa-home"></i> Home</a>
+            <a href="19-user_settings.html" class="btn-settings"><i class="fas fa-cog"></i> Settings</a>
+            <a href="34-icalluser-messenger.html" class="btn-settings"><i class="fas fa-comment-dots"></i> Messenger</a>
+            <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+
+    </div>
+
+    <!-- CONNECTIONS OVERVIEW -->
+    <span class="section-tag">// connections overview</span>
+    <div class="summary-grid">
+
+        <div class="summary-card green-card">
+            <div class="summary-icon" style="background:rgba(34,197,94,0.1);">🔗</div>
+            <div class="summary-label">Total Connections</div>
+            <div class="summary-value" style="color:var(--green);" id="totalRefs">—</div>
+            <div class="summary-sub"><span id="successRefSub">loading...</span></div>
+        </div>
+
+        <div class="summary-card gold-card">
+            <div class="summary-icon" style="background:rgba(240,192,64,0.12);">🏦</div>
+            <div class="summary-label">Banking Plan</div>
+            <div class="summary-value" style="color:var(--gold);" id="connBanking">—</div>
+            <div class="summary-sub">Aksh Finance referrals</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon" style="background:rgba(108,99,255,0.12);">💬</div>
+            <div class="summary-label">Messenger Plan</div>
+            <div class="summary-value" style="color:var(--accent);" id="connMessenger">—</div>
+            <div class="summary-sub">iCall Messenger referrals</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-icon" style="background:rgba(0,212,170,0.1);">🧠</div>
+            <div class="summary-label">Platform Plan</div>
+            <div class="summary-value" style="color:var(--accent2);" id="connPlatform">—</div>
+            <div class="summary-sub">IAMCALLING + AI referrals</div>
+        </div>
+
+    </div>
+
+    <!-- PLAN BREAKDOWN -->
+    <span class="section-tag">// connections by plan</span>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.4rem;margin-bottom:2.5rem;">
+        <div id="planBreakdown" style="display:flex;flex-direction:column;gap:1rem;"></div>
+    </div>
+
+    <!-- STAGE 3: REFERRAL HISTORY -->
+    <div class="history-section">
+        <span class="section-tag">// referral history</span>
+        <div class="history-table-wrap">
+
+            <div class="history-toolbar">
+                <h3><i class="fas fa-history" style="color:var(--gold);"></i> My Referrals</h3>
+                <div class="toolbar-right">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterHistory('all',this)">All</button>
+                        <button class="filter-tab" onclick="filterHistory('paid',this)">Paid</button>
+                        <button class="filter-tab" onclick="filterHistory('pending',this)">Pending</button>
+                        <button class="filter-tab" onclick="filterHistory('processing',this)">Processing</button>
+                    </div>
+                    <select class="sort-select" id="sortSelect" onchange="changeSortHistory()">
+                        <option value="date_desc">Newest first</option>
+                        <option value="date_asc">Oldest first</option>
+                        <option value="amt_desc">Highest amount</option>
+                        <option value="amt_asc">Lowest amount</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Project</th>
+                            <th>Plan</th>
+                            <th>Status</th>
+                            <th class="sortable" onclick="toggleColSort('created_at')">
+                                Date <span class="sort-icon"></span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody"></tbody>
+                </table>
+            </div>
+
+            <div class="empty-history" id="emptyHistory" style="display:none;">
+                <div class="empty-icon">🔗</div>
+                <p>No referrals yet — start sharing your links below to earn!</p>
+                <a href="#projects" class="btn-start-ref"><i class="fas fa-rocket"></i> See Projects to Refer</a>
+            </div>
+
+            <div class="history-footer" id="historyFooter" style="display:none;">
+                <span>Showing <strong id="historyShowing">0</strong> of <strong id="historyTotal">0</strong> connections &nbsp;·&nbsp; Successful: <strong id="historyEarned">0 paid</strong></span>
+                <div class="pagination" id="pagination"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- WHATSAPP REFERRAL SENDER -->
+    <span class="section-tag">// send referral payment proof</span>
+    <div style="background:var(--card);border:1px solid rgba(37,211,102,0.3);border-radius:14px;padding:1.6rem;margin-bottom:2.5rem;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#25d366,#128c7e);"></div>
+        <div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:1.2rem;">
+            <i class="fab fa-whatsapp" style="color:#25d366;font-size:1.3rem;"></i>
+            <span style="font-weight:700;font-size:0.95rem;">Send Referral Details to Admin</span>
+            <span style="font-size:0.72rem;color:var(--muted);margin-left:auto;">→ +91 74107 02281</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+            <div>
+                <label style="display:block;font-size:0.72rem;color:var(--muted);font-weight:600;margin-bottom:0.35rem;">Referral Plan</label>
+                <select id="waPlan" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:0.55rem 0.9rem;font-size:0.84rem;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='#25d366'" onblur="this.style.borderColor='var(--border)'">
+                    <option value="">-- Select Plan --</option>
+                    <option value="Aksh Finance — Banking (₹100)">🏦 Aksh Finance — Banking (₹100)</option>
+                    <option value="Analytics Dashboard (₹200)">📈 Analytics Dashboard (₹200)</option>
+                    <option value="iCall Messenger (₹300)">💬 iCall Messenger (₹300)</option>
+                    <option value="Cockroach AI (₹400)">🤖 Cockroach AI (₹400)</option>
+                    <option value="IAMCALLING Full Platform (₹500)">🧠 IAMCALLING Full Platform (₹500)</option>
+                </select>
+            </div>
+        </div>
+        <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.72rem;color:var(--muted);font-weight:600;margin-bottom:0.35rem;">Referral ID</label>
+            <input type="text" id="waRefId" placeholder="e.g. REF123456" autocomplete="off"
+                style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:0.55rem 0.9rem;font-size:0.84rem;font-family:'Fira Code',monospace;outline:none;transition:border-color 0.2s;"
+                onfocus="this.style.borderColor='#25d366'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div style="margin-bottom:1rem;">
+            <label style="display:block;font-size:0.72rem;color:var(--muted);font-weight:600;margin-bottom:0.35rem;">Transaction ID / UTR Number</label>
+            <input type="text" id="waTxnId" placeholder="e.g. UTR123456789012" autocomplete="off"
+                style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:0.55rem 0.9rem;font-size:0.84rem;font-family:'Fira Code',monospace;outline:none;transition:border-color 0.2s;"
+                onfocus="this.style.borderColor='#25d366'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <div style="margin-bottom:1.2rem;">
+            <label style="display:block;font-size:0.72rem;color:var(--muted);font-weight:600;margin-bottom:0.35rem;">Additional Note (optional)</label>
+            <input type="text" id="waNote" placeholder="Any extra info..." autocomplete="off"
+                style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:0.55rem 0.9rem;font-size:0.84rem;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;"
+                onfocus="this.style.borderColor='#25d366'" onblur="this.style.borderColor='var(--border)'">
+        </div>
+        <button onclick="sendReferralWhatsApp()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:0.6rem;background:#25d366;color:#fff;border:none;padding:0.75rem;border-radius:8px;font-size:0.92rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+            <i class="fab fa-whatsapp" style="font-size:1.1rem;"></i> Send to Admin on WhatsApp
+        </button>
+    </div>
+
+    <!-- STAGE 4: MILESTONES -->
+    <div class="milestones-section">
+        <span class="section-tag">// milestone rewards</span>
+        <div class="milestones-wrap">
+            <div class="milestones-row" id="milestonesRow"></div>
+        </div>
+    </div>
+
+    <!-- PROJECTS TO REFER -->
+    <div class="projects-refer" id="projects">
+        <span class="section-tag">// projects to refer</span>
+        <div class="projects-refer-grid">
+
+            <!-- Banking System -->
+            <div class="refer-card">
+                <div class="refer-card-top">
+                    <span class="refer-card-emoji">🏦</span>
+                    <div class="refer-price-wrap">
+                        <span class="discount-sticker">🔥 97% OFF</span>
+                        <span class="refer-market-price">₹35,000</span>
+                        <span class="refer-platform-price">market rate</span>
+                    </div>
+                </div>
+                <div class="refer-card-body">
+                    <div class="refer-card-cat">// fintech</div>
+                    <div class="refer-card-title">Aksh Finance — Banking System</div>
+                    <div class="refer-earn-row"><i class="fas fa-rupee-sign" style="color:var(--green);font-size:0.65rem;"></i> You earn <strong>₹100</strong> per referral</div>
+                </div>
+                <div class="refer-card-footer">
+                    <button class="btn-refer-sm" onclick="referProject('Aksh Finance', 100, 'Banking.html')"><i class="fas fa-share-alt"></i> Copy Referral Link</button>
+                    <button id="pbtn-Aksh Finance" class="btn-purchase" onclick="openPurchaseModal('Aksh Finance',100)"><i class="fas fa-shopping-cart"></i> Purchase Pack</button>
+                    <a href="Banking.html" target="_blank" class="btn-demo-sm"><i class="fas fa-eye"></i> View Demo</a>
+                </div>
+            </div>
+
+            <!-- Analytics Dashboard -->
+            <div class="refer-card">
+                <div class="refer-card-top">
+                    <span class="refer-card-emoji">📈</span>
+                    <div class="refer-price-wrap">
+                        <span class="discount-sticker">🔥 96% OFF</span>
+                        <span class="refer-market-price">₹50,000</span>
+                        <span class="refer-platform-price">market rate</span>
+                    </div>
+                </div>
+                <div class="refer-card-body">
+                    <div class="refer-card-cat">// analytics</div>
+                    <div class="refer-card-title">Analytics Dashboard</div>
+                    <div class="refer-earn-row"><i class="fas fa-rupee-sign" style="color:var(--green);font-size:0.65rem;"></i> You earn <strong>₹200</strong> per referral</div>
+                </div>
+                <div class="refer-card-footer">
+                    <button class="btn-refer-sm" onclick="referProject('Analytics Dashboard', 200, '29-analytics_dashboard.html')"><i class="fas fa-share-alt"></i> Copy Referral Link</button>
+                    <button id="pbtn-Analytics Dashboard" class="btn-purchase" onclick="openPurchaseModal('Analytics Dashboard',200)"><i class="fas fa-shopping-cart"></i> Purchase Pack</button>
+                    <a href="29-analytics_dashboard.html" target="_blank" class="btn-demo-sm"><i class="fas fa-eye"></i> View Demo</a>
+                </div>
+            </div>
+
+            <!-- iCall Messenger -->
+            <div class="refer-card">
+                <div class="refer-card-top">
+                    <span class="refer-card-emoji">💬</span>
+                    <div class="refer-price-wrap">
+                        <span class="discount-sticker">🔥 97% OFF</span>
+                        <span class="refer-market-price">₹80,000</span>
+                        <span class="refer-platform-price">market rate</span>
+                    </div>
+                </div>
+                <div class="refer-card-body">
+                    <div class="refer-card-cat">// messenger</div>
+                    <div class="refer-card-title">iCall Messenger — Chat App</div>
+                    <div class="refer-earn-row"><i class="fas fa-rupee-sign" style="color:var(--green);font-size:0.65rem;"></i> You earn <strong>₹300</strong> per referral</div>
+                </div>
+                <div class="refer-card-footer">
+                    <button class="btn-refer-sm" onclick="referProject('iCall Messenger', 300, '34-icalluser-messenger.html')"><i class="fas fa-share-alt"></i> Copy Referral Link</button>
+                    <button id="pbtn-iCall Messenger" class="btn-purchase" onclick="openPurchaseModal('iCall Messenger',300)"><i class="fas fa-shopping-cart"></i> Purchase Pack</button>
+                    <a href="34-icalluser-messenger.html" target="_blank" class="btn-demo-sm"><i class="fas fa-eye"></i> View Demo</a>
+                </div>
+            </div>
+
+            <!-- Cockroach AI -->
+            <div class="refer-card">
+                <div class="refer-card-top">
+                    <span class="refer-card-emoji">🤖</span>
+                    <div class="refer-price-wrap">
+                        <span class="discount-sticker">🔥 98% OFF</span>
+                        <span class="refer-market-price">₹1,20,000</span>
+                        <span class="refer-platform-price">market rate</span>
+                    </div>
+                </div>
+                <div class="refer-card-body">
+                    <div class="refer-card-cat">// AI</div>
+                    <div class="refer-card-title">Cockroach AI — Chatbot</div>
+                    <div class="refer-earn-row"><i class="fas fa-rupee-sign" style="color:var(--green);font-size:0.65rem;"></i> You earn <strong>₹400</strong> per referral</div>
+                </div>
+                <div class="refer-card-footer">
+                    <button class="btn-refer-sm" onclick="referProject('Cockroach AI', 400, '42-robo.html')"><i class="fas fa-share-alt"></i> Copy Referral Link</button>
+                    <button id="pbtn-Cockroach AI" class="btn-purchase" onclick="openPurchaseModal('Cockroach AI',400)"><i class="fas fa-shopping-cart"></i> Purchase Pack</button>
+                    <a href="42-robo.html" target="_blank" class="btn-demo-sm"><i class="fas fa-eye"></i> View Demo</a>
+                </div>
+            </div>
+
+            <!-- IAMCALLING Full Platform -->
+            <div class="refer-card" style="border-color:rgba(240,192,64,0.3);">
+                <div class="refer-card-top">
+                    <span class="refer-card-emoji">🧠</span>
+                    <div class="refer-price-wrap">
+                        <span class="discount-sticker">🔥 99% OFF</span>
+                        <span class="refer-market-price" style="color:var(--gold);">₹5,00,000</span>
+                        <span class="refer-platform-price">market rate</span>
+                    </div>
+                </div>
+                <div class="refer-card-body">
+                    <div class="refer-card-cat">// fullstack</div>
+                    <div class="refer-card-title">IAMCALLING — Full Platform</div>
+                    <div class="refer-earn-row"><i class="fas fa-rupee-sign" style="color:var(--gold);font-size:0.65rem;"></i> You earn <strong style="color:var(--gold);">₹500</strong> per referral</div>
+                </div>
+                <div class="refer-card-footer">
+                    <button class="btn-refer-sm gold" onclick="referProject('IAMCALLING Platform', 500, '01-response-index.html')"><i class="fas fa-share-alt"></i> Copy Referral Link</button>
+                    <button id="pbtn-IAMCALLING Platform" class="btn-purchase" onclick="openPurchaseModal('IAMCALLING Platform',500)"><i class="fas fa-shopping-cart"></i> Purchase Pack</button>
+                    <a href="01-response-index.html" target="_blank" class="btn-demo-sm"><i class="fas fa-eye"></i> View Demo</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- QR PAYMENT CARD -->
+    <div class="qr-card">
+        <div class="qr-card-head">
+            <i class="fas fa-qrcode" style="color:var(--gold);"></i> Pay via QR &nbsp;&bull;&nbsp; Share to Get Paid
+        </div>
+        <div class="qr-card-body">
+
+            <!-- QR Image (click to enlarge) -->
+            <div class="qr-img-wrap" onclick="openQR()">
+                <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1782733678/Screenshot_2026-06-29_170722_bfjt47.png"
+                     alt="Payment QR Code">
+                <span class="qr-scan-hint">&#128269; Tap to Scan</span>
+            </div>
+
+            <!-- Info + Actions -->
+            <div class="qr-info">
+                <div class="qr-info-title">&#128178; Scan &amp; Pay — Pradip Kale</div>
+                <div class="qr-info-sub">
+                    Share this QR on WhatsApp or social media so clients can scan and pay directly.<br>
+                    You can also tap the QR to open a full-screen scannable view.
+                </div>
+                <div class="qr-actions">
+                    <a class="btn-qr-wa" onclick="shareQRWhatsApp()" href="#">
+                        <i class="fab fa-whatsapp"></i> Share QR on WhatsApp
+                    </a>
+                    <a class="btn-qr-call" href="tel:+919021424270">
+                        <i class="fas fa-phone"></i> Call / Contact: +91 90214 24270
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR LIGHTBOX -->
+    <div class="qr-lightbox" id="qrLightbox" onclick="closeQR()">
+        <button class="qr-lightbox-close" onclick="closeQR()"><i class="fas fa-times"></i></button>
+        <img src="https://res.cloudinary.com/dkvrhjvcj/image/upload/v1782733678/Screenshot_2026-06-29_170722_bfjt47.png"
+             alt="Scan to Pay">
+        <div class="qr-lightbox-caption">&#128247; Point your camera here to pay &nbsp;|&nbsp; <a href="tel:+919021424270" style="color:var(--green);" onclick="event.stopPropagation()"><i class="fas fa-phone"></i> +91 90214 24270</a></div>
+    </div>
+
+    <!-- STAGE 3 + 1: LEADERBOARD & PAYOUT -->
+    <div class="bottom-grid">
+
+        <!-- STAGE 3: LEADERBOARD -->
+        <div class="leaderboard-card">
+            <div class="card-head"><i class="fas fa-trophy" style="color:var(--gold);"></i> Top Referrers</div>
+            <div id="leaderboardList"></div>
+        </div>
+
+        <!-- STAGE 1 + 5: PAYOUT -->
+        <div class="payout-card">
+            <div class="card-head"><i class="fas fa-wallet" style="color:var(--green);"></i> Request Payout</div>
+            <div class="payout-body">
+                <div class="payout-min-note">Min withdrawal: <strong>₹500</strong> &nbsp;·&nbsp; Available: <strong id="availableAmt">₹0</strong></div>
+
+                <div class="payout-method-tabs">
+                    <button class="method-tab active" onclick="switchMethod('upi', this)">📱 UPI</button>
+                    <button class="method-tab" onclick="switchMethod('bank', this)">🏦 Bank</button>
+                </div>
+
+                <!-- UPI -->
+                <div id="upiFields">
+                    <div class="payout-field">
+                        <label>UPI ID</label>
+                        <input type="text" id="upiId" placeholder="name@upi" autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Bank -->
+                <div id="bankFields" class="bank-fields">
+                    <div class="payout-field">
+                        <label>Account Number</label>
+                        <input type="text" id="accNo" placeholder="XXXXXXXXXX" autocomplete="off">
+                    </div>
+                    <div class="payout-field">
+                        <label>IFSC Code</label>
+                        <input type="text" id="ifsc" placeholder="SBIN0001234" autocomplete="off">
+                    </div>
+                    <div class="payout-field">
+                        <label>Account Holder Name</label>
+                        <input type="text" id="accName" placeholder="Full name" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="payout-field">
+                    <label>Amount (₹)</label>
+                    <input type="number" id="withdrawAmt" placeholder="Enter amount" min="500" step="100">
+                </div>
+
+                <button class="btn-withdraw" id="withdrawBtn" onclick="requestWithdraw()">
+                    <i class="fas fa-paper-plane"></i> Request Withdrawal
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    // ── SUPABASE SETUP ──
+    const SURL = 'https://gkckyyyaoqsaouemjnxl.supabase.co';
+    const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdrY2t5eXlhb3FzYW91ZW1qbnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA3OTEsImV4cCI6MjA3MjgwNjc5MX0.0z5c-3P1fMSW2qiWg7IT3Oqv-65B3lZ8Lsq2aDvMYQk';
+
+    function getSB() {
+        // init now if CDN already loaded
+        if (!window.supabaseClient && window.supabase && window.supabase.createClient) {
+            window.supabaseClient = window.supabase.createClient(SURL, SKEY);
+        }
+        if (window.supabaseClient) return Promise.resolve(window.supabaseClient);
+        // wait up to 5s for CDN
+        return new Promise(resolve => {
+            let tries = 0;
+            const t = setInterval(() => {
+                if (!window.supabaseClient && window.supabase && window.supabase.createClient) {
+                    window.supabaseClient = window.supabase.createClient(SURL, SKEY);
+                }
+                if (window.supabaseClient) { clearInterval(t); resolve(window.supabaseClient); }
+                else if (++tries > 25) { clearInterval(t); resolve(null); }
+            }, 200);
+        });
+    }
+    const MILESTONES = [
+        { target:5,  reward:'5 Connections',  label:'Starter' },
+        { target:20, reward:'20 Connections', label:'Pro' },
+        { target:50, reward:'50 Connections', label:'Elite' },
+    ];
+
+    const LB_DATA = [
+        { name:'Ravi S.',  earned:42 },
+        { name:'Meena K.', earned:35 },
+        { name:'Arjun P.', earned:28 },
+        { name:'Sneha T.', earned:19 },
+        { name:'You',      earned:0, isYou:true },
+    ];
+
+    // ── TOAST ──
+    function showToast(msg, color) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.style.borderColor = color || 'var(--green)';
+        t.style.color = color || 'var(--green)';
+        t.style.opacity = '1';
+        t.style.transform = 'translateY(0)';
+        setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; }, 3000);
+    }
+
+    // ── STAGE 3: HISTORY STATE ──
+    let historyCache   = [];   // all rows for current filter
+    let currentFilter  = 'all';
+    let currentSort    = 'date_desc';
+    let currentPage    = 1;
+    const PAGE_SIZE    = 10;
+    let colSortField   = null;
+    let colSortDir     = 'desc';
+
+    async function renderHistory(filter) {
+        currentFilter = filter || 'all';
+        currentPage   = 1;
+        colSortField  = null;
+        // reset col sort indicators
+        document.querySelectorAll('thead th.sort-asc, thead th.sort-desc')
+            .forEach(th => { th.classList.remove('sort-asc','sort-desc'); });
+
+        const uid   = getUid();
+        const body  = document.getElementById('historyBody');
+        const empty = document.getElementById('emptyHistory');
+        const table = document.getElementById('historyTable');
+        const footer= document.getElementById('historyFooter');
+
+        // skeleton
+        table.style.display = 'table';
+        empty.style.display = 'none';
+        footer.style.display = 'none';
+        body.innerHTML = Array(4).fill('').map(() => `
+            <tr class="skeleton-row">
+                <td><div class="skeleton-cell" style="width:20px"></div></td>
+                <td><div class="skeleton-cell" style="width:140px"></div></td>
+                <td><div class="skeleton-cell" style="width:60px"></div></td>
+                <td><div class="skeleton-cell" style="width:80px"></div></td>
+                <td><div class="skeleton-cell" style="width:80px"></div></td>
+            </tr>`).join('');
+
+        if (!uid) { table.style.display='none'; empty.style.display='block'; return; }
+        const sb = await getSB();
+        if (!sb)  { table.style.display='none'; empty.style.display='block'; return; }
+
+        let query = sb.from('referrals')
+            .select('id, project_name, commission, status, created_at')
+            .eq('referrer_id', uid);
+
+        if (currentFilter !== 'all') query = query.eq('status', currentFilter);
+
+        // server-side sort
+        const [sf, sd] = currentSort === 'date_desc'  ? ['created_at','desc']
+                       : currentSort === 'date_asc'   ? ['created_at','asc']
+                       : currentSort === 'amt_desc'   ? ['commission','desc']
+                                                      : ['commission','asc'];
+        query = query.order(sf, { ascending: sd === 'asc' });
+
+        const { data, error } = await query;
+        historyCache = data || [];
+
+        if (error || historyCache.length === 0) {
+            table.style.display = 'none';
+            empty.style.display = 'block';
+            footer.style.display = 'none';
+            return;
+        }
+
+        paintPage();
+    }
+
+    function paintPage() {
+        const body   = document.getElementById('historyBody');
+        const table  = document.getElementById('historyTable');
+        const footer = document.getElementById('historyFooter');
+        const empty  = document.getElementById('emptyHistory');
+
+        let rows = [...historyCache];
+
+        // client-side column sort (overrides server sort)
+        if (colSortField) {
+            rows.sort((a, b) => {
+                const va = a[colSortField], vb = b[colSortField];
+                const cmp = typeof va === 'number' ? va - vb : (va || '').localeCompare(vb || '');
+                return colSortDir === 'asc' ? cmp : -cmp;
+            });
+        }
+
+        const total      = rows.length;
+        const totalPages = Math.ceil(total / PAGE_SIZE);
+        currentPage      = Math.min(currentPage, totalPages);
+        const start      = (currentPage - 1) * PAGE_SIZE;
+        const pageRows   = rows.slice(start, start + PAGE_SIZE);
+
+        if (pageRows.length === 0) {
+            table.style.display = 'none';
+            empty.style.display = 'block';
+            footer.style.display = 'none';
+            return;
+        }
+
+        table.style.display = 'table';
+        empty.style.display = 'none';
+        footer.style.display = 'flex';
+
+        const statusMap = {
+            paid:       '<span class="status-pill status-paid">✔ Paid</span>',
+            pending:    '<span class="status-pill status-pending">⏳ Pending</span>',
+            processing: '<span class="status-pill status-processing">🔄 Processing</span>',
+        };
+
+        body.innerHTML = pageRows.map((r, i) => `
+            <tr>
+                <td style="color:var(--muted);font-size:0.78rem;">${start + i + 1}</td>
+                <td><div class="td-project"><span class="td-project-name">${r.project_name}</span></div></td>
+                <td><span style="font-size:0.78rem;color:var(--accent2);">${r.project_name || '—'}</span></td>
+                <td>${statusMap[r.status] || r.status}</td>
+                <td class="td-date">${r.created_at ? r.created_at.slice(0,10) : '—'}</td>
+            </tr>`).join('');
+
+        const paidEarned = rows.filter(r => r.status === 'paid').reduce((a, r) => a + (r.commission || 0), 0);
+        document.getElementById('historyShowing').textContent = pageRows.length;
+        document.getElementById('historyTotal').textContent   = total;
+        document.getElementById('historyEarned').textContent  = paidEarned + ' paid';
+
+        // pagination
+        buildPagination(totalPages);
+    }
+
+    function buildPagination(totalPages) {
+        const pg = document.getElementById('pagination');
+        if (totalPages <= 1) { pg.innerHTML = ''; return; }
+
+        let html = `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}><i class="fas fa-chevron-left"></i></button>`;
+        for (let p = 1; p <= totalPages; p++) {
+            if (totalPages > 7 && p > 2 && p < totalPages - 1 && Math.abs(p - currentPage) > 1) {
+                if (p === 3 || p === totalPages - 2) html += '<span class="page-info">…</span>';
+                continue;
+            }
+            html += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+        }
+        html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===totalPages?'disabled':''}><i class="fas fa-chevron-right"></i></button>`;
+        pg.innerHTML = html;
+    }
+
+    function goPage(p) {
+        if (p < 1 || p > Math.ceil(historyCache.length / PAGE_SIZE)) return;
+        currentPage = p;
+        paintPage();
+    }
+
+    function filterHistory(type, btn) {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        renderHistory(type);
+    }
+
+    function changeSortHistory() {
+        currentSort = document.getElementById('sortSelect').value;
+        colSortField = null;
+        renderHistory(currentFilter);
+    }
+
+    function toggleColSort(field) {
+        if (colSortField === field) {
+            colSortDir = colSortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+            colSortField = field;
+            colSortDir   = 'desc';
+        }
+        // update th classes
+        document.querySelectorAll('thead th.sortable').forEach(th => {
+            th.classList.remove('sort-asc','sort-desc');
+            if (th.onclick && th.onclick.toString().includes(field)) {
+                th.classList.add(colSortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+        });
+        paintPage();
+    }
+
+    // ── REFER PROJECT — only copies link, does NOT record yet ──
+
+    // ── PURCHASE FLOW ──
+    let _pmPlan = '', _pmPrice = 0;
+
+    function openPurchaseModal(plan, price) {
+        _pmPlan = plan; _pmPrice = price;
+        document.getElementById('pmPlanName').textContent = plan + ' — Rs.' + price;
+        document.getElementById('pmPrice').value = 'Rs.' + price;
+        document.getElementById('pmRefBy').value = '';
+        document.getElementById('pmTxnId').value = '';
+        document.getElementById('purchaseModal').classList.add('open');
+    }
+
+    function closePurchaseModal() {
+        document.getElementById('purchaseModal').classList.remove('open');
+    }
+
+    async function submitPurchase() {
+        const refBy = document.getElementById('pmRefBy').value.trim();
+        const txnId = document.getElementById('pmTxnId').value.trim();
+        if (!refBy) { showToast('Please enter the referral code of who referred you', 'var(--gold)'); return; }
+        if (!txnId) { showToast('Please enter Transaction ID / UTR', 'var(--gold)'); return; }
+
+        const uid  = getUid();
+        const name = document.getElementById('profileName').textContent.trim();
+        const sb   = await getSB();
+        if (!sb || !uid) { showToast('Session error. Please login again.', 'var(--red)'); return; }
+
+        const { error } = await sb.from('purchase_requests').insert({
+            user_id: uid, user_name: name,
+            plan_name: _pmPlan, plan_price: _pmPrice,
+            referred_by: refBy, txn_id: txnId, status: 'pending'
+        });
+
+        if (error) { showToast('Error: ' + error.message, 'var(--red)'); return; }
+        closePurchaseModal();
+        showToast('Request submitted! Admin will verify and approve.');
+        markPending(_pmPlan);
+    }
+
+    function markPending(plan) {
+        const btn = document.getElementById('pbtn-' + plan);
+        if (btn) { btn.className = 'btn-pending'; btn.innerHTML = '⏳ Pending Approval'; btn.onclick = null; }
+    }
+
+    function markPurchased(plan) {
+        const btn = document.getElementById('pbtn-' + plan);
+        if (btn) { btn.className = 'btn-purchased'; btn.innerHTML = '✅ Purchased for Life'; btn.onclick = null; }
+    }
+
+    async function loadPurchaseStatus() {
+        const uid = getUid();
+        if (!uid) return;
+        const sb = await getSB();
+        if (!sb) return;
+        const { data } = await sb.from('purchase_requests').select('plan_name,status').eq('user_id', uid);
+        if (!data) return;
+        data.forEach(r => {
+            if (r.status === 'approved') markPurchased(r.plan_name);
+            else if (r.status === 'pending') markPending(r.plan_name);
+        });
+    }
+    function referProject(name, price, demoPage) {
+        const refCode = document.getElementById('myRefCode').textContent.trim();
+        const text = `Referral Code: ${refCode} | Plan: ${name} | Reward: Rs.${price}`;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(`Copied! Code: ${refCode} - Earn Rs.${price} for ${name}`);
+        });
+    }
+
+    // ── LOAD CONNECTIONS BY PLAN ──
+    async function loadStats() {
+        const uid = getUid();
+        if (!uid) { setStatsError(); return; }
+
+        const sb = await getSB();
+        if (!sb) { setStatsError(); return; }
+
+        try {
+            const { data: refs, error } = await sb
+                .from('referrals')
+                .select('project_name, status, commission, created_at')
+                .eq('referrer_id', uid);
+
+            if (error) throw error;
+            const rows = refs || [];
+
+            // group by project/plan
+            const planMap = {};
+            rows.forEach(r => {
+                const key = r.project_name || 'Unknown';
+                if (!planMap[key]) planMap[key] = { total: 0, successful: 0 };
+                planMap[key].total++;
+                if (r.status === 'paid') planMap[key].successful++;
+            });
+
+            // plan categories
+            const banking   = rows.filter(r => r.project_name && r.project_name.toLowerCase().includes('aksh') || r.project_name && r.project_name.toLowerCase().includes('bank')).length;
+            const messenger = rows.filter(r => r.project_name && r.project_name.toLowerCase().includes('messenger')).length;
+            const platform  = rows.filter(r => r.project_name && (r.project_name.toLowerCase().includes('iamcalling') || r.project_name.toLowerCase().includes('ai') || r.project_name.toLowerCase().includes('analytics'))).length;
+
+            document.getElementById('totalRefs').textContent    = rows.length;
+            document.getElementById('successRefSub').textContent = rows.filter(r => r.status === 'paid').length + ' successful';
+            document.getElementById('connBanking').textContent   = banking;
+            document.getElementById('connMessenger').textContent = messenger;
+            document.getElementById('connPlatform').textContent  = platform;
+
+            // plan breakdown bars
+            const PLANS = [
+                { name: 'Aksh Finance — Banking',     icon: '🏦', color: 'var(--gold)',    keys: ['aksh','bank'] },
+                { name: 'Analytics Dashboard',        icon: '📈', color: 'var(--accent)',  keys: ['analytics'] },
+                { name: 'iCall Messenger',             icon: '💬', color: 'var(--accent2)', keys: ['messenger'] },
+                { name: 'Cockroach AI',                icon: '🤖', color: 'var(--green)',   keys: ['cockroach','ai'] },
+                { name: 'IAMCALLING Full Platform',    icon: '🧠', color: 'var(--gold)',    keys: ['iamcalling','platform'] },
+            ];
+
+            const maxConn = Math.max(1, ...Object.values(planMap).map(p => p.total));
+
+            document.getElementById('planBreakdown').innerHTML = PLANS.map(plan => {
+                const count = rows.filter(r => {
+                    const n = (r.project_name || '').toLowerCase();
+                    return plan.keys.some(k => n.includes(k));
+                }).length;
+                const successful = rows.filter(r => {
+                    const n = (r.project_name || '').toLowerCase();
+                    return plan.keys.some(k => n.includes(k)) && r.status === 'paid';
+                }).length;
+                const pct = Math.round((count / maxConn) * 100);
+                return `
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+                        <span style="font-size:0.82rem;font-weight:600;">${plan.icon} ${plan.name}</span>
+                        <span style="font-family:'Fira Code',monospace;font-size:0.82rem;color:${plan.color};font-weight:700;">${count} connections &nbsp;<span style="color:var(--muted);font-size:0.7rem;">(${successful} successful)</span></span>
+                    </div>
+                    <div style="background:var(--border);border-radius:99px;height:6px;overflow:hidden;">
+                        <div style="height:100%;border-radius:99px;background:${plan.color};width:${pct}%;transition:width 0.6s ease;"></div>
+                    </div>
+                </div>`;
+            }).join('');
+
+            renderMilestones(rows.length);
+            renderLeaderboard(rows.length);
+
+        } catch (err) {
+            console.error('loadStats error', err);
+            setStatsError();
+        }
+    }
+
+    function setStatsError() {
+        ['totalRefs','connBanking','connMessenger','connPlatform'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = '—';
+        });
+    }
+
+    function fmt(n) { return '₹' + (n || 0).toLocaleString('en-IN'); }
+
+    function getUid() {
+        // use iamcalling_uid as key — not in globalAuth's clear list
+        return localStorage.getItem('iamcalling_uid') ||
+            localStorage.getItem('uid') ||
+            (function(){ try { return JSON.parse(localStorage.getItem('currentUser')||'{}').id || null; } catch(e){ return null; } }());
+    }
+
+    async function loadProfile() {
+        const uid = String(getUid() || '').trim();
+        if (!uid) { window.location.href = '15-login.html'; return; }
+
+        // show cached immediately
+        try {
+            const c = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            if (c.email || c.first_name) renderProfile(c);
+        } catch(e) {}
+
+        // fetch fresh from Supabase
+        const sb = await getSB();
+        if (!sb) return;
+        const { data, error } = await sb
+            .from('users')
+            .select('id, email, first_name, last_name, full_name, profile_photo, created_at')
+            .eq('id', uid)
+            .single();
+        if (!error && data) {
+            localStorage.setItem('currentUser', JSON.stringify(data));
+            renderProfile(data);
+        }
+    }
+
+    function renderProfile(u) {
+        if (!u || typeof u !== 'object') return;
+        const firstName = u.first_name || u.firstName || '';
+        const lastName  = u.last_name  || u.lastName  || '';
+        const name  = u.full_name || u.fullName ||
+                      (firstName ? (firstName + ' ' + lastName).trim() : '') ||
+                      u.name || 'User';
+        const email  = u.email || '—';
+        const photo  = u.profile_photo || u.profilePhoto || u.photo || '';
+        const uid    = u.id != null ? String(u.id).trim() : '';
+        const raw    = u.created_at || u.createdAt || '';
+        const joined = raw ? new Date(raw).toLocaleDateString('en-IN', { month:'short', year:'numeric' }) : 'Recently';
+        const mid    = uid ? '#' + uid.replace(/-/g,'').substring(0,8).toUpperCase() : '#—';
+
+        let refCode = localStorage.getItem('myRefCode');
+        if (!refCode) {
+            const seed = uid ? uid.replace(/-/g,'').substring(0,6).toUpperCase()
+                             : name.replace(/\s+/g,'').toUpperCase().substring(0,6);
+            refCode = 'IAM-' + seed.padEnd(6,'0');
+            localStorage.setItem('myRefCode', refCode);
+        }
+
+        document.getElementById('profileName').textContent     = name.trim();
+        document.getElementById('profileEmail').textContent    = email;
+        document.getElementById('profileJoined').textContent   = joined;
+        document.getElementById('profileLocation').textContent = u.location || u.city || 'India';
+        document.getElementById('myRefCode').textContent       = refCode;
+        document.getElementById('memberId').textContent        = mid;
+
+        const avatarImg  = document.getElementById('profileAvatar');
+        const avatarPlch = document.getElementById('avatarPlaceholder');
+        if (photo && photo.length > 4) {
+            avatarImg.src            = photo;
+            avatarImg.style.display  = 'block';
+            avatarPlch.style.display = 'none';
+        } else {
+            avatarPlch.textContent   = name.trim().charAt(0).toUpperCase() || '?';
+            avatarPlch.style.display = 'flex';
+            avatarImg.style.display  = 'none';
+        }
+    }
+
+    // ── STAGE 1: LOGOUT ──
+    function doLogout() {
+        if (!confirm('Logout?')) return;
+        ['iamcalling_uid','uid','currentUser','userAuth','userData','persistentLogin','loginTimestamp','iamcalling_current_user','topbarUserData'].forEach(k => localStorage.removeItem(k));
+        sessionStorage.clear();
+        if (window.globalAuth && typeof window.globalAuth.logout === 'function') {
+            window.globalAuth.logout();
+        } else {
+            window.location.href = '15-login.html';
+        }
+    }
+
+    // ── COPY REF CODE ──
+    function copyRefCode() {
+        const code = document.getElementById('myRefCode').textContent;
+        navigator.clipboard.writeText(code).then(() => showToast('✅ Ref code copied: ' + code));
+    }
+
+    // ── STAGE 2: SOCIAL SHARE ──
+    function shareVia(channel) {
+        const refCode = document.getElementById('myRefCode').textContent;
+        const baseUrl = window.location.origin;
+        const link = `${baseUrl}/01-response-index.html?ref=${refCode}`;
+        const text = `Join IAMCALLING and explore critical thinking challenges! Use my referral link:`;
+        const urls = {
+            whatsapp: `https://wa.me/?text=${encodeURIComponent(text + ' ' + link)}`,
+            twitter:  `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(link)}`,
+            linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(link)}`,
+            copy:     null,
+        };
+        if (channel === 'copy') {
+            navigator.clipboard.writeText(link).then(() => showToast('✅ Referral link copied!'));
+        } else {
+            window.open(urls[channel], '_blank', 'noopener');
+        }
+    }
+
+    // ── WHATSAPP REFERRAL SENDER ──
+    function sendReferralWhatsApp() {
+        const refId = document.getElementById('waRefId').value.trim();
+        const plan  = document.getElementById('waPlan').value.trim();
+        const txn   = document.getElementById('waTxnId').value.trim();
+        const note  = document.getElementById('waNote').value.trim();
+        const name  = document.getElementById('profileName').textContent.trim();
+        const ref   = document.getElementById('myRefCode').textContent.trim();
+
+        if (!plan)  { showToast('⚠️ Please select a referral plan', 'var(--gold)'); return; }
+        if (!refId) { showToast('⚠️ Please enter the Referral ID', 'var(--gold)'); return; }
+        if (!txn)  { showToast('⚠️ Please enter the Transaction ID / UTR', 'var(--gold)'); return; }
+
+        const msg = [
+            '🔔 *Referral Payment Proof*',
+            '─────────────────────',
+            `👤 *Name:* ${name}`,
+            `🔑 *Ref Code:* ${ref}`,
+            `📦 *Plan:* ${plan}`,
+            `🧾 *Transaction ID:* ${txn}`,
+            note ? `📝 *Note:* ${note}` : '',
+            '─────────────────────',
+            '_Sent from IAMCALLING Profile_'
+        ].filter(Boolean).join('\n');
+
+        window.open('https://wa.me/917410702281?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    }
+
+    // ── LEADERBOARD (fed by Supabase earned amount) ──
+    function renderLeaderboard(myEarned = 0) {
+        const list = document.getElementById('leaderboardList');
+        const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+        LB_DATA[4].earned = myEarned;
+        const sorted = [...LB_DATA].sort((a, b) => b.earned - a.earned);
+        list.innerHTML = sorted.map((r, i) => `
+            <div class="lb-row ${r.isYou ? 'is-you' : ''}">
+                <span class="lb-rank">${medals[i] || (i+1)}</span>
+                <div class="lb-avatar">${r.name[0]}</div>
+                <span class="lb-name">${r.isYou ? '⭐ You' : r.name}</span>
+                <span class="lb-earn">${r.earned} connections</span>
+            </div>
+        `).join('');
+    }
+
+    // ── MILESTONES (fed by Supabase earned amount) ──
+    function renderMilestones(earned = 0) {
+        const row = document.getElementById('milestonesRow');
+        row.innerHTML = MILESTONES.map(m => {
+            const pct  = Math.min(100, Math.round((earned / m.target) * 100));
+            const done = earned >= m.target;
+            return `
+            <div class="milestone-item">
+                <div class="milestone-header">
+                    <span class="milestone-label">${m.label} — ₹${m.target.toLocaleString('en-IN')}</span>
+                    <span class="milestone-reward">${m.reward}</span>
+                </div>
+                <div class="milestone-bar-bg">
+                    <div class="milestone-bar-fill ${done ? 'done' : ''}" style="width:${pct}%"></div>
+                </div>
+                <span class="${done ? 'milestone-done-badge' : 'milestone-sub'}">${done ? '✅ Unlocked!' : '₹' + earned.toLocaleString('en-IN') + ' / ₹' + m.target.toLocaleString('en-IN')}</span>
+            </div>`;
+        }).join('');
+    }
+
+    // ── STAGE 1 + 5: PAYOUT ──
+    let currentMethod = 'upi';
+
+    function switchMethod(method, btn) {
+        currentMethod = method;
+        document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('upiFields').style.display  = method === 'upi'  ? 'block' : 'none';
+        document.getElementById('bankFields').style.display = method === 'bank' ? 'block' : 'none';
+    }
+
+    // ── PAYOUT: commit to Supabase ──
+    async function requestWithdraw() {
+        const uid = getUid();
+        if (!uid) { showToast('⚠️ Not logged in', 'var(--red)'); return; }
+
+        const amtInput = document.getElementById('withdrawAmt');
+        const amt = parseInt(amtInput.value, 10);
+        if (!amt || amt < 500) { showToast('⚠️ Minimum withdrawal is ₹500', 'var(--gold)'); return; }
+
+        let details = {};
+        if (currentMethod === 'upi') {
+            const upi = document.getElementById('upiId').value.trim();
+            if (!upi || !upi.includes('@')) { showToast('⚠️ Enter a valid UPI ID', 'var(--gold)'); return; }
+            details = { upi };
+        } else {
+            const acc  = document.getElementById('accNo').value.trim();
+            const ifsc = document.getElementById('ifsc').value.trim();
+            const name = document.getElementById('accName').value.trim();
+            if (!acc || !ifsc) { showToast('⚠️ Fill account number and IFSC', 'var(--gold)'); return; }
+            details = { acc, ifsc, name };
+        }
+
+        const sb = await getSB();
+        if (!sb) { showToast('⚠️ Connection error', 'var(--red)'); return; }
+
+        const { error } = await sb.from('payout_requests').insert([{
+            user_id: uid,
+            method:  currentMethod,
+            details,
+            status:  'pending'
+        }]);
+
+        if (error) { showToast('⚠️ Failed: ' + error.message, 'var(--red)'); return; }
+
+        // clear fields
+        amtInput.value = '';
+        document.getElementById('upiId').value  = '';
+        document.getElementById('accNo').value  = '';
+        document.getElementById('ifsc').value   = '';
+        document.getElementById('accName').value = '';
+
+        showToast(`✅ ₹${amt.toLocaleString('en-IN')} withdrawal requested! Processing in 24–48 hrs.`, 'var(--green)');
+        await loadStats();
+    }
+
+    // ── QR FUNCTIONS ──
+    const QR_IMG_URL = 'https://res.cloudinary.com/dkvrhjvcj/image/upload/v1782733678/Screenshot_2026-06-29_170722_bfjt47.png';
+
+    function openQR() {
+        document.getElementById('qrLightbox').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeQR() {
+        document.getElementById('qrLightbox').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    async function shareQRWhatsApp() {
+        event.preventDefault();
+        const caption = '💳 Scan this QR to pay Pradip Kale for web project services.\nOr call: +91 90214 24270';
+
+        // Try Web Share API with actual image file (works on mobile Chrome/Safari)
+        if (navigator.canShare) {
+            try {
+                const res  = await fetch(QR_IMG_URL);
+                const blob = await res.blob();
+                const file = new File([blob], 'payment-qr.png', { type: blob.type });
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({ files: [file], title: 'Payment QR', text: caption });
+                    return;
+                }
+            } catch(e) {}
+        }
+
+        // Fallback: Web Share API text-only (no file)
+        if (navigator.share) {
+            try {
+                await navigator.share({ title: 'Payment QR', text: caption + '\n' + QR_IMG_URL });
+                return;
+            } catch(e) {}
+        }
+
+        // Desktop fallback: open WhatsApp Web with caption + URL
+        window.open('https://wa.me/?text=' + encodeURIComponent(caption + '\n' + QR_IMG_URL), '_blank', 'noopener');
+    }
+
+    // ── INIT ──
+    loadProfile();
+    loadPurchaseStatus();
+    loadStats();
+    renderHistory('all');
+
+    window.addEventListener('authStateChanged',  () => { loadStats(); renderHistory('all'); });
+    window.addEventListener('authStatusChanged', () => { loadStats(); renderHistory('all'); });
+</script>
+
+
+    <!-- PURCHASE MODAL -->
+    <div id="purchaseModal">
+        <div class="pm-box">
+            <div class="pm-title">🛒 Purchase Pack — <span id="pmPlanName"></span></div>
+            <div class="pm-field">
+                <label>Referred By (Referral Code of person who referred you)</label>
+                <input type="text" id="pmRefBy" placeholder="e.g. REF123456" autocomplete="off">
+            </div>
+            <div class="pm-field">
+                <label>Transaction ID / UTR Number</label>
+                <input type="text" id="pmTxnId" placeholder="e.g. UTR123456789012" autocomplete="off">
+            </div>
+            <div class="pm-field">
+                <label>Plan Price</label>
+                <input type="text" id="pmPrice" readonly style="opacity:0.6;cursor:default;">
+            </div>
+            <div class="pm-actions">
+                <button class="pm-cancel" onclick="closePurchaseModal()">Cancel</button>
+                <button class="pm-submit" onclick="submitPurchase()">Submit Request</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

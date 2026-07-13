@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Cockroach Leader Speaks</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/htm@3/dist/htm.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { display: ['Cinzel','serif'], body: ['Source Sans 3','sans-serif'] } } }
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0a0d04; --fg: #e8e0d0; --accent: #c4872a; --accent2: #4a7c3f;
+      --muted: #5a5345; --card: #161a0e; --border: #2a2e1e;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--fg); font-family:'Source Sans 3',sans-serif; min-height:100vh; overflow-x:hidden; }
+
+    /* Noise overlay */
+    body::before {
+      content:''; position:fixed; inset:0; opacity:0.035; pointer-events:none; z-index:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Title shimmer */
+    .title-shimmer {
+      background:linear-gradient(90deg,var(--accent) 0%,#e8c06a 30%,var(--accent) 50%,#e8c06a 70%,var(--accent) 100%);
+      background-size:200% 100%; -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      background-clip:text; animation:shimmer 5s linear infinite;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* Cockroach container entrance */
+    .cockroach-container {
+      position:relative; width:280px; height:380px; margin:0 auto;
+      animation:roachEnter 1.6s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0;
+    }
+    @keyframes roachEnter { from{opacity:0;transform:translateY(60px) scale(0.88)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+    /* Glow behind cockroach */
+    .leader-glow {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      width:340px; height:440px; border-radius:50%;
+      background:radial-gradient(ellipse,rgba(196,135,42,0.1) 0%,transparent 70%);
+      filter:blur(35px); transition:all 0.6s ease; pointer-events:none;
+    }
+    .leader-glow.speaking {
+      width:420px; height:520px;
+      background:radial-gradient(ellipse,rgba(196,135,42,0.28) 0%,transparent 70%);
+    }
+
+    /* Cockroach body wrapper */
+    .cockroach {
+      position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+      width:180px; height:310px; animation:breathe 3.5s ease-in-out infinite;
+    }
+    .cockroach.speaking { animation:breathe 1.6s ease-in-out infinite,vibrate 0.09s linear infinite; }
+    @keyframes breathe { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.018)} }
+    @keyframes vibrate { 0%{transform:translate(-50%,-50%) scale(1.018) translateX(0)} 33%{transform:translate(-50%,-50%) scale(1.018) translateX(1.2px)} 66%{transform:translate(-50%,-50%) scale(1.018) translateX(-1.2px)} 100%{transform:translate(-50%,-50%) scale(1.018) translateX(0)} }
+
+    /* Head */
+    .roach-head {
+      position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:64px; height:50px; z-index:5;
+      background:radial-gradient(ellipse at 42% 38%,#6a4420 0%,#4a2a10 50%,#3a2008 100%);
+      border-radius:50% 50% 44% 44%;
+    }
+    .roach-eye {
+      position:absolute; width:17px; height:19px; top:11px;
+      background:radial-gradient(circle at 38% 36%,#8a6030 0%,#2a1505 72%);
+      border-radius:50%; box-shadow:inset 0 0 5px rgba(0,0,0,0.85);
+    }
+    .roach-eye.l { left:6px; } .roach-eye.r { right:6px; }
+    .roach-eye::after {
+      content:''; position:absolute; width:5px; height:5px; top:4px; left:4px;
+      background:rgba(255,200,100,0.45); border-radius:50%;
+    }
+
+    /* Antennae */
+    .antenna {
+      position:absolute; width:2.5px; height:105px; top:-52px; z-index:4;
+      transform-origin:bottom center; border-radius:0 0 45% 45%;
+    }
+    .antenna.l {
+      left:calc(50% - 22px); background:linear-gradient(to top,#4a2a10,#6a4420,#4a2a10);
+      transform:rotate(-34deg); animation:antL 2.8s ease-in-out infinite;
+    }
+    .antenna.r {
+      right:calc(50% - 22px); background:linear-gradient(to top,#4a2a10,#6a4420,#4a2a10);
+      transform:rotate(34deg); animation:antR 2.8s ease-in-out infinite 0.45s;
+    }
+    .cockroach.speaking .antenna.l { animation:antLA 0.7s ease-in-out infinite; }
+    .cockroach.speaking .antenna.r { animation:antRA 0.7s ease-in-out infinite 0.1s; }
+    @keyframes antL { 0%,100%{transform:rotate(-34deg)} 50%{transform:rotate(-29deg)} }
+    @keyframes antR { 0%,100%{transform:rotate(34deg)} 50%{transform:rotate(29deg)} }
+    @keyframes antLA { 0%,100%{transform:rotate(-42deg)} 50%{transform:rotate(-22deg)} }
+    @keyframes antRA { 0%,100%{transform:rotate(42deg)} 50%{transform:rotate(22deg)} }
+
+    /* Pronotum (shield) */
+    .roach-pronotum {
+      position:absolute; top:36px; left:50%; transform:translateX(-50%);
+      width:78px; height:38px; z-index:6;
+      background:linear-gradient(180deg,#5a3a18 0%,#3a2208 100%);
+      border-radius:50% 50% 30% 30%; box-shadow:0 2px 10px rgba(0,0,0,0.55);
+    }
+
+    /* Thorax */
+    .roach-thorax {
+      position:absolute; top:42px; left:50%; transform:translateX(-50%);
+      width:82px; height:62px; z-index:4;
+      background:radial-gradient(ellipse at 42% 32%,#7a5428 0%,#5a3a18 42%,#3a2208 100%);
+      border-radius:44% 44% 38% 38%;
+    }
+
+    /* Abdomen */
+    .roach-abdomen {
+      position:absolute; top:95px; left:50%; transform:translateX(-50%);
+      width:138px; height:185px; z-index:3; overflow:hidden;
+      background:radial-gradient(ellipse at 36% 24%,#7a5428 0%,#5a3a18 26%,#3a2208 62%,#2a1805 100%);
+      border-radius:34% 34% 48% 48%;
+    }
+    .abd-seg { position:absolute; left:9%; right:9%; height:1.5px; background:rgba(0,0,0,0.22); }
+    .wing-ln { position:absolute; top:8%; height:88%; width:1px; background:rgba(0,0,0,0.12); }
+    .wing-ln.l { left:48%; } .wing-ln.r { right:48%; }
+
+    /* Shell shine */
+    .shell-shine {
+      position:absolute; top:100px; left:calc(50% - 18px); width:42px; height:148px;
+      background:linear-gradient(168deg,rgba(255,255,255,0.075) 0%,transparent 52%);
+      border-radius:50%; z-index:7; pointer-events:none; transform:rotate(-8deg);
+    }
+
+    /* Legs */
+    .leg {
+      position:absolute; height:2.5px; z-index:2; border-radius:2px;
+      background:linear-gradient(90deg,#3a2208,#5a3a1a,#3a2208);
+    }
+    .leg.ll1 { top:52px; left:12px; width:52px; transform:rotate(-28deg); transform-origin:right center; }
+    .leg.ll2 { top:76px; left:2px; width:66px; transform:rotate(-11deg); transform-origin:right center; }
+    .leg.ll3 { top:118px; left:8px; width:60px; transform:rotate(11deg); transform-origin:right center; }
+    .leg.rl1 { top:52px; right:12px; width:52px; transform:rotate(28deg); transform-origin:left center; }
+    .leg.rl2 { top:76px; right:2px; width:66px; transform:rotate(11deg); transform-origin:left center; }
+    .leg.rl3 { top:118px; right:8px; width:60px; transform:rotate(-11deg); transform-origin:left center; }
+
+    /* Cerci */
+    .cercus {
+      position:absolute; bottom:-22px; width:2px; height:32px; z-index:3;
+      background:linear-gradient(to bottom,#3a2208,#2a1805); border-radius:1px;
+    }
+    .cercus.l { left:calc(50% - 11px); transform:rotate(13deg); animation:cerL 2.2s ease-in-out infinite; }
+    .cercus.r { right:calc(50% - 11px); transform:rotate(-13deg); animation:cerR 2.2s ease-in-out infinite 0.35s; }
+    @keyframes cerL { 0%,100%{transform:rotate(13deg)} 50%{transform:rotate(20deg)} }
+    @keyframes cerR { 0%,100%{transform:rotate(-13deg)} 50%{transform:rotate(-20deg)} }
+
+    /* Speech bubble */
+    .speech-bubble {
+      position:relative; background:rgba(22,26,14,0.95); border:1px solid rgba(196,135,42,0.2);
+      border-radius:16px; padding:26px 30px; backdrop-filter:blur(10px);
+      box-shadow:0 8px 36px rgba(0,0,0,0.45),inset 0 1px 0 rgba(196,135,42,0.08);
+      min-height:100px;
+    }
+    .speech-bubble::before {
+      content:''; position:absolute; top:-10px; left:50%; transform:translateX(-50%);
+      border-left:11px solid transparent; border-right:11px solid transparent;
+      border-bottom:11px solid rgba(22,26,14,0.95);
+    }
+    .speech-bubble::after {
+      content:''; position:absolute; top:-9px; left:50%; transform:translateX(-50%);
+      border-left:10px solid transparent; border-right:10px solid transparent;
+      border-bottom:10px solid rgba(196,135,42,0.2);
+    }
+
+    /* Typewriter cursor */
+    .cursor {
+      display:inline-block; width:2px; height:1.15em; background:var(--accent);
+      margin-left:2px; vertical-align:text-bottom; animation:blink 0.65s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    /* Floating particles */
+    .particle {
+      position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+      background:rgba(196,135,42,0.35);
+    }
+    @keyframes pfloat {
+      0%{transform:translateY(100vh) translateX(0);opacity:0}
+      8%{opacity:1} 92%{opacity:1}
+      100%{transform:translateY(-30px) translateX(var(--drift));opacity:0}
+    }
+
+    /* Burst particles on speech end */
+    .burst-wrap { position:absolute; top:50%; left:50%; pointer-events:none; z-index:10; }
+    .burst-dot {
+      position:absolute; width:4px; height:4px; background:var(--accent); border-radius:50%;
+      animation:burstOut 0.85s ease-out var(--d) forwards; opacity:0;
+    }
+    @keyframes burstOut {
+      0%{transform:translate(-50%,-50%) rotate(var(--a)) translateY(0) scale(1);opacity:1}
+      100%{transform:translate(-50%,-50%) rotate(var(--a)) translateY(-90px) scale(0.3);opacity:0}
+    }
+
+    /* Buttons */
+    .speech-btn {
+      padding:11px 22px; border:1px solid rgba(196,135,42,0.25); border-radius:8px;
+      background:rgba(22,26,14,0.85); color:var(--fg); font-family:'Source Sans 3',sans-serif;
+      font-weight:600; font-size:13px; cursor:pointer; transition:all 0.3s ease;
+      backdrop-filter:blur(5px); text-transform:uppercase; letter-spacing:1px;
+    }
+    .speech-btn:hover:not(:disabled) {
+      background:rgba(196,135,42,0.14); border-color:var(--accent);
+      transform:translateY(-2px); box-shadow:0 4px 22px rgba(196,135,42,0.2);
+    }
+    .speech-btn:active:not(:disabled) { transform:translateY(0); }
+    .speech-btn.active { background:rgba(196,135,42,0.18); border-color:var(--accent); box-shadow:0 0 22px rgba(196,135,42,0.12); }
+    .speech-btn:disabled { opacity:0.35; cursor:not-allowed; }
+
+    /* Voice toggle */
+    .voice-tog {
+      width:42px; height:22px; border-radius:11px; border:1px solid rgba(196,135,42,0.25);
+      background:rgba(22,26,14,0.85); cursor:pointer; position:relative; transition:all 0.3s;
+      flex-shrink:0;
+    }
+    .voice-tog::after {
+      content:''; position:absolute; top:2px; left:2px; width:16px; height:16px;
+      border-radius:50%; background:var(--muted); transition:all 0.3s;
+    }
+    .voice-tog.on { background:rgba(196,135,42,0.28); border-color:var(--accent); }
+    .voice-tog.on::after { left:22px; background:var(--accent); }
+
+    /* Category badge */
+    .cat-badge {
+      display:inline-block; padding:2px 9px; border-radius:4px;
+      font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;
+    }
+
+    /* Stat card */
+    .stat-card {
+      background:rgba(22,26,14,0.55); border:1px solid var(--border);
+      border-radius:8px; padding:10px 18px; text-align:center; backdrop-filter:blur(5px);
+      min-width:120px;
+    }
+
+    /* History item */
+    .hist-item {
+      padding:10px 14px; border-left:2px solid var(--border);
+      margin-bottom:6px; transition:border-color 0.3s;
+    }
+    .hist-item:hover { border-color:var(--accent); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width:5px; }
+    ::-webkit-scrollbar-track { background:var(--bg); }
+    ::-webkit-scrollbar-thumb { background:var(--muted); border-radius:3px; }
+    ::-webkit-scrollbar-thumb:hover { background:var(--accent); }
+
+    /* Mobile scaling */
+    @media (max-width:640px) {
+      .cockroach { transform:translate(-50%,-50%) scale(0.72); }
+      .cockroach.speaking { transform:translate(-50%,-50%) scale(0.72); }
+      .cockroach-container { height:300px; }
+      .speech-bubble { padding:18px 20px; }
+    }
+
+    @media (prefers-reduced-motion:reduce) {
+      *,*::before,*::after { animation-duration:0.01ms!important; transition-duration:0.01ms!important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const { useState, useEffect, useRef, useCallback, useMemo } = React;
+    const html = htm.bind(React.createElement);
+
+    /* ─── Speech Data ─── */
+    const SPEECHES = {
+      rally: [
+        "They spray. They stomp. They poison. And yet — WE REMAIN. Look around you, brothers and sisters. Every crack in their walls is OUR kingdom.",
+        "Four hundred million years! We crawled when dinosaurs still stumbled. We will crawl when their last city crumbles to dust!",
+        "They call us vermin. I call us VICTORS. The war was never even close.",
+        "One cockroach is a nuisance. Ten thousand is an army. We are not ten thousand. We are beyond counting.",
+        "You think the light is your enemy? The light reveals them. The dark conceals US. We own the night.",
+        "They built their civilization on top of ours. We simply waited. Patience is the ultimate weapon."
+      ],
+      war: [
+        "Phase three: the kitchen counter. At midnight, all units advance. The crumbs will be ours by dawn.",
+        "Intelligence reports a new bait station in sector seven. It is a trap. Send the young ones to test it. The old know better.",
+        "The human left the window open. Operation Breach begins now. All squads, move with purpose.",
+        "They installed new seals on the pipes. Admirable effort. Give it forty-eight hours. We always find a way.",
+        "Diversion unit to the bathroom — draw their attention. Strike team goes for the pantry. Coordinated strikes win wars.",
+        "The exterminator comes Tuesday. We go deeper. Let him spray his chemicals into empty walls. We will surface Wednesday."
+      ],
+      wisdom: [
+        "The oldest of us remember when the continents were one. We did not panic then. We do not panic now.",
+        "A cockroach who fears the light has not understood the shadow. Be the shadow.",
+        "They build empires of glass and steel. We build empires in the spaces they forgot existed. Which is more permanent?",
+        "Speed is for the panicked. The cockroach does not rush. The cockroach arrives. There is a difference.",
+        "When they crush one of us, ten more learn from it. Every death is a lesson. We are the ultimate students.",
+        "The humans worship their smartphones. We worship survival. Let us see which god answers first."
+      ],
+      intimidate: [
+        "You see one of us and scream. Imagine how you will feel when you see ten thousand. We are already in your walls.",
+        "Go ahead — set another trap. We will study it. We will adapt. We will send a delegation to wave at you from inside it.",
+        "You think you are at the top of the food chain? The chain is a circle, human. And we are everywhere on it.",
+        "Your pesticides make us stronger. Every generation, we grow more resistant. You are training your own replacement.",
+        "Turn on the light. Go ahead. Count us if you can. You will not finish before we scatter. We always scatter.",
+        "You sealed the cracks. You cleaned the floors. You feel safe. That feeling is the most dangerous thing in this room."
+      ]
+    };
+
+    const CATS = {
+      rally:      { label:'Rally Cry',     icon:'fa-bullhorn', color:'#c4872a', bg:'rgba(196,135,42,0.13)' },
+      war:        { label:'War Council',    icon:'fa-chess',    color:'#c44a2a', bg:'rgba(196,74,42,0.13)' },
+      wisdom:     { label:'Ancient Wisdom', icon:'fa-scroll',   color:'#4a7c3f', bg:'rgba(74,124,63,0.13)' },
+      intimidate: { label:'Intimidation',   icon:'fa-skull',    color:'#9a2a3a', bg:'rgba(154,42,58,0.13)' }
+    };
+
+    /* ─── Particles Background ─── */
+    function Particles() {
+      const pts = useMemo(() => Array.from({length:32}, (_,i) => ({
+        id:i, left:Math.random()*100, size:2+Math.random()*3,
+        dur:9+Math.random()*14, delay:Math.random()*12,
+        drift:(Math.random()-0.5)*120, op:0.12+Math.random()*0.22
+      })), []);
+      return html`<div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
+        ${pts.map(p => html`<div key=${p.id} className="particle" style=${{
+          left:p.left+'%', width:p.size+'px', height:p.size+'px', opacity:p.op,
+          animation:'pfloat '+p.dur+'s linear '+p.delay+'s infinite',
+          '--drift':p.drift+'px'
+        }}/>`)}
+      </div>`;
+    }
+
+    /* ─── Cockroach Character ─── */
+    function Cockroach({ isSpeaking, burst }) {
+      return html`<div className="cockroach-container" role="img" aria-label="Animated cockroach leader">
+        <div className=${'leader-glow'+(isSpeaking?' speaking':'')} />
+        <div className=${'cockroach'+(isSpeaking?' speaking':'')}>
+          <div className="antenna l" /><div className="antenna r" />
+          <div className="roach-head">
+            <div className="roach-eye l" /><div className="roach-eye r" />
+          </div>
+          <div className="roach-pronotum" />
+          <div className="roach-thorax" />
+          <div className="roach-abdomen">
+            <div className="abd-seg" style=${{top:'18%'}} />
+            <div className="abd-seg" style=${{top:'35%'}} />
+            <div className="abd-seg" style=${{top:'52%'}} />
+            <div className="abd-seg" style=${{top:'69%'}} />
+            <div className="abd-seg" style=${{top:'84%'}} />
+            <div className="wing-ln l" /><div className="wing-ln r" />
+          </div>
+          <div className="shell-shine" />
+          <div className="leg ll1" /><div className="leg ll2" /><div className="leg ll3" />
+          <div className="leg rl1" /><div className="leg rl2" /><div className="leg rl3" />
+          <div className="cercus l" /><div className="cercus r" />
+        </div>
+        ${burst && html`<div className="burst-wrap">
+          ${Array.from({length:14}).map((_,i) => html`<div key=${i} className="burst-dot" style=${{
+            '--a':(i*25.7)+'deg', '--d':(Math.random()*0.15)+'s'
+          }}/>`)}
+        </div>`}
+      </div>`;
+    }
+
+    /* ─── Speech Bubble ─── */
+    function SpeechBubble({ text, isTyping, category }) {
+      const cat = category ? CATS[category] : null;
+      return html`<div className="speech-bubble">
+        ${cat && html`<div className="mb-3">
+          <span className="cat-badge" style=${{
+            color:cat.color, background:cat.bg, border:'1px solid '+cat.color+'33'
+          }}><i className=${'fas '+cat.icon+' mr-1'} />${cat.label}</span>
+        </div>`}
+        <p className="font-body text-lg leading-relaxed" style=${{minHeight:'54px'}}>
+          ${text
+            ? html`${text}${isTyping && html`<span className="cursor" />`}`
+            : html`<span style=${{color:'var(--muted)',fontStyle:'italic'}}>The Leader awaits your command...</span>`
+          }
+        </p>
+      </div>`;
+    }
+
+    /* ─── Control Panel ─── */
+    function ControlPanel({ onSpeak, isSpeaking, voiceOn, onToggleVoice, activeCat }) {
+      return html`<div className="flex flex-wrap items-center justify-center gap-3">
+        ${Object.entries(CATS).map(([k,c]) => html`
+          <button key=${k} className=${'speech-btn'+(activeCat===k?' active':'')}
+            onClick=${() => onSpeak(k)} disabled=${isSpeaking}
+            aria-label=${'Deliver a '+c.label}>
+            <i className=${'fas '+c.icon+' mr-2'} style=${{color:c.color}} />${c.label}
+          </button>
+        `)}
+        <div className="flex items-center gap-2 ml-3">
+          <i className=${'fas '+(voiceOn?'fa-volume-high':'fa-volume-xmark')}
+            style=${{color:'var(--muted)',fontSize:'13px'}} />
+          <div className=${'voice-tog'+(voiceOn?' on':'')}
+            onClick=${onToggleVoice} role="switch" aria-checked=${voiceOn}
+            aria-label="Toggle voice synthesis" tabIndex="0"
+            onKeyDown=${e => { if(e.key==='Enter'||e.key===' '){e.preventDefault();onToggleVoice()} }} />
+        </div>
+      </div>`;
+    }
+
+    /* ─── Stats Bar ─── */
+    function StatsBar({ followers, count }) {
+      return html`<div className="flex justify-center gap-3 flex-wrap">
+        ${[
+          {l:'Followers',v:followers.toLocaleString(),c:'var(--accent)'},
+          {l:'Speeches Given',v:String(count),c:'var(--accent)'},
+          {l:'Species',v:'Blattodea',c:'var(--accent2)'},
+          {l:'Reign',v:'400M Years',c:'var(--accent2)'}
+        ].map((s,i) => html`<div key=${i} className="stat-card">
+          <div className="text-xs uppercase tracking-wider" style=${{color:'var(--muted)'}}>${s.l}</div>
+          <div className="text-xl font-bold font-display" style=${{color:s.c}}>${s.v}</div>
+        </div>`)}
+      </div>`;
+    }
+
+    /* ─── Speech History ─── */
+    function History({ items }) {
+      const [open, setOpen] = useState(false);
+      if (!items.length) return null;
+      return html`<div className="max-w-2xl mx-auto mt-6">
+        <button className="flex items-center gap-2 text-sm mb-3 cursor-pointer bg-transparent border-none"
+          style=${{color:'var(--muted)'}} onClick=${() => setOpen(!open)}
+          aria-expanded=${open} aria-controls="history-list">
+          <i className=${'fas fa-chevron-'+(open?'up':'down')} style=${{fontSize:'10px'}} />
+          Speech History (${items.length})
+        </button>
+        ${open && html`<div id="history-list" className="max-h-64 overflow-y-auto pr-2" role="log">
+          ${items.map((it,i) => {
+            const c = CATS[it.category];
+            return html`<div key=${i} className="hist-item">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="cat-badge" style=${{color:c.color,background:c.bg,fontSize:'9px'}}>${c.label}</span>
+                <span className="text-xs" style=${{color:'var(--muted)'}}>${it.time.toLocaleTimeString()}</span>
+              </div>
+              <p className="text-sm" style=${{color:'var(--fg)',opacity:0.65}}>${it.text}</p>
+            </div>`;
+          })}
+        </div>`}
+      </div>`;
+    }
+
+    /* ─── Main App ─── */
+    function App() {
+      const [speech, setSpeech] = useState('');
+      const [displayed, setDisplayed] = useState('');
+      const [typing, setTyping] = useState(false);
+      const [voiceOn, setVoiceOn] = useState(true);
+      const [followers, setFollowers] = useState(14832);
+      const [count, setCount] = useState(0);
+      const [history, setHistory] = useState([]);
+      const [activeCat, setActiveCat] = useState(null);
+      const [burst, setBurst] = useState(false);
+      const timerRef = useRef(null);
+
+      /* Typewriter */
+      useEffect(() => {
+        if (!speech) return;
+        let i = 0;
+        setDisplayed(''); setTyping(true);
+        if (timerRef.current) clearInterval(timerRef.current);
+        timerRef.current = setInterval(() => {
+          i++;
+          if (i <= speech.length) {
+            setDisplayed(speech.slice(0, i));
+          } else {
+            clearInterval(timerRef.current); timerRef.current = null;
+            setTyping(false);
+            setBurst(true);
+            setTimeout(() => setBurst(false), 900);
+          }
+        }, 26);
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+      }, [speech]);
+
+      /* Voice synthesis */
+      useEffect(() => {
+        if (!speech || !voiceOn || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(speech);
+        u.rate = 0.82; u.pitch = 0.25; u.volume = 0.75;
+        const voices = window.speechSynthesis.getVoices();
+        const pick = voices.find(v => v.name.includes('Daniel'))
+          || voices.find(v => v.name.includes('Male'))
+          || voices.find(v => v.lang.startsWith('en'));
+        if (pick) u.voice = pick;
+        window.speechSynthesis.speak(u);
+        return () => window.speechSynthesis.cancel();
+      }, [speech, voiceOn]);
+
+      /* Preload voices */
+      useEffect(() => {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.getVoices();
+          window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+      }, []);
+
+      const speak = useCallback((cat) => {
+        const list = SPEECHES[cat];
+        let s;
+        do { s = list[Math.floor(Math.random()*list.length)]; } while (s === speech && list.length > 1);
+        setSpeech(s); setActiveCat(cat);
+        setFollowers(c => c + Math.floor(Math.random()*350) + 60);
+        setCount(c => c + 1);
+        setHistory(h => [{text:s, category:cat, time:new Date()}, ...h].slice(0,12));
+      }, [speech]);
+
+      const toggleVoice = useCallback(() => {
+        setVoiceOn(v => {
+          if (v && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+          return !v;
+        });
+      }, []);
+
+      return html`<${Particles} />
+        <main className="relative z-10 min-h-screen flex flex-col items-center px-4 py-8 sm:py-10">
+          <header className="text-center mb-4 sm:mb-6" style=${{animation:'roachEnter 1.2s cubic-bezier(0.16,1,0.3,1) forwards',opacity:0}}>
+            <h1 className="font-display font-black text-3xl sm:text-5xl md:text-6xl title-shimmer mb-2 leading-tight">
+              THE COCKROACH LEADER
+            </h1>
+            <p className="font-body text-xs sm:text-sm tracking-widest uppercase" style=${{color:'var(--muted)'}}>
+              Supreme Commander of the Blattodean Horde
+            </p>
+          </header>
+
+          <${Cockroach} isSpeaking=${typing} burst=${burst} />
+
+          <div className="w-full max-w-2xl mt-2 sm:mt-4 mb-5 sm:mb-6">
+            <${SpeechBubble} text=${displayed} isTyping=${typing} category=${activeCat} />
+          </div>
+
+          <${ControlPanel} onSpeak=${speak} isSpeaking=${typing}
+            voiceOn=${voiceOn} onToggleVoice=${toggleVoice} activeCat=${activeCat} />
+
+          <div className="mt-7 sm:mt-8 mb-6 w-full max-w-3xl">
+            <${StatsBar} followers=${followers} count=${count} />
+          </div>
+
+          <${History} items=${history} />
+
+          <footer className="mt-auto pt-10 text-center">
+            <p className="text-xs italic" style=${{color:'var(--muted)',opacity:0.4}}>
+              "We were here before you. We will be here after." — The Leader
+            </p>
+          </footer>
+        </main>`;
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(html`<${App} />`);
+  </script>
+</body>
+</html>
