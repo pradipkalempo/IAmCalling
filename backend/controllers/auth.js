@@ -39,7 +39,11 @@ router.post('/register', async (req, res) => {
     
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-    
+
+    // Generate unique ref code
+    const refSeed = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const refCode = 'IAM-' + refSeed;
+
     // Insert user
     const { data: newUser, error } = await supabase
       .from('users')
@@ -48,7 +52,8 @@ router.post('/register', async (req, res) => {
         last_name: lastName,
         email: email,
         password: hashedPassword,
-        profile_photo: profilePhoto
+        profile_photo: profilePhoto,
+        ref_code: refCode
       }])
       .select()
       .single();
@@ -80,6 +85,7 @@ router.post('/register', async (req, res) => {
         lastName: newUser.last_name,
         fullName: `${newUser.first_name} ${newUser.last_name}`,
         profilePhoto: newUser.profile_photo,
+        refCode: newUser.ref_code,
         createdAt: newUser.created_at
       }
     });
@@ -132,6 +138,7 @@ router.post('/login', async (req, res) => {
         last_name:     user.last_name,
         full_name:     user.full_name || (user.first_name + ' ' + user.last_name).trim(),
         profile_photo: user.profile_photo || null,
+        ref_code:      user.ref_code || null,
         created_at:    user.created_at
       }
     });

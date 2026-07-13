@@ -2025,12 +2025,10 @@
         if (!sb) { setStatsError(); return; }
 
         try {
-            // Get user's ref code
-            let refCode = localStorage.getItem('myRefCode');
-            if (!refCode) {
-                const seed = uid.replace(/-/g,'').substring(0,6).toUpperCase();
-                refCode = 'IAM-' + seed.padEnd(6,'0');
-            }
+            // Get user's ref code from Supabase (permanent source)
+            const { data: userData } = await sb.from('users').select('ref_code').eq('id', uid).single();
+            const refCode = userData?.ref_code || localStorage.getItem('myRefCode');
+            if (!refCode) { setStatsError(); return; }
 
             // Count purchase_requests where referred_by = this user's ref code
             const { data: rows, error } = await sb
@@ -2120,7 +2118,7 @@
         if (!sb) return;
         const { data, error } = await sb
             .from('users')
-            .select('id, email, first_name, last_name, full_name, profile_photo, created_at')
+            .select('id, email, first_name, last_name, full_name, profile_photo, ref_code, created_at')
             .eq('id', uid)
             .single();
         if (!error && data) {
@@ -2143,13 +2141,13 @@
         const joined = raw ? new Date(raw).toLocaleDateString('en-IN', { month:'short', year:'numeric' }) : 'Recently';
         const mid    = uid ? '#' + uid.replace(/-/g,'').substring(0,8).toUpperCase() : '#—';
 
-        let refCode = localStorage.getItem('myRefCode');
+        let refCode = u.ref_code || localStorage.getItem('myRefCode');
         if (!refCode) {
-            const seed = uid ? uid.replace(/-/g,'').substring(0,6).toUpperCase()
-                             : name.replace(/\s+/g,'').toUpperCase().substring(0,6);
+            const seed = uid ? uid.replace(/-/g,'').substring(0,6).toUpperCase() : 'XXXXXX';
             refCode = 'IAM-' + seed.padEnd(6,'0');
-            localStorage.setItem('myRefCode', refCode);
         }
+        // Always keep in sync
+        localStorage.setItem('myRefCode', refCode);
 
         document.getElementById('profileName').textContent     = name.trim();
         document.getElementById('profileEmail').textContent    = email;
