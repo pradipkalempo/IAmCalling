@@ -352,8 +352,8 @@
     // ── Start download (browser download via anchor) ──────────────────────────
     function startDownload() {
         if (!selectedFile) return;
-        const { yt_id, format_selector, name, is_audio } = selectedFile;
-        const params = new URLSearchParams({ yt_id, format_selector, filename: name, is_audio: is_audio ? 'true' : 'false' });
+        const { yt_id, quality, name, is_audio } = selectedFile;
+        const params = new URLSearchParams({ yt_id, quality, filename: name, is_audio: is_audio ? 'true' : 'false' });
         const url = `/api/oneclick/stream?${params}`;
 
         // Show progress indicator
