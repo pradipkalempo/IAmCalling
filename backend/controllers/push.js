@@ -4,11 +4,13 @@ import { createClient } from '@supabase/supabase-js';
 
 const router = express.Router();
 
-webpush.setVapidDetails(
-    process.env.VAPID_EMAIL,
-    process.env.VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-);
+if (process.env.VAPID_EMAIL && process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+        process.env.VAPID_EMAIL,
+        process.env.VAPID_PUBLIC_KEY,
+        process.env.VAPID_PRIVATE_KEY
+    );
+}
 
 function getSB() {
     return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OneClick Media Downloader — Softstock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0d0d0d; --bg2: #111; --card: #161616; --border: #2a2a2a;
+            --accent: #6c63ff; --accent2: #00d4aa; --text: #e8e8e8; --muted: #888;
+            --surface: #1a1a24; --surface2: #22222f; --red: #ef4444; --green: #22c55e;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* NAV */
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0.9rem 2rem; background: rgba(13,13,13,0.95);
+            border-bottom: 1px solid var(--border); flex-shrink: 0; z-index: 10;
+        }
+        .nav-logo { font-family: 'Fira Code', monospace; font-size: 1rem; font-weight: 500; color: var(--accent); text-decoration: none; }
+        .nav-logo span { color: var(--accent2); }
+        .nav-title { font-size: 0.9rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 0.5rem; }
+        .nav-title span { color: var(--accent2); }
+        .nav-back { color: var(--muted); text-decoration: none; font-size: 0.82rem; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
+        .nav-back:hover { color: var(--text); }
+
+        /* LAYOUT */
+        .app { display: grid; grid-template-columns: 260px 1fr 320px; flex: 1; overflow: hidden; }
+
+        .panel { padding: 1.2rem; overflow-y: auto; border-right: 1px solid var(--border); }
+        .panel:last-child { border-right: none; }
+        .panel-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 1rem; }
+
+        /* SEARCH PANEL */
+        .search-panel { background: var(--surface); }
+
+        .mode-toggle { display: flex; gap: 5px; margin-bottom: 1rem; background: var(--surface2); padding: 4px; border-radius: 8px; }
+        .mode-btn { flex: 1; padding: 6px 0; border: none; border-radius: 6px; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.75rem; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.2s; }
+        .mode-btn.active { background: var(--accent); color: white; }
+
+        .input-row { display: flex; gap: 7px; margin-bottom: 1.2rem; }
+        .input-row input { flex: 1; padding: 9px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--text); font-size: 0.82rem; outline: none; font-family: 'Inter', sans-serif; transition: border-color 0.2s; }
+        .input-row input:focus { border-color: var(--accent); }
+        .input-row input::placeholder { color: #444; }
+        .input-row button { padding: 9px 13px; background: var(--accent); color: white; border: none; border-radius: 7px; cursor: pointer; font-size: 0.9rem; transition: opacity 0.2s; }
+        .input-row button:hover { opacity: 0.85; }
+        .input-row button:disabled { background: #333; cursor: not-allowed; }
+
+        .history-label { font-size: 0.62rem; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.6rem; }
+        .history-item { padding: 7px 9px; border-radius: 6px; cursor: pointer; font-size: 0.78rem; color: var(--muted); display: flex; align-items: center; gap: 7px; transition: all 0.15s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .history-item:hover { background: rgba(108,99,255,0.1); color: var(--accent); }
+
+        /* RESULTS PANEL */
+        .results-panel { background: var(--bg); }
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+
+        .media-card { background: var(--surface); border-radius: 10px; overflow: hidden; cursor: pointer; border: 1.5px solid var(--border); transition: all 0.2s; }
+        .media-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+        .media-card.selected { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(108,99,255,0.2); }
+        .media-card img { width: 100%; height: 95px; object-fit: cover; display: block; background: var(--surface2); }
+        .media-card-body { padding: 8px 9px 10px; }
+        .media-card-title { font-size: 0.75rem; font-weight: 600; line-height: 1.35; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .media-card-ch { font-size: 0.65rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* DOWNLOAD PANEL */
+        .download-panel { background: var(--surface); }
+        .dl-title { font-size: 0.82rem; font-weight: 600; margin-bottom: 1rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+        .dl-mode-toggle { display: flex; gap: 5px; margin-bottom: 1rem; background: var(--surface2); padding: 4px; border-radius: 8px; }
+
+        .quality-label { font-size: 0.62rem; font-weight: 700; color: #444; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.6rem; }
+        .file-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1rem; }
+        .file-opt { padding: 9px 11px; border: 1.5px solid var(--border); border-radius: 7px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.15s; }
+        .file-opt:hover, .file-opt.selected { border-color: var(--accent); background: rgba(108,99,255,0.08); }
+        .file-opt-name { font-size: 0.82rem; font-weight: 600; }
+        .file-opt-size { font-size: 0.68rem; color: var(--muted); }
+        .hd { padding: 1px 5px; background: var(--accent); color: white; border-radius: 3px; font-size: 0.58rem; font-weight: 800; margin-left: 5px; }
+
+        .dl-btn { width: 100%; padding: 11px; background: linear-gradient(135deg, var(--accent), #a78bfa); color: white; border: none; border-radius: 7px; font-size: 0.88rem; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: opacity 0.2s, transform 0.1s; margin-bottom: 1rem; }
+        .dl-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .dl-btn:disabled { background: #2a2a2a; color: #555; cursor: not-allowed; transform: none; }
+
+        /* Progress */
+        .progress-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 11px; margin-bottom: 8px; }
+        .progress-name { font-size: 0.75rem; font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .progress-bar-bg { background: var(--border); border-radius: 4px; height: 5px; margin-bottom: 6px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #a78bfa); border-radius: 4px; transition: width 0.3s; }
+        .progress-bar.done { background: var(--green); }
+        .progress-bar.err { background: var(--red); }
+        .progress-meta { font-size: 0.68rem; color: var(--muted); }
+
+        /* States */
+        .empty { text-align: center; padding: 60px 16px; color: #444; font-size: 0.85rem; line-height: 1.6; }
+        .empty i { font-size: 2.5rem; margin-bottom: 12px; display: block; color: #333; }
+        .spinner-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px; gap: 12px; color: var(--muted); font-size: 0.82rem; }
+        .spinner { width: 30px; height: 30px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .notice { padding: 10px 12px; border-radius: 7px; font-size: 0.78rem; margin-bottom: 10px; }
+        .notice.warn { background: rgba(245,158,11,0.08); border-left: 3px solid #f59e0b; color: var(--muted); }
+        .notice.err { background: rgba(239,68,68,0.08); border-left: 3px solid var(--red); color: #f87171; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        @media (max-width: 900px) {
+            .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto; height: auto; overflow: auto; }
+            body { height: auto; overflow: auto; }
+            .panel { border-right: none; border-bottom: 1px solid var(--border); max-height: none; overflow: visible; }
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <a href="/" class="nav-logo">Soft<span>stock</span></a>
+    <div class="nav-title"><i class="fas fa-download" style="color:var(--accent2);"></i> One<span>Click</span> Media Downloader</div>
+    <a href="/" class="nav-back"><i class="fas fa-arrow-left"></i> Home</a>
+</nav>
+
+<div class="app">
+
+    <!-- LEFT: Search Panel -->
+    <div class="panel search-panel">
+        <div class="panel-label">Search</div>
+
+        <div class="mode-toggle">
+            <button class="mode-btn active" id="btnModeSearch" onclick="setMode('search')">🔍 Search</button>
+            <button class="mode-btn" id="btnModePaste" onclick="setMode('paste')">🔗 Paste URL</button>
+        </div>
+
+        <div id="searchInputWrap" class="input-row">
+            <input type="text" id="searchInput" placeholder="Search YouTube videos..." onkeydown="if(event.key==='Enter') doSearch()">
+            <button onclick="doSearch()" id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+
+        <div id="pasteInputWrap" class="input-row" style="display:none;">
+            <input type="text" id="pasteInput" placeholder="Paste YouTube URL..." onkeydown="if(event.key==='Enter') doPaste()">
+            <button onclick="doPaste()" id="pasteBtn"><i class="fas fa-arrow-down"></i></button>
+        </div>
+
+        <div class="history-label">Recent Searches</div>
+        <div id="historyList"></div>
+    </div>
+
+    <!-- CENTER: Results Panel -->
+    <div class="panel results-panel">
+        <div class="panel-label">Results <span id="resultCount" style="color:var(--accent2);"></span></div>
+        <div id="resultsArea">
+            <div class="empty"><i class="fas fa-film"></i>Search for YouTube videos to download</div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Download Panel -->
+    <div class="panel download-panel">
+        <div class="panel-label">Download</div>
+        <div id="downloadArea">
+            <div class="empty"><i class="fas fa-hand-pointer"></i>Select a video to see download options</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let mode = 'search';
+    let selectedItem = null;
+    let extractData = null;
+    let selectedFile = null;
+    let dlMode = 'video';
+    let history = JSON.parse(localStorage.getItem('oc_history') || '[]');
+    let activeDownloads = {};
+
+    // ── Mode toggle ──────────────────────────────────────────────────────────
+    function setMode(m) {
+        mode = m;
+        document.getElementById('btnModeSearch').classList.toggle('active', m === 'search');
+        document.getElementById('btnModePaste').classList.toggle('active', m === 'paste');
+        document.getElementById('searchInputWrap').style.display = m === 'search' ? 'flex' : 'none';
+        document.getElementById('pasteInputWrap').style.display = m === 'paste' ? 'flex' : 'none';
+    }
+
+    // ── History ──────────────────────────────────────────────────────────────
+    function renderHistory() {
+        const el = document.getElementById('historyList');
+        el.innerHTML = history.slice(0, 10).map(q =>
+            `<div class="history-item" onclick="useHistory('${q.replace(/'/g, "\\'")}')"><i class="fas fa-clock" style="font-size:0.65rem;"></i>${q}</div>`
+        ).join('');
+    }
+
+    function useHistory(q) {
+        document.getElementById('searchInput').value = q;
+        setMode('search');
+        doSearch();
+    }
+
+    function addHistory(q) {
+        history = [q, ...history.filter(h => h !== q)].slice(0, 20);
+        localStorage.setItem('oc_history', JSON.stringify(history));
+        renderHistory();
+    }
+
+    // ── Search ───────────────────────────────────────────────────────────────
+    async function doSearch() {
+        const q = document.getElementById('searchInput').value.trim();
+        if (!q) return;
+        addHistory(q);
+        setResultsLoading();
+        try {
+            const res = await fetch(`/api/oneclick/search?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || data.error);
+            renderResults(data.results);
+        } catch (e) {
+            setResultsError(e.message);
+        }
+    }
+
+    // ── Paste URL ────────────────────────────────────────────────────────────
+    async function doPaste() {
+        const url = document.getElementById('pasteInput').value.trim();
+        if (!url) return;
+        setDownloadLoading();
+        try {
+            const res = await fetch(`/api/oneclick/extract?url=${encodeURIComponent(url)}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || data.error);
+            selectedItem = { title: data.title, yt_id: data.yt_id, thumbnail: data.thumbnail };
+            extractData = data;
+            dlMode = 'video';
+            selectedFile = data.files?.[0] || null;
+            renderDownloadPanel();
+        } catch (e) {
+            document.getElementById('downloadArea').innerHTML = `<div class="notice err"><i class="fas fa-exclamation-circle"></i> ${e.message}</div>`;
+        }
+    }
+
+    // ── Results ──────────────────────────────────────────────────────────────
+    function setResultsLoading() {
+        document.getElementById('resultCount').textContent = '';
+        document.getElementById('resultsArea').innerHTML = `<div class="spinner-wrap"><div class="spinner"></div><span>Searching...</span></div>`;
+    }
+
+    function setResultsError(msg) {
+        document.getElementById('resultsArea').innerHTML = `<div class="notice err">${msg}</div>`;
+    }
+
+    function renderResults(results) {
+        document.getElementById('resultCount').textContent = `(${results.length})`;
+        if (!results.length) {
+            document.getElementById('resultsArea').innerHTML = `<div class="empty"><i class="fas fa-search"></i>No results found</div>`;
+            return;
+        }
+        document.getElementById('resultsArea').innerHTML = `<div class="results-grid">${
+            results.map(r => `
+                <div class="media-card${selectedItem?.yt_id === r.yt_id ? ' selected' : ''}" onclick="selectItem(${JSON.stringify(r).replace(/"/g, '&quot;')})">
+                    <img src="${r.thumbnail}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22160%22 height=%2295%22><rect fill=%22%23222%22 width=%22160%22 height=%2295%22/></svg>'">
+                    <div class="media-card-body">
+                        <div class="media-card-title">${r.title}</div>
+                        <div class="media-card-ch">${r.channel || ''}</div>
+                    </div>
+                </div>`
+            ).join('')
+        }</div>`;
+    }
+
+    // ── Select item ──────────────────────────────────────────────────────────
+    async function selectItem(item) {
+        selectedItem = item;
+        extractData = null;
+        selectedFile = null;
+        // Re-render results to show selected state
+        document.querySelectorAll('.media-card').forEach(c => c.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+        setDownloadLoading();
+        try {
+            const url = `https://www.youtube.com/watch?v=${item.yt_id}`;
+            const res = await fetch(`/api/oneclick/extract?url=${encodeURIComponent(url)}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || data.error);
+            extractData = data;
+            dlMode = 'video';
+            selectedFile = data.files?.[0] || null;
+            renderDownloadPanel();
+        } catch (e) {
+            document.getElementById('downloadArea').innerHTML = `<div class="notice err">${e.message}</div>`;
+        }
+    }
+
+    function setDownloadLoading() {
+        document.getElementById('downloadArea').innerHTML = `<div class="spinner-wrap"><div class="spinner"></div><span>Extracting formats...</span></div>`;
+    }
+
+    // ── Download panel ───────────────────────────────────────────────────────
+    function renderDownloadPanel() {
+        if (!extractData) return;
+        if (extractData.status === 'unavailable') {
+            document.getElementById('downloadArea').innerHTML = `<div class="notice err">No downloadable formats found.</div>`;
+            return;
+        }
+
+        const activeFiles = dlMode === 'audio' ? extractData.audio_files : extractData.files;
+
+        document.getElementById('downloadArea').innerHTML = `
+            ${selectedItem?.title ? `<div class="dl-title">${selectedItem.title}</div>` : ''}
+
+            <div class="dl-mode-toggle mode-toggle">
+                <button class="mode-btn${dlMode === 'video' ? ' active' : ''}" onclick="switchDlMode('video')">🎬 Video</button>
+                <button class="mode-btn${dlMode === 'audio' ? ' active' : ''}" onclick="switchDlMode('audio')">🎵 Audio MP3</button>
+            </div>
+
+            <div class="quality-label">${dlMode === 'audio' ? 'Audio Quality' : 'Video Quality'}</div>
+            <div class="file-list">
+                ${(activeFiles || []).map(f => `
+                    <div class="file-opt${selectedFile?.format === f.format ? ' selected' : ''}" onclick="selectFile(${JSON.stringify(f).replace(/"/g, '&quot;')})">
+                        <div class="file-opt-name">${f.format}${f.height >= 1080 ? '<span class="hd">HD</span>' : ''}</div>
+                        <div class="file-opt-size">${formatBytes(f.size)}</div>
+                    </div>`
+                ).join('')}
+            </div>
+
+            <button class="dl-btn" id="dlBtn" onclick="startDownload()" ${!selectedFile ? 'disabled' : ''}>
+                <i class="fas fa-download"></i> Download ${selectedFile ? selectedFile.format : ''}
+            </button>
+
+            <div id="progressArea"></div>
+        `;
+    }
+
+    function switchDlMode(m) {
+        dlMode = m;
+        selectedFile = m === 'audio' ? extractData?.audio_files?.[0] : extractData?.files?.[0];
+        renderDownloadPanel();
+    }
+
+    function selectFile(f) {
+        selectedFile = f;
+        renderDownloadPanel();
+    }
+
+    function formatBytes(bytes) {
+        if (!bytes) return '';
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+        return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
+    }
+
+    // ── Start download (browser download via anchor) ──────────────────────────
+    function startDownload() {
+        if (!selectedFile) return;
+        const { yt_id, format_selector, name, is_audio } = selectedFile;
+        const params = new URLSearchParams({ yt_id, format_selector, filename: name, is_audio: is_audio ? 'true' : 'false' });
+        const url = `/api/oneclick/stream?${params}`;
+
+        // Show progress indicator
+        const prog = document.getElementById('progressArea');
+        if (prog) {
+            prog.innerHTML = `
+                <div class="progress-wrap">
+                    <div class="progress-name">${name}</div>
+                    <div class="progress-bar-bg"><div class="progress-bar" id="pb" style="width:0%"></div></div>
+                    <div class="progress-meta" id="pmeta">Preparing download...</div>
+                </div>`;
+            // Animate indeterminate progress
+            let pct = 0;
+            const iv = setInterval(() => {
+                pct = Math.min(pct + Math.random() * 3, 90);
+                const pb = document.getElementById('pb');
+                const pm = document.getElementById('pmeta');
+                if (pb) pb.style.width = pct + '%';
+                if (pm) pm.textContent = `Downloading... ${Math.round(pct)}%`;
+            }, 500);
+            // Trigger browser download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            // Mark done after delay
+            setTimeout(() => {
+                clearInterval(iv);
+                const pb = document.getElementById('pb');
+                const pm = document.getElementById('pmeta');
+                if (pb) { pb.style.width = '100%'; pb.classList.add('done'); }
+                if (pm) pm.textContent = '✓ Download started in your browser';
+            }, 4000);
+        }
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+    renderHistory();
+</script>
+</body>
+</html>

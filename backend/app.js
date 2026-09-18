@@ -20,6 +20,7 @@ import SimpleSupabaseClient from './services/simpleSupabaseClient.js';
 import healthCheckRoute from './controllers/health.js';
 import roboRoutes from './controllers/robo.js';
 import pushRoutes from './controllers/push.js';
+import oneclickRoutes from './controllers/oneclick.js';
 
 dotenv.config();
 
@@ -73,6 +74,12 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/password-reset', passwordResetRoutes);
 app.use('/api/robo', roboRoutes);
 app.use('/api/push', pushRoutes);
+app.use('/api/oneclick', oneclickRoutes);
+
+app.get('/oneclick', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/pages/oneclick.html'));
+});
+app.use('/api/oneclick', oneclickRoutes);
 
 // Serve service worker from root scope
 app.get('/sw.js', (req, res) => {
