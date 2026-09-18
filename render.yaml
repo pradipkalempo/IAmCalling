@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: iamcalling
+    runtime: node
+    buildCommand: pip install -U yt-dlp && npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
