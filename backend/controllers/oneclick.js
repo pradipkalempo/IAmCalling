@@ -1,33 +1,35 @@
 import { Router } from 'express';
-import ytdl from '@distube/ytdl-core';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 
 const router = Router();
+const exec = promisify(execFile);
+
+// yt-dlp with android client bypasses YouTube bot detection on server IPs
+async function ytdlpInfo(url) {
+    const { stdout } = await exec('python', [
+        '-m', 'yt_dlp', '--dump-json', '--no-playlist',
+        '--extractor-args', 'youtube:player_client=android,tv_embedded',
+        '--no-warnings', url
+    ], { timeout: 25000 });
+    return JSON.parse(stdout);
+}
 
 function safeTitle(title = '') {
     return title.replace(/[^\w\s.-]/g, '').trim().slice(0, 80) || 'media';
 }
 
-function formatBytes(bytes) {
-    if (!bytes) return '';
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
-    return `${(bytes / 1024 ** 3).toFixed(2)} GB`;
-}
-
-// ── Search via YouTube RSS / suggest API (no auth needed) ─────────────────────
+// ── Search ────────────────────────────────────────────────────────────────────
 router.get('/search', async (req, res) => {
     const q = (req.query.q || '').trim();
     if (!q) return res.status(400).json({ error: 'Query required' });
 
     try {
-        // Use YouTube's internal suggest/search API
-        const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&sp=EgIQAQ%3D%3D`;
-        const resp = await fetch(url, {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-        });
+        const resp = await fetch(
+            `https://www.youtube.com/results?search_query=${encodeURIComponent(q)}&sp=EgIQAQ%3D%3D`,
+            { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } }
+        );
         const html = await resp.text();
-
-        // Extract ytInitialData JSON from page
         const match = html.match(/var ytInitialData = ({.+?});<\/script>/s);
         if (!match) return res.json({ results: [], total: 0 });
 
@@ -38,12 +40,11 @@ router.get('/search', async (req, res) => {
 
         const results = contents
             .filter(c => c.videoRenderer)
-            .slice(0, 10)
+            .slice(0, 12)
             .map(c => {
                 const v = c.videoRenderer;
                 const id = v.videoId;
                 return {
-                    id: `yt_${id}`,
                     yt_id: id,
                     title: v.title?.runs?.[0]?.text || 'Unknown',
                     thumbnail: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
@@ -58,54 +59,54 @@ router.get('/search', async (req, res) => {
     }
 });
 
-// ── Extract formats ───────────────────────────────────────────────────────────
+// ── Extract ───────────────────────────────────────────────────────────────────
 router.get('/extract', async (req, res) => {
     const url = (req.query.url || '').trim();
     if (!url) return res.status(400).json({ error: 'URL required' });
 
     try {
-        const info = await ytdl.getInfo(url);
-        const title = info.videoDetails.title;
-        const yt_id = info.videoDetails.videoId;
-        const duration = parseInt(info.videoDetails.lengthSeconds) || 0;
-        const thumbnail = info.videoDetails.thumbnails?.slice(-1)[0]?.url || '';
+        const info = await ytdlpInfo(url);
+        const title = info.title;
+        const yt_id = info.id;
+        const thumbnail = info.thumbnail || `https://i.ytimg.com/vi/${yt_id}/hqdefault.jpg`;
+        const safe = safeTitle(title);
 
-        const QUALITIES = [2160, 1440, 1080, 720, 480, 360];
-        const BITRATES = { 2160: 15000, 1440: 8000, 1080: 4000, 720: 2500, 480: 1200, 360: 700 };
+        // Combined video+audio formats (android client gives these)
+        const combined = (info.formats || [])
+            .filter(f => f.height && f.acodec !== 'none' && f.vcodec !== 'none' && f.url && f.protocol === 'https')
+            .sort((a, b) => b.height - a.height);
 
-        // Get available video heights
-        const videoFormats = ytdl.filterFormats(info.formats, 'videoonly');
-        const availableHeights = new Set(videoFormats.map(f => f.height).filter(Boolean));
+        // Audio-only formats (tv_embedded gives these)
+        const audioFormats = (info.formats || [])
+            .filter(f => f.vcodec === 'none' && f.acodec !== 'none' && f.url && f.protocol === 'https')
+            .sort((a, b) => (b.abr || 0) - (a.abr || 0));
 
-        const files = QUALITIES
-            .filter(h => [...availableHeights].some(ah => ah >= h))
-            .map(h => ({
-                format: `MP4 ${h}p`,
-                height: h,
-                yt_id,
-                quality: `${h}p`,
-                size: duration ? Math.round(BITRATES[h] * 1000 / 8 * duration) : 0,
-                name: `${safeTitle(title)}_${h}p.mp4`,
-            }));
+        const files = combined.map(f => ({
+            format: `MP4 ${f.height}p`,
+            height: f.height,
+            yt_id,
+            quality: `${f.height}`,
+            size: f.filesize || f.filesize_approx || 0,
+            stream_url: f.url,
+            http_headers: f.http_headers || {},
+            name: `${safe}_${f.height}p.mp4`,
+        }));
 
-        const audio_files = [
-            {
-                format: 'MP3 320k', height: 0, yt_id,
-                quality: 'highestaudio',
-                size: duration ? Math.round(320 * 1000 / 8 * duration) : 0,
-                name: `${safeTitle(title)}_320k.mp3`,
-                is_audio: true,
-            },
-            {
-                format: 'MP3 128k', height: 0, yt_id,
-                quality: 'lowestaudio',
-                size: duration ? Math.round(128 * 1000 / 8 * duration) : 0,
-                name: `${safeTitle(title)}_128k.mp3`,
-                is_audio: true,
-            },
-        ];
+        const audio_files = audioFormats.slice(0, 2).map((f, i) => ({
+            format: i === 0 ? 'Audio HQ' : 'Audio LQ',
+            height: 0,
+            yt_id,
+            quality: 'audio',
+            size: f.filesize || f.filesize_approx || 0,
+            stream_url: f.url,
+            http_headers: f.http_headers || {},
+            name: `${safe}_audio.${f.ext || 'm4a'}`,
+            is_audio: true,
+        }));
 
-        if (!files.length) return res.json({ status: 'unavailable', files: [], audio_files: [] });
+        if (!files.length && !audio_files.length) {
+            return res.json({ status: 'unavailable', files: [], audio_files: [] });
+        }
 
         res.json({ status: 'downloadable', title, yt_id, thumbnail, files, audio_files });
     } catch (e) {
@@ -113,33 +114,37 @@ router.get('/extract', async (req, res) => {
     }
 });
 
-// ── Stream download directly to browser ──────────────────────────────────────
+// ── Stream: proxy the googlevideo.com URL to browser ─────────────────────────
 router.get('/stream', async (req, res) => {
-    const { yt_id, quality, filename, is_audio } = req.query;
-    if (!yt_id) return res.status(400).json({ error: 'Missing yt_id' });
+    const { stream_url, filename } = req.query;
+    if (!stream_url) return res.status(400).json({ error: 'Missing stream_url' });
 
-    const safeName = (filename || `${yt_id}.mp4`).replace(/[^\w\s.-]/g, '');
-    const url = `https://www.youtube.com/watch?v=${yt_id}`;
+    // Security: only allow googlevideo.com URLs
+    if (!stream_url.includes('googlevideo.com') && !stream_url.includes('youtube.com')) {
+        return res.status(400).json({ error: 'Invalid stream URL' });
+    }
+
+    const safeName = (filename || 'media').replace(/[^\w\s.-]/g, '');
 
     try {
-        const info = await ytdl.getInfo(url);
+        const upstream = await fetch(stream_url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36',
+                'Referer': 'https://www.youtube.com/',
+            },
+        });
+        if (!upstream.ok) throw new Error(`Upstream ${upstream.status}`);
 
         res.setHeader('Content-Disposition', `attachment; filename="${safeName}"`);
+        res.setHeader('Content-Type', upstream.headers.get('content-type') || 'video/mp4');
+        const cl = upstream.headers.get('content-length');
+        if (cl) res.setHeader('Content-Length', cl);
 
-        if (is_audio === 'true') {
-            res.setHeader('Content-Type', 'audio/mpeg');
-            ytdl(url, { quality: 'highestaudio', filter: 'audioonly' }).pipe(res);
-        } else {
-            res.setHeader('Content-Type', 'video/mp4');
-            const h = parseInt(quality) || 720;
-            // Try to get combined format first, fallback to best available
-            const fmt = ytdl.chooseFormat(info.formats, {
-                quality: 'highestvideo',
-                filter: f => f.height <= h && f.hasAudio && f.hasVideo
-            }) || ytdl.chooseFormat(info.formats, { quality: `${h}p` });
-
-            ytdl.downloadFromInfo(info, { format: fmt }).pipe(res);
-        }
+        upstream.body.pipeTo(new WritableStream({
+            write(chunk) { res.write(chunk); },
+            close() { res.end(); },
+            abort(e) { if (!res.headersSent) res.destroy(e); },
+        }));
 
         req.on('close', () => res.destroy());
     } catch (e) {

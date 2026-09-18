@@ -50,6 +50,9 @@ jspm_packages/
 uploads/
 public/uploads/
 
+# YouTube cookies (never commit)
+cookies.txt
+
 # IDE files
 .vscode/
 .idea/

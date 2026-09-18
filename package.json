@@ -28,7 +28,6 @@
   "author": "Pradip Kale",
   "license": "ISC",
   "dependencies": {
-    "@distube/ytdl-core": "^4.16.12",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",
     "@supabase/supabase-js": "^2.39.0",
