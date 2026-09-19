@@ -6,13 +6,20 @@ const router = Router();
 const exec = promisify(execFile);
 
 // yt-dlp with android client bypasses YouTube bot detection on server IPs
+// Try python3 first (Linux/Render), fallback to python (Windows)
 async function ytdlpInfo(url) {
-    const { stdout } = await exec('python', [
+    const args = [
         '-m', 'yt_dlp', '--dump-json', '--no-playlist',
         '--extractor-args', 'youtube:player_client=android,tv_embedded',
         '--no-warnings', url
-    ], { timeout: 25000 });
-    return JSON.parse(stdout);
+    ];
+    try {
+        const { stdout } = await exec('python3', args, { timeout: 25000 });
+        return JSON.parse(stdout);
+    } catch {
+        const { stdout } = await exec('python', args, { timeout: 25000 });
+        return JSON.parse(stdout);
+    }
 }
 
 function safeTitle(title = '') {
